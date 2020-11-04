@@ -1,2 +1,3 @@
 # filededuper
 need to compress your hardrive out of dupe files well your in luck....
+note: it doesn't do a deep de-dupe (zip files, archive files) that will come later ;)
