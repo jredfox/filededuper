@@ -28,12 +28,12 @@ public class Main {
 		File input = new File(scanner.nextLine());
 		File output = new File(input.getParent(), input.getName() + "-output");
 		List<File> files = getDirFiles(input, new String[]{"*"});
-		move2D(files, input, output, is1D);
+		move(files, input, output, is1D);
 		scanner.close();
 		System.out.println("finished " + (errored ? "with errors" : "successfully"));
 	}
 	
-	public static void move2D(List<File> files, File input, File outputDir, boolean sameDir)
+	public static void move(List<File> files, File input, File outputDir, boolean sameDir)
 	{
 		Set<String> hashes = getHashes(outputDir);
 		for(File f : files)
@@ -46,15 +46,14 @@ public class Main {
 					System.out.println("skipping dupe file:" + md5 + ", " + f);
 					continue;
 				}
-				File outputFile = sameDir ? (new File(outputDir, getFileTrueName(f) + "-" + md5 + "." + getExtension(f)) ) : new File(outputDir, getRealtivePath(input, f));
+				String hashName = getFileTrueName(f) + "-" + md5 + getExtensionFull(f);
+				File outputFile = sameDir ? (new File(outputDir,  hashName)) : new File(outputDir, getRealtivePath(input, f));
 				if(outputFile.exists())
 				{
-					outputFile = new File(outputFile.getParent(), getFileTrueName(f) + "-" + md5 + "." + getExtension(f));
+					outputFile = new File(outputFile.getParent(), hashName);
 					System.out.println("avoiding overwriting file:" + outputFile);
 				}
-				System.out.println(outputFile.getAbsolutePath());
-				outputFile.getParentFile().mkdirs();
-				Files.copy(f, new FileOutputStream(outputFile));
+				copy(f, outputFile);
 				hashes.add(md5);
 			}
 			catch(Exception e)
@@ -63,6 +62,16 @@ public class Main {
 				errored = true;
 			}
 		}
+	}
+	
+	/**
+	 * copy a file. preserve date modified, and create dirs if non existent
+	 */
+	public static void copy(File input, File output) throws FileNotFoundException, IOException
+	{
+		output.getParentFile().mkdirs();
+		Files.copy(input, new FileOutputStream(output));
+		output.setLastModified(input.lastModified());
 	}
 	
 	public static String getFileTrueName(File file)
@@ -115,6 +124,14 @@ public class Main {
 	        	getDirFiles(files, file, exts, blackList);
 	        }
 	    }
+	}
+	
+	public static String getExtensionFull(File file) 
+	{
+		String ext = getExtension(file);
+		if(!ext.isEmpty())
+			ext = "." + ext;
+		return ext;
 	}
 
 	public static String getExtension(File file) 
