@@ -18,6 +18,7 @@ import com.google.common.io.Files;
 public class Main {
 	
 	public static boolean errored;
+	public static final String VERSION = "0.2";
 	
 	public static void main(String[] args)
 	{
@@ -25,12 +26,13 @@ public class Main {
 		System.out.println("move all files to one directory T/F");
 		boolean is1D = scanner.nextLine().substring(0, 1).toLowerCase().equals("t");
 		System.out.println("input folder to de-dupe:");
+		long ms = System.currentTimeMillis();
 		File input = new File(scanner.nextLine());
 		File output = new File(input.getParent(), input.getName() + "-output");
 		List<File> files = getDirFiles(input, new String[]{"*"});
 		move(files, input, output, is1D);
 		scanner.close();
-		System.out.println("finished " + (errored ? "with errors" : "successfully"));
+		System.out.println("finished " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
 	}
 	
 	public static void move(List<File> files, File input, File outputDir, boolean sameDir)
