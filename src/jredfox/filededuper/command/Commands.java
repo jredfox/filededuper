@@ -1,0 +1,82 @@
+package jredfox.filededuper.command;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
+
+import jredfox.filededuper.DeDuperUtil;
+
+public class Commands {
+	
+	public static HashMap<String, Command> cmds = new HashMap<>();
+	
+	public static Command<File> genMd5s = new Command<File>("genMD5s")
+	{	
+		@Override
+		public void run(File... args) 
+		{
+			File dir = args[0];
+			List<File> files = DeDuperUtil.getDirFiles(dir, "*");//TODO: configurable extension for spreadsheet gen
+			List<String> outStrs = new ArrayList<String>(files.size() + 10);
+			Set<String> md5s = new HashSet(files.size() + 10);
+			outStrs.add("#name, md5, sha-256, date-modified, boolean modified(jar only), path");
+			for(File f : files)
+			{
+				String name = f.getName();
+				String md5 = DeDuperUtil.getMD5(f);
+				if(md5s.contains(md5))
+					continue;
+				String sha256 = DeDuperUtil.getSHA256(f);
+				long lastModified = f.lastModified();
+				String ext = DeDuperUtil.getExtension(f);
+				if(ext.equals("jar"))
+				{
+					//TODO:
+				}
+				String path = DeDuperUtil.getRealtivePath(dir, f);
+				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + false + "," + path);
+				md5s.add(md5);
+			}
+			File outputFile = new File(dir.getParent(), DeDuperUtil.getFileTrueName(dir) + "-output.csv");
+			DeDuperUtil.saveFileLines(outStrs, outputFile, true);
+		}
+
+		@Override
+		public File[] getParams(String... inputs) 
+		{
+			Scanner scanner = new Scanner(System.in);
+			System.out.println("input directory to spreadsheet:");
+			File dir = new File(scanner.nextLine());
+			if(!dir.exists())
+			{
+				throw new CMDMaulformedException("directory or file doesn't exist:" + dir);
+			}
+			return new File[]{ dir };
+		}
+	};
+	
+	public static Command<File> compareMD5s = new Command<File>("compareMD5s")
+	{	
+		@Override
+		public void run(File... files) 
+		{
+			
+		}
+
+		@Override
+		public File[] getParams(String... inputs) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	};
+	
+	public static Command getCommand(String id)
+	{
+		return cmds.get(id);
+	}
+
+}
