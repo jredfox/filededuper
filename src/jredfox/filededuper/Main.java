@@ -30,7 +30,7 @@ public class Main {
 			Command cmd = Commands.getCommand(programArgs[0]);
 			if(cmd == null)
 				throw new CMDNotFoundException("Command not found Exception:" + programArgs[0]);
-			Object[] cmdArgs = cmd.getParams();
+			Object[] cmdArgs = cmd.getParams(programArgs);
 			long ms = System.currentTimeMillis();
 			cmd.run(cmdArgs);
 			System.out.println("finished " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");

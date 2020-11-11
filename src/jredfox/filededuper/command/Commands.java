@@ -22,7 +22,7 @@ public class Commands {
 			File dir = args[0];
 			List<File> files = DeDuperUtil.getDirFiles(dir, "*");//TODO: configurable extension for spreadsheet gen
 			List<String> outStrs = new ArrayList<String>(files.size() + 10);
-			Set<String> md5s = new HashSet(files.size() + 10);
+			Set<String> md5s = new HashSet<>(files.size() + 10);
 			outStrs.add("#name, md5, sha-256, date-modified, boolean modified(jar only), path");
 			for(File f : files)
 			{
@@ -48,12 +48,20 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs) 
 		{
-			Scanner scanner = new Scanner(System.in);
-			System.out.println("input directory to spreadsheet:");
-			File dir = new File(scanner.nextLine());
-			if(!dir.exists())
+			File dir = null;
+			if(inputs.length < 2)
 			{
-				throw new CMDMaulformedException("directory or file doesn't exist:" + dir);
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input directory to spreadsheet:");
+				dir = new File(scanner.nextLine());
+				if(!dir.exists())
+				{
+					throw new CMDMaulformedException("directory or file doesn't exist:" + dir);
+				}
+			}
+			else
+			{
+				dir = new File(inputs[1]);
 			}
 			return new File[]{ dir };
 		}
@@ -68,8 +76,17 @@ public class Commands {
 		}
 
 		@Override
-		public File[] getParams(String... inputs) {
-			// TODO Auto-generated method stub
+		public File[] getParams(String... inputs)
+		{
+			if(inputs.length < 2)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input origin.csv");
+				File origin = new File(scanner.nextLine());
+				System.out.println("input compare.csv");
+				File compare = new File(scanner.nextLine());
+				return new File[]{origin, compare};
+			}
 			return null;
 		}
 	};

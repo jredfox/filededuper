@@ -86,7 +86,18 @@ public class DeDuperUtil {
 		return list;
 	}
 	
-	public static List<File> getDirFiles(File dir, String... ext)
+	/**
+	 * get a list of files from a file or directory
+	 */
+	public static List<File> getDirFiles(File dir, String... exts)
+	{
+		return getDirFiles(dir, exts, false);
+	}
+	
+	/**
+	 * get a list of files from a file or directory. has blacklist extension support
+	 */
+	public static List<File> getDirFiles(File dir, String[] exts, boolean blackList) 
 	{
 		if(!dir.isDirectory())
 		{
@@ -95,11 +106,11 @@ public class DeDuperUtil {
 			return li;
 		}
 		List<File> list = new ArrayList<>(dir.listFiles().length + 10);
-		getDirFiles(list, dir, ext, false);
+		getDirFiles(list, dir, exts, false);
 		return list;
 	}
 	
-	public static void getDirFiles(List<File> files, File dir, String[] exts, boolean blackList) 
+	protected static void getDirFiles(List<File> files, File dir, String[] exts, boolean blackList) 
 	{
 		if(blackList && exts[0].equals("*"))//this says to blacklist any file so don't do anything
 			return;
