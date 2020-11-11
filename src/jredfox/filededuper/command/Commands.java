@@ -17,6 +17,27 @@ public class Commands {
 	public static Command<File> genMd5s = new Command<File>("genMD5s")
 	{	
 		@Override
+		public File[] getParams(String... inputs) 
+		{
+			File dir = null;
+			if(inputs.length < 2)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input directory to spreadsheet:");
+				dir = new File(scanner.nextLine());
+				if(!dir.exists())
+				{
+					throw new CMDMaulformedException("directory or file doesn't exist:" + dir);
+				}
+			}
+			else
+			{
+				dir = new File(inputs[1]);
+			}
+			return new File[]{ dir };
+		}
+		
+		@Override
 		public void run(File... args) 
 		{
 			File dir = args[0];
@@ -44,37 +65,10 @@ public class Commands {
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getFileTrueName(dir) + "-output.csv");
 			DeDuperUtil.saveFileLines(outStrs, outputFile, true);
 		}
-
-		@Override
-		public File[] getParams(String... inputs) 
-		{
-			File dir = null;
-			if(inputs.length < 2)
-			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input directory to spreadsheet:");
-				dir = new File(scanner.nextLine());
-				if(!dir.exists())
-				{
-					throw new CMDMaulformedException("directory or file doesn't exist:" + dir);
-				}
-			}
-			else
-			{
-				dir = new File(inputs[1]);
-			}
-			return new File[]{ dir };
-		}
 	};
 	
 	public static Command<File> compareMD5s = new Command<File>("compareMD5s")
 	{	
-		@Override
-		public void run(File... files) 
-		{
-			
-		}
-
 		@Override
 		public File[] getParams(String... inputs)
 		{
@@ -87,7 +81,13 @@ public class Commands {
 				File compare = new File(scanner.nextLine());
 				return new File[]{origin, compare};
 			}
-			return null;
+			return new File[]{new File(inputs[1]), new File(inputs[2])};
+		}
+		
+		@Override
+		public void run(File... files) 
+		{
+			
 		}
 	};
 	
@@ -95,5 +95,46 @@ public class Commands {
 	{
 		return cmds.get(id);
 	}
+	
+	public static Command<File> deDupe = new Command<File>("deDupe")
+	{
+		@Override
+		public File[] getParams(String... inputs) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
+		@Override
+		public void run(File... agrs) {
+			// TODO Auto-generated method stub
+		}
+	};
+	
+	public static Command<File> deepCompare = new Command<File>("deepCompare")
+	{
+		@Override
+		public File[] getParams(String... inputs) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void run(File... agrs) {
+			// TODO Auto-generated method stub
+		}
+	};
+
+	public static Command<File> checkJar = new Command<File>("checkJar")
+	{
+		@Override
+		public File[] getParams(String... inputs) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void run(File... agrs) {
+			// TODO Auto-generated method stub
+		}
+	};
 }
