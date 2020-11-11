@@ -28,47 +28,14 @@ public class Main {
 		File input = new File(scanner.nextLine());
 		File output = new File(input.getParent(), input.getName() + "-output");
 		List<File> files = getDirFiles(input, new String[]{"*"});
-		if(is1D)
-		{
-			move1D(files, output);
-		}
-		else
-		{
-			move2D(files, input, output);
-		}
+		move2D(files, input, output, is1D);
 		scanner.close();
 		System.out.println("finished " + (errored ? "with errors" : "successfully"));
 	}
 	
-	public static void move1D(List<File> files, File dir)
+	public static void move2D(List<File> files, File input, File outputDir, boolean sameDir)
 	{
-		Set<String> hashes = getMD5S(dir);
-		for(File f : files)
-		{
-			try
-			{
-				String md5 = getMD5(f);
-				if(hashes.contains(md5))
-				{
-					System.out.println("skipping dupe:" + md5 + ", " + f);
-					continue;
-				}
-				File output = new File(dir, getFileTrueName(f) + "-" + md5 + "." + getExtension(f));
-				output.getParentFile().mkdirs();
-				Files.copy(f, new FileOutputStream(output));
-				hashes.add(md5);
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-				errored = true;
-			}
-		}
-	}
-	
-	public static void move2D(List<File> files, File input, File outputDir)
-	{
-		Set<String> hashes = getMD5S(outputDir);
+		Set<String> hashes = getHashes(outputDir);
 		for(File f : files)
 		{
 			try
@@ -79,12 +46,13 @@ public class Main {
 					System.out.println("skipping dupe file:" + md5 + ", " + f);
 					continue;
 				}
-				File outputFile = new File(outputDir, getRealtivePath(input, f));
+				File outputFile = sameDir ? (new File(outputDir, getFileTrueName(f) + "-" + md5 + "." + getExtension(f)) ) : new File(outputDir, getRealtivePath(input, f));
 				if(outputFile.exists())
 				{
 					outputFile = new File(outputFile.getParent(), getFileTrueName(f) + "-" + md5 + "." + getExtension(f));
 					System.out.println("avoiding overwriting file:" + outputFile);
 				}
+				System.out.println(outputFile.getAbsolutePath());
 				outputFile.getParentFile().mkdirs();
 				Files.copy(f, new FileOutputStream(outputFile));
 				hashes.add(md5);
@@ -110,7 +78,7 @@ public class Main {
 		return fpath.substring(dir.getPath().indexOf(dir.getPath()) + dir.getPath().length() + 1, fpath.length());
 	}
 
-	public static Set<String> getMD5S(File dir)
+	public static Set<String> getHashes(File dir)
 	{
 		if(!dir.exists())
 			return new HashSet<>(0);
