@@ -14,6 +14,14 @@ public class Commands {
 	
 	public static HashMap<String, Command> cmds = new HashMap<>();
 	
+	/**
+	 * get a command based on it's id
+	 */
+	public static Command getCommand(String id)
+	{
+		return cmds.get(id);
+	}
+	
 	public static Command<File> genMd5s = new Command<File>("genMD5s")
 	{	
 		@Override
@@ -87,14 +95,10 @@ public class Commands {
 		@Override
 		public void run(File... files) 
 		{
-			
+			File origin = files[0];
+			File compare = files[1];
 		}
 	};
-	
-	public static Command getCommand(String id)
-	{
-		return cmds.get(id);
-	}
 	
 	public static Command<File> deDupe = new Command<File>("deDupe")
 	{
