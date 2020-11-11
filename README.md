@@ -8,5 +8,5 @@ Future:
 - deep unzip for zip / jar files
 - deep comping for zip / jar files
 - spreadsheet comparing(name, md5, sha-256, date-modified, boolean modified(zip / jar only), paths....)
-- jar modification command
+- jar modification check command
 - deep unzip command
