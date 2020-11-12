@@ -1,12 +1,21 @@
 package jredfox.filededuper.command;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import jredfox.filededuper.DeDuperUtil;
 import jredfox.filededuper.config.csv.CSV;
@@ -81,7 +90,7 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs)
 		{
-			if(inputs.length < 3)
+			if(inputs.length < 2)
 			{
 				Scanner scanner = new Scanner(System.in);
 				System.out.println("input origin.csv");
@@ -104,7 +113,7 @@ public class Commands {
 			compare.parse();
 			
 			//fetch the md5s from the origin
-			Set<String> md5s = new HashSet(origin.lines.size());
+			Set<String> md5s = new HashSet(origin.lines.size() + 10);
 			for(String[] line : origin.lines)
 			{
 				md5s.add(line[1]);
@@ -164,14 +173,73 @@ public class Commands {
 	public static Command<File> checkJar = new Command<File>("checkJar")
 	{
 		@Override
-		public File[] getParams(String... inputs) {
-			// TODO Auto-generated method stub
-			return null;
+		public File[] getParams(String... inputs)
+		{
+			if(inputs.length < 2)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input jar to check:");
+				File toCheck = new File(scanner.nextLine());
+				System.out.println("input jar of origin:");
+				File origin = new File(scanner.nextLine());
+				return new File[]{toCheck, origin};
+			}
+			return new File[]{new File(inputs[1]), new File(inputs[2])};
 		}
 
 		@Override
-		public void run(File... agrs) {
-			// TODO Auto-generated method stub
+		public void run(File... args)
+		{
+			try
+			{
+			List<String> arr = new ArrayList();
+			File toCheck = args[0];
+			ZipFile zip = new ZipFile(toCheck);
+			Enumeration entries = zip.entries();
+			while(entries.hasMoreElements())
+			{
+				ZipEntry entry = (ZipEntry) entries.nextElement();
+				if(entry.isDirectory())
+				{
+					continue;
+				}
+				byte[] memory = extractInMemory(zip, entry);
+				String md5 = DeDuperUtil.getMD5(new ByteArrayInputStream(memory));
+				long lastModified = entry.getTime();
+				arr.add(new File(entry.getName()).getName() + "," + md5 + "," + lastModified);
+			}
+			DeDuperUtil.saveFileLines(arr, new File(toCheck.getParent(), "test.csv"), true);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 	};
+	
+	/**
+	 * get the byte[] in memory from a zip entry
+	 * @throws IOException 
+	 */
+	public static byte[] extractInMemory(ZipFile zipFile, ZipEntry entry) throws IOException
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		InputStream zis = zipFile.getInputStream(entry);
+		 int len;
+         while ((len = zis.read(buffer)) > 0) 
+         {
+             out.write(buffer, 0, len);
+         }
+		return out.toByteArray();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

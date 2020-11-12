@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -158,7 +159,7 @@ public class DeDuperUtil {
 	{
 		try
 		{
-			return DigestUtils.md5Hex(new FileInputStream(f)).toUpperCase();
+			return getMD5(new FileInputStream(f));
 		}
 		catch(Exception e)
 		{
@@ -167,17 +168,27 @@ public class DeDuperUtil {
 		return null;
 	}
 	
+	public static String getMD5(InputStream input) throws IOException
+	{
+		return DigestUtils.md5Hex(input).toUpperCase();
+	}
+	
 	public static String getSHA256(File f)
 	{
 		try
 		{
-			return DigestUtils.sha256Hex(new FileInputStream(f)).toUpperCase();
+			return getSHA256(new FileInputStream(f));
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static String getSHA256(InputStream input) throws IOException
+	{
+		return DigestUtils.sha256Hex(input).toUpperCase();
 	}
 	
 	/**
