@@ -1,6 +1,5 @@
 package jredfox.filededuper.command;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -9,13 +8,13 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 import jredfox.filededuper.DeDuperUtil;
 import jredfox.filededuper.config.csv.CSV;
@@ -180,11 +179,11 @@ public class Commands {
 				Scanner scanner = new Scanner(System.in);
 				System.out.println("input jar to check:");
 				File toCheck = new File(scanner.nextLine());
-				System.out.println("input jar of origin:");
-				File origin = new File(scanner.nextLine());
-				return new File[]{toCheck, origin};
+//				System.out.println("input jar of origin:");
+//				File origin = new File(scanner.nextLine());
+				return new File[]{toCheck};
 			}
-			return new File[]{new File(inputs[1]), new File(inputs[2])};
+			return new File[]{new File(inputs[1]), inputs.length == 3 ? new File(inputs[2]) : new File(inputs[1])};
 		}
 
 		@Override
@@ -192,23 +191,19 @@ public class Commands {
 		{
 			try
 			{
-			List<String> arr = new ArrayList();
 			File toCheck = args[0];
 			ZipFile zip = new ZipFile(toCheck);
-			Enumeration entries = zip.entries();
-			while(entries.hasMoreElements())
+			List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
+			long compileTime = DeDuperUtil.getCompileTime(entryList);
+			long maxTime = compileTime + ( (1000L * 60L) * 30L);//TODO:
+			for(ZipEntry entry : entryList)
 			{
-				ZipEntry entry = (ZipEntry) entries.nextElement();
-				if(entry.isDirectory())
+				long time = entry.getTime();
+				if( (entry.getName().endsWith(".class") || entry.getName().startsWith("META-INF/")) && time > maxTime)
 				{
-					continue;
+					System.out.println("modified file detected: compileTime:" + compileTime + ",classTime:" + time + "," + entry.getName());
 				}
-				byte[] memory = extractInMemory(zip, entry);
-				String md5 = DeDuperUtil.getMD5(new ByteArrayInputStream(memory));
-				long lastModified = entry.getTime();
-				arr.add(new File(entry.getName()).getName() + "," + md5 + "," + lastModified);
 			}
-			DeDuperUtil.saveFileLines(arr, new File(toCheck.getParent(), "test.csv"), true);
 			}
 			catch(Exception e)
 			{
@@ -218,28 +213,32 @@ public class Commands {
 	};
 	
 	/**
-	 * get the byte[] in memory from a zip entry
-	 * @throws IOException 
+	 * sets the time stamp to a specified file
 	 */
-	public static byte[] extractInMemory(ZipFile zipFile, ZipEntry entry) throws IOException
+	public static Command<Object> setTimeStamp = new Command<Object>("setTimeStamp")
 	{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		InputStream zis = zipFile.getInputStream(entry);
-		 int len;
-         while ((len = zis.read(buffer)) > 0) 
-         {
-             out.write(buffer, 0, len);
-         }
-		return out.toByteArray();
-	}
-	
-	
-	
-	
-	
-	
-	
-	
+		@Override
+		public Object[] getParams(String... inputs) 
+		{
+			if(inputs.length == 1)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input file:");
+				File file = new File(scanner.nextLine());
+				System.out.println("input timestamp in ms:");
+				long timestamp = Long.parseLong(scanner.nextLine());
+				return new Object[]{file, timestamp};
+			}
+			return new Object[]{new File(inputs[1]), Long.parseLong(inputs[2])};
+		}
+
+		@Override
+		public void run(Object... args) 
+		{
+			File file = (File) args[0];
+			long timestamp = (long) args[1];
+			file.setLastModified(timestamp);
+		}
+	};
 	
 }

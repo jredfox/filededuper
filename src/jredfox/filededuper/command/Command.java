@@ -11,6 +11,6 @@ public abstract class Command<T> {
 	}
 	
 	public abstract T[] getParams(String... inputs);
-	public abstract void run(T... agrs);
+	public abstract void run(T... args);
 
 }

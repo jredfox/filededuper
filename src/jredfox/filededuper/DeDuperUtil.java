@@ -2,6 +2,7 @@ package jredfox.filededuper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,9 +14,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -311,6 +318,61 @@ public class DeDuperUtil {
 	public static BufferedReader getReader(String input)
 	{
 		return new BufferedReader(new InputStreamReader(DeDuperUtil.class.getClassLoader().getResourceAsStream(input)));
+	}
+
+	public static boolean isWithinRange(long min, long max, long num) 
+	{
+		return num >= min && num <= max;
+	}
+	
+	public static List<ZipEntry> getZipEntries(ZipFile zip) 
+	{
+		List<ZipEntry> entryList = new ArrayList<>(100);
+		Enumeration entries = zip.entries();
+		while(entries.hasMoreElements())
+		{
+			ZipEntry entry = (ZipEntry) entries.nextElement();
+			if(entry.isDirectory())
+				continue;
+			entryList.add(entry);
+		}
+		return entryList;
+	}
+	
+	/**
+	 * gets the most likely compiledTime based on lowest date modified of the class file
+	 */
+	public static long getCompileTime(List<ZipEntry> entries)
+	{
+		long ms = -1;
+		for(ZipEntry e : entries)
+		{
+			if(!e.getName().endsWith(".class"))
+				continue;
+			long time = e.getTime();
+			if(time < ms || ms == -1)
+			{
+				ms = time;
+			}
+		}
+		return ms;
+	}
+	
+	/**
+	 * get the byte[] in memory from a zip entry
+	 * @throws IOException 
+	 */
+	public static byte[] extractInMemory(ZipFile zipFile, ZipEntry entry) throws IOException
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		InputStream zis = zipFile.getInputStream(entry);
+		 int len;
+         while ((len = zis.read(buffer)) > 0) 
+         {
+             out.write(buffer, 0, len);
+         }
+		return out.toByteArray();
 	}
 
 }
