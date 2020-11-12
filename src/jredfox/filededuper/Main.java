@@ -21,7 +21,7 @@ import jredfox.filededuper.command.Commands;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.2.0";
+	public static final String VERSION = "0.3.0";
 	
 	public static void main(String[] programArgs)
 	{

@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 import jredfox.filededuper.DeDuperUtil;
+import jredfox.filededuper.config.csv.CSV;
 
 public class Commands {
 	
@@ -22,7 +23,7 @@ public class Commands {
 		return cmds.get(id);
 	}
 	
-	public static Command<File> genMd5s = new Command<File>("genMD5s")
+	public static Command<File> genMD5s = new Command<File>("genMD5s")
 	{	
 		@Override
 		public File[] getParams(String... inputs) 
@@ -31,7 +32,7 @@ public class Commands {
 			if(inputs.length < 2)
 			{
 				Scanner scanner = new Scanner(System.in);
-				System.out.println("input directory to spreadsheet:");
+				System.out.println("input directory to generate a spreadsheet:");
 				dir = new File(scanner.nextLine());
 				if(!dir.exists())
 				{
@@ -80,7 +81,7 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs)
 		{
-			if(inputs.length < 2)
+			if(inputs.length < 3)
 			{
 				Scanner scanner = new Scanner(System.in);
 				System.out.println("input origin.csv");
@@ -95,8 +96,40 @@ public class Commands {
 		@Override
 		public void run(File... files) 
 		{
-			File origin = files[0];
-			File compare = files[1];
+			CSV origin = new CSV(files[0]);
+			CSV compare = new CSV(files[1]);
+			CSV output = new CSV(new File(origin.file.getParent(), DeDuperUtil.getFileTrueName(origin.file) + "-compared.csv"));
+			output.add("#name, md5, sha-256, date-modified, boolean modified(jar only), path");
+			origin.parse();
+			compare.parse();
+			
+			//fetch the md5s from the origin
+			Set<String> md5s = new HashSet(origin.lines.size());
+			for(String[] line : origin.lines)
+			{
+				md5s.add(line[1]);
+			}
+			
+			//inject any new entries
+			for(String[] line : compare.lines)
+			{
+				String md5 = line[1];
+				if(!md5s.contains(md5))
+				{
+					output.lines.add(line);
+					md5s.add(md5);
+				}
+			}
+			
+			output.file.delete();
+			if(output.lines.size() > 1)
+			{
+				output.save();
+			}
+			else
+			{
+				System.out.println("NO NEW FILES FOUND");
+			}
 		}
 	};
 	

@@ -1,5 +1,6 @@
 package jredfox.filededuper;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -218,6 +220,86 @@ public class DeDuperUtil {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Equivalent to Files.readAllLines() but, works way faster
+	 */
+	public static List<String> getFileLines(File f)
+	{
+		return getFileLines(getReader(f));
+	}
+	
+	public static List<String> getFileLines(String input) 
+	{
+		return getFileLines(getReader(input));
+	}
+	
+	public static List<String> getFileLines(BufferedReader reader) 
+	{
+		List<String> list = null;
+		try
+		{
+			list = new ArrayList();
+			String s = reader.readLine();
+			
+			if(s != null)
+			{
+				list.add(s);
+			}
+			
+			while(s != null)
+			{
+				s = reader.readLine();
+				if(s != null)
+				{
+					list.add(s);
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			if(reader != null)
+			{
+				try 
+				{
+					reader.close();
+				} catch (IOException e) 
+				{
+					System.out.println("Unable to Close InputStream this is bad");
+				}
+			}
+		}
+		return list;
+	}
+	
+	/**
+	 * even though it's utf8 writing it's the fastes one I tried 5 different other options from different objects
+	 */
+	public static BufferedWriter getWriter(File f) throws FileNotFoundException, IOException
+	{
+		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
+	}
+	
+	public static BufferedReader getReader(File f)
+	{
+		 try
+		 {
+			 return new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8));
+		 }
+		 catch(Throwable t)
+		 {
+			 return null;
+		 }
+	}
+	
+	public static BufferedReader getReader(String input)
+	{
+		return new BufferedReader(new InputStreamReader(DeDuperUtil.class.getClassLoader().getResourceAsStream(input)));
 	}
 
 }
