@@ -3,10 +3,10 @@ is your hardrive zips within zips dupes within dupes? Then this program is for y
 
 Features:
 - de-dupe a directory
+- spreadsheet generation & comparing
 
 Future:
 - deep unzip for zip / jar files
 - deep comping for zip / jar files
-- spreadsheet comparing(name, md5, sha-256, date-modified, boolean modified(zip / jar only), paths....)
 - jar modification check command
 - deep unzip command
