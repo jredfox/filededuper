@@ -239,7 +239,7 @@ public class Commands {
 			if(inputs.length == 1)
 			{
 				Scanner scanner = new Scanner(System.in);
-				System.out.println("input file:");
+				System.out.println("input file to getTimeStamp:");
 				File file = new File(scanner.nextLine());
 				return new File[]{file};
 			}
@@ -250,7 +250,7 @@ public class Commands {
 		public void run(File... args) 
 		{
 			File file = (File) args[0];
-			System.out.println(file.lastModified());
+			System.out.println(file.exists() ? ("" + file.lastModified()) : ("INVALID FILE" + file));
 		}
 	};
 	

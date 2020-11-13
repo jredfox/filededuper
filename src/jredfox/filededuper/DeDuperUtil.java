@@ -1,7 +1,5 @@
 package jredfox.filededuper;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -17,14 +15,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -375,13 +369,8 @@ public class DeDuperUtil {
 	public static byte[] extractInMemory(ZipFile zipFile, ZipEntry entry) throws IOException
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		InputStream zis = zipFile.getInputStream(entry);
-		 int len;
-         while ((len = zis.read(buffer)) > 0) 
-         {
-             out.write(buffer, 0, len);
-         }
+		InputStream input = zipFile.getInputStream(entry);
+		copy(input, out, true);
 		return out.toByteArray();
 	}
 	
@@ -451,57 +440,67 @@ public class DeDuperUtil {
 				entriesOut.add(entry);
 			}
 		}
-		if(!entriesOut.isEmpty())
-		{
-			System.out.println("modified jar detected:" + jar);
-		}
-		
-		//start the output. Sadley can't use a zip api here to directly add zip files from one to the other as timestamps were broken
-		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output");
+		if(entriesOut.isEmpty())
+			return;
+		System.out.println("modified jar detected:" + jar);
+		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
+		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outputDir));
 		for(ZipEntry e : entriesOut)
 		{
-			long time = e.getTime();
-			File file = new File(outputDir, e.getName());
-			if(!file.getParentFile().exists())
-				file.getParentFile().mkdirs();
-			copy(zip.getInputStream(e), new FileOutputStream(file));
-			file.setLastModified(time);
+			ZipEntry outEntry = new ZipEntry(e.getName());
+			outEntry.setTime(e.getTime());
+			out.putNextEntry(outEntry);
+			InputStream stream = zip.getInputStream(e);
+			copy(stream, out, false);
+			stream.close();
 		}
+		out.close();
+		
+//		for(ZipEntry e : entriesOut)
+//		{
+//			long time = e.getTime();
+//			File file = new File(outputDir, e.getName());
+//			file.getParentFile().mkdirs();
+//			copy(zip.getInputStream(e), new FileOutputStream(file), true);
+//			file.setLastModified(time);
+//		}
 		zip.close();
 	}
 	
-	public static void copy(InputStream orgIn, OutputStream orgOut) throws IOException
+	public static void copy(InputStream in, OutputStream out, boolean close) throws IOException
 	{
 		byte[] buffer = new byte[1048576/2];
-		BufferedInputStream in = new BufferedInputStream(orgIn);
-		BufferedOutputStream out = new BufferedOutputStream(orgOut);
 		int length;
    	 	while ((length = in.read(buffer)) > 0)
 		{
 			out.write(buffer, 0, length);
 		}
-   	 	in.close();
-   	 	out.close();
+   	 	if(close)
+   	 	{
+   	 		in.close();
+   	 		out.close();
+   	 	}
 	}
 
 	public static void checkJar(File jar, File org) throws ZipException, IOException
 	{
 		ZipFile zip = new ZipFile(jar);
 		ZipFile orgZip = new ZipFile(org);
-		List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
-		for(ZipEntry entry : entryList)
+		List<ZipEntry> entries = DeDuperUtil.getZipEntries(zip);
+		List<ZipEntry> entriesOut = new ArrayList();
+		for(ZipEntry entry : entries)
 		{
 			ZipEntry orgEntry = orgZip.getEntry(entry.getName());
 			if(orgEntry == null)
 			{
-				System.out.println("new modded file:" + entry.getName());
+				entriesOut.add(entry);
 				continue;
 			}
 			String md5 = DeDuperUtil.getMD5(zip, entry);
 			String orgMd5 = DeDuperUtil.getMD5(orgZip, orgEntry);
 			if(!md5.equals(orgMd5))
 			{
-				System.out.println("modded file:" + md5 + "," + orgMd5 + "," + entry.getName());
+				entriesOut.add(entry);
 			}
 		}
 		//compare jarOrg with jar to detect missing files
@@ -513,6 +512,20 @@ public class DeDuperUtil {
 				System.out.println("missing file:" + e);
 			}
 		}
+		
+		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
+		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outputDir));
+		for(ZipEntry e : entriesOut)
+		{
+			ZipEntry outEntry = new ZipEntry(e.getName());
+			outEntry.setTime(e.getTime());
+			out.putNextEntry(outEntry);
+			InputStream stream = zip.getInputStream(e);
+			copy(stream, out, false);
+			stream.close();
+		}
+		out.close();
+		
 		zip.close();
 		orgZip.close();
 	}
