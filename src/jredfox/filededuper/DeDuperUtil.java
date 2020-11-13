@@ -459,6 +459,7 @@ public class DeDuperUtil {
 		for(ZipEntry e : entriesOut)
 		{
 			ZipEntry newEntry = new ZipEntry(e.getName());
+			long time = e.getTime();
 			newEntry.setTime(e.getTime());
 			newEntry.setLastModifiedTime(e.getLastModifiedTime());
 			newEntry.setLastAccessTime(e.getLastAccessTime());
@@ -472,7 +473,9 @@ public class DeDuperUtil {
        	 	{
        	 		outputStream.write(buffer, 0, len);
        	 	}
+       	 	newEntry.setTime(time);
        	 	input.close();
+       	 	newEntry.setTime(time);
 		}
 		outputStream.close();
 		zip.close();
