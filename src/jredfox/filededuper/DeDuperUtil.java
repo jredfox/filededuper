@@ -296,7 +296,7 @@ public class DeDuperUtil {
 	}
 	
 	/**
-	 * even though it's utf8 writing it's the fastes one I tried 5 different other options from different objects
+	 * even though it's utf8 writing it's the fastest one I tried 5 different other options from different objects
 	 */
 	public static BufferedWriter getWriter(File f) throws FileNotFoundException, IOException
 	{
@@ -345,6 +345,7 @@ public class DeDuperUtil {
 	public static long getCompileTime(List<ZipEntry> entries)
 	{
 		long ms = -1;
+		ZipEntry compileTime = null;
 		for(ZipEntry e : entries)
 		{
 			if(!e.getName().endsWith(".class"))
@@ -353,8 +354,10 @@ public class DeDuperUtil {
 			if(time < ms || ms == -1)
 			{
 				ms = time;
+				compileTime = e;
 			}
 		}
+		System.out.println("compileTimeClass:\t" + compileTime);
 		return ms;
 	}
 	

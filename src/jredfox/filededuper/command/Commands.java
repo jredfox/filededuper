@@ -170,7 +170,7 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs)
 		{
-			if(inputs.length < 2)
+			if(inputs.length == 1)
 			{
 				Scanner scanner = new Scanner(System.in);
 				System.out.println("input jar to check:");
@@ -197,9 +197,9 @@ public class Commands {
 				long time = entry.getTime();
 				String md5 = DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
 				String orgMd5 = DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(orgZip, orgZip.getEntry(entry.getName()))));
-				if( (entry.getName().endsWith(".class") || entry.getName().startsWith("META-INF/")) && time > maxTime)
+				if(time > maxTime)
 				{
-					System.out.println("modified file:" + entry.getName() + "," + time + ", compileTime:" + compileTime);
+					System.out.println("modified file:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", maxTime:" + maxTime);
 					//TODO: WIP
 				}
 				else if(!md5.equals(orgMd5))
@@ -241,6 +241,32 @@ public class Commands {
 			File file = (File) args[0];
 			long timestamp = (long) args[1];
 			file.setLastModified(timestamp);
+		}
+	};
+	
+	/**
+	 * sets the time stamp to a specified file
+	 */
+	public static Command<File> getTimeStamp = new Command<File>("getTimeStamp")
+	{
+		@Override
+		public File[] getParams(String... inputs) 
+		{
+			if(inputs.length == 1)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input file:");
+				File file = new File(scanner.nextLine());
+				return new File[]{file};
+			}
+			return new File[]{new File(inputs[1])};
+		}
+
+		@Override
+		public void run(File... args) 
+		{
+			File file = (File) args[0];
+			System.out.println(file.lastModified());
 		}
 	};
 	
