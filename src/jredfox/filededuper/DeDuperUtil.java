@@ -1,5 +1,7 @@
 package jredfox.filededuper;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -12,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.attribute.FileTime;
@@ -439,10 +442,6 @@ public class DeDuperUtil {
 		for(ZipEntry entry : entries)
 		{
 			long time = entry.getTime();
-			if(entry.getName().equals("char.png"))
-			{
-				System.out.println(entry.getTime());
-			}
 			if(time > maxTime)
 			{
 				entriesOut.add(entry);
@@ -452,35 +451,39 @@ public class DeDuperUtil {
 				entriesOut.add(entry);
 			}
 		}
+		if(!entriesOut.isEmpty())
+		{
+			System.out.println("modified jar detected:" + jar);
+		}
 		
-		//start the output
-		File output = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
-		ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(output));
+		//start the output. Sadley can't use a zip api here to directly add zip files from one to the other as timestamps were broken
+		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output");
 		for(ZipEntry e : entriesOut)
 		{
-			ZipEntry newEntry = new ZipEntry(e.getName());
 			long time = e.getTime();
-			newEntry.setTime(e.getTime());
-			newEntry.setLastModifiedTime(e.getLastModifiedTime());
-			newEntry.setLastAccessTime(e.getLastAccessTime());
-			newEntry.setCreationTime(e.getCreationTime());
-			System.out.println(newEntry + "," + newEntry.getTime());
-			outputStream.putNextEntry(newEntry);
-			byte[] buffer = new byte[1048576/2];//Half a megabyte per iteration
-       	 	InputStream input = zip.getInputStream(e);
-       	 	int len;
-       	 	while ((len = input.read(buffer)) > 0) 
-       	 	{
-       	 		outputStream.write(buffer, 0, len);
-       	 	}
-       	 	newEntry.setTime(time);
-       	 	input.close();
-       	 	newEntry.setTime(time);
+			File file = new File(outputDir, e.getName());
+			if(!file.getParentFile().exists())
+				file.getParentFile().mkdirs();
+			copy(zip.getInputStream(e), new FileOutputStream(file));
+			file.setLastModified(time);
 		}
-		outputStream.close();
 		zip.close();
 	}
 	
+	public static void copy(InputStream orgIn, OutputStream orgOut) throws IOException
+	{
+		byte[] buffer = new byte[1048576/2];
+		BufferedInputStream in = new BufferedInputStream(orgIn);
+		BufferedOutputStream out = new BufferedOutputStream(orgOut);
+		int length;
+   	 	while ((length = in.read(buffer)) > 0)
+		{
+			out.write(buffer, 0, length);
+		}
+   	 	in.close();
+   	 	out.close();
+	}
+
 	public static void checkJar(File jar, File org) throws ZipException, IOException
 	{
 		ZipFile zip = new ZipFile(jar);
