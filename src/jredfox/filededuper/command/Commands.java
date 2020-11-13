@@ -1,5 +1,6 @@
 package jredfox.filededuper.command;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -186,17 +187,23 @@ public class Commands {
 		{
 			try
 			{
-			File toCheck = args[0];
-			ZipFile zip = new ZipFile(toCheck);
+			ZipFile zip = new ZipFile(args[0]);
+			ZipFile orgZip = new ZipFile(args[1]);
 			List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
 			long compileTime = DeDuperUtil.getCompileTime(entryList);
 			long maxTime = compileTime + ( (1000L * 60L) * Main.time);
 			for(ZipEntry entry : entryList)
 			{
 				long time = entry.getTime();
+				String md5 = DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+				String orgMd5 = DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(orgZip, orgZip.getEntry(entry.getName()))));
 				if( (entry.getName().endsWith(".class") || entry.getName().startsWith("META-INF/")) && time > maxTime)
 				{
-					System.out.println("modified file detected: compileTime:" + compileTime + ",classTime:" + time + "," + entry.getName());
+					//TODO: WIP
+				}
+				else if(!md5.equals(orgMd5))
+				{
+					
 				}
 			}
 			}
