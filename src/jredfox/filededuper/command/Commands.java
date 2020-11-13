@@ -192,6 +192,7 @@ public class Commands {
 			List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
 			long compileTime = DeDuperUtil.getCompileTime(entryList);
 			long maxTime = compileTime + ( (1000L * 60L) * Main.time);
+			long minTime = compileTime - ( (1000L * 60L) * Main.time);
 			for(ZipEntry entry : entryList)
 			{
 				long time = entry.getTime();
@@ -200,7 +201,10 @@ public class Commands {
 				if(time > maxTime)
 				{
 					System.out.println("modified file:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", maxTime:" + maxTime);
-					//TODO: WIP
+				}
+				else if(time < minTime && entry.getName().startsWith("META-INF/"))
+				{
+					System.out.println("modified META-INF:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", minTime:" + minTime);
 				}
 				else if(!md5.equals(orgMd5))
 				{
