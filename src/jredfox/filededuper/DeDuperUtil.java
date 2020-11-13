@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -428,22 +430,52 @@ public class DeDuperUtil {
 	public static void checkJar(File jar) throws ZipException, IOException
 	{
 		ZipFile zip = new ZipFile(jar);
-		List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
-		long compileTime = DeDuperUtil.getCompileTime(entryList);
+		List<ZipEntry> entriesOut = new ArrayList();
+		List<ZipEntry> entries = DeDuperUtil.getZipEntries(zip);
+		long compileTime = DeDuperUtil.getCompileTime(entries);
 		long maxTime = compileTime + ( (1000L * 60L) * Main.time);
 		long minTime = compileTime - ( (1000L * 60L) * Main.time);
-		for(ZipEntry entry : entryList)
+		
+		for(ZipEntry entry : entries)
 		{
 			long time = entry.getTime();
+			if(entry.getName().equals("char.png"))
+			{
+				System.out.println(entry.getTime());
+			}
 			if(time > maxTime)
 			{
-				System.out.println("modified file:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", maxTime:" + maxTime);
+				entriesOut.add(entry);
 			}
 			else if(time < minTime && entry.getName().startsWith("META-INF/"))
 			{
-				System.out.println("modified META-INF:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", minTime:" + minTime);
+				entriesOut.add(entry);
 			}
 		}
+		
+		//start the output
+		File output = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
+		ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(output));
+		for(ZipEntry e : entriesOut)
+		{
+			ZipEntry newEntry = new ZipEntry(e.getName());
+			newEntry.setTime(e.getTime());
+			newEntry.setLastModifiedTime(e.getLastModifiedTime());
+			newEntry.setLastAccessTime(e.getLastAccessTime());
+			newEntry.setCreationTime(e.getCreationTime());
+			System.out.println(newEntry + "," + newEntry.getTime());
+			outputStream.putNextEntry(newEntry);
+			byte[] buffer = new byte[1048576/2];//Half a megabyte per iteration
+       	 	InputStream input = zip.getInputStream(e);
+       	 	int len;
+       	 	while ((len = input.read(buffer)) > 0) 
+       	 	{
+       	 		outputStream.write(buffer, 0, len);
+       	 	}
+       	 	input.close();
+		}
+		outputStream.close();
+		zip.close();
 	}
 	
 	public static void checkJar(File jar, File org) throws ZipException, IOException
@@ -453,7 +485,6 @@ public class DeDuperUtil {
 		List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
 		for(ZipEntry entry : entryList)
 		{
-			//TODO: WIP jar & jarOrg comparison
 			ZipEntry orgEntry = orgZip.getEntry(entry.getName());
 			if(orgEntry == null)
 			{
@@ -476,6 +507,8 @@ public class DeDuperUtil {
 				System.out.println("missing file:" + e);
 			}
 		}
+		zip.close();
+		orgZip.close();
 	}
 	
 	public static String getMD5(ZipFile zip, ZipEntry entry) throws IOException
