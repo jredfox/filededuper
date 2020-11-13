@@ -2,6 +2,7 @@ package jredfox.filededuper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -421,6 +423,69 @@ public class DeDuperUtil {
 				strid += tocompare;
 		}
 		return strid;
+	}
+	
+	public static void checkJar(File jar) throws ZipException, IOException
+	{
+		ZipFile zip = new ZipFile(jar);
+		List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
+		long compileTime = DeDuperUtil.getCompileTime(entryList);
+		long maxTime = compileTime + ( (1000L * 60L) * Main.time);
+		long minTime = compileTime - ( (1000L * 60L) * Main.time);
+		for(ZipEntry entry : entryList)
+		{
+			long time = entry.getTime();
+			if(time > maxTime)
+			{
+				System.out.println("modified file:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", maxTime:" + maxTime);
+			}
+			else if(time < minTime && entry.getName().startsWith("META-INF/"))
+			{
+				System.out.println("modified META-INF:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", minTime:" + minTime);
+			}
+		}
+	}
+	
+	public static void checkJar(File jar, File org) throws ZipException, IOException
+	{
+		ZipFile zip = new ZipFile(jar);
+		ZipFile orgZip = new ZipFile(org);
+		List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
+		for(ZipEntry entry : entryList)
+		{
+			//TODO: WIP jar & jarOrg comparison
+			ZipEntry orgEntry = orgZip.getEntry(entry.getName());
+			if(orgEntry == null)
+			{
+				System.out.println("new modded file:" + entry.getName());
+				continue;
+			}
+			String md5 = DeDuperUtil.getMD5(zip, entry);
+			String orgMd5 = DeDuperUtil.getMD5(orgZip, orgEntry);
+			if(!md5.equals(orgMd5))
+			{
+				System.out.println("modded file:" + md5 + "," + orgMd5 + "," + entry.getName());
+			}
+		}
+		//compare jarOrg with jar to detect missing files
+		List<ZipEntry> orgEntries = DeDuperUtil.getZipEntries(orgZip);
+		for(ZipEntry e : orgEntries)
+		{
+			if(zip.getEntry(e.getName()) == null)
+			{
+				System.out.println("missing file:" + e);
+			}
+		}
+	}
+	
+	public static String getMD5(ZipFile zip, ZipEntry entry) throws IOException
+	{
+		return DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+	}
+	
+	public static String getSHA256(ZipFile zip, ZipEntry entry) throws IOException
+	{
+		return DeDuperUtil.getSHA256(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
 	}
 
 }

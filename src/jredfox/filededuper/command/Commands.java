@@ -187,48 +187,10 @@ public class Commands {
 		{
 			try
 			{
-			ZipFile zip = new ZipFile(args[0]);
-			ZipFile orgZip = new ZipFile(args[1]);
-			List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
-			long compileTime = DeDuperUtil.getCompileTime(entryList);
-			long maxTime = compileTime + ( (1000L * 60L) * Main.time);
-			long minTime = compileTime - ( (1000L * 60L) * Main.time);
-			for(ZipEntry entry : entryList)
-			{
-				long time = entry.getTime();
-				if(time > maxTime)
-				{
-//					System.out.println("modified file:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", maxTime:" + maxTime);
-				}
-				else if(time < minTime && entry.getName().startsWith("META-INF/"))
-				{
-//					System.out.println("modified META-INF:" + entry.getName() + "," + time + ", compileTime:" + compileTime + ", minTime:" + minTime);
-				}
-				
-				//TODO: WIP jar & jarOrg comparison
-				ZipEntry orgEntry = orgZip.getEntry(entry.getName());
-				if(orgEntry == null)
-				{
-					System.out.println("new modded file:" + entry.getName());
-					continue;
-				}
-				String md5 = DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
-				String orgMd5 = DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(orgZip, orgEntry)));
-				if(!md5.equals(orgMd5))
-				{
-					System.out.println("modded file:" + md5 + "," + orgMd5 + "," + entry.getName());
-				}
-				//TODO:Add meta-inf check
-			}
-			//compare jarOrg with jar to detect missing files
-			List<ZipEntry> orgEntries = DeDuperUtil.getZipEntries(orgZip);
-			for(ZipEntry e : orgEntries)
-			{
-				if(zip.getEntry(e.getName()) == null)
-				{
-					System.out.println("missing file:" + e);
-				}
-			}
+				if(args[0].equals(args[1]))
+					DeDuperUtil.checkJar(args[0]);
+				else
+					DeDuperUtil.checkJar(args[0], args[1]);
 			}
 			catch(Exception e)
 			{
