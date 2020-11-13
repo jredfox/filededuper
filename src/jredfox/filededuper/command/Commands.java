@@ -71,7 +71,7 @@ public class Commands {
 				{
 					//TODO:
 				}
-				String path = DeDuperUtil.getRealtivePath(dir, f);
+				String path = DeDuperUtil.getRealtivePath(dir.isFile() ? dir.getParentFile() : dir, f);
 				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + false + "," + path);
 				md5s.add(md5);
 			}
@@ -199,6 +199,7 @@ public class Commands {
 				String orgMd5 = DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(orgZip, orgZip.getEntry(entry.getName()))));
 				if( (entry.getName().endsWith(".class") || entry.getName().startsWith("META-INF/")) && time > maxTime)
 				{
+					System.out.println("modified file:" + entry.getName() + "," + time + ", compileTime:" + compileTime);
 					//TODO: WIP
 				}
 				else if(!md5.equals(orgMd5))
