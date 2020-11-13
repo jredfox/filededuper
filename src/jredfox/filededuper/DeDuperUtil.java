@@ -151,7 +151,7 @@ public class DeDuperUtil {
 	public static String getExtension(File file) 
 	{
 		String name = file.getName();
-		return name.contains(".") ? name.split("\\.")[name.split("\\.").length - 1] : "";
+		return name.contains(".") ? name.split("\\.")[name.split("\\.").length - 1].toLowerCase() : "";
 	}
 
 	public static boolean contains(Object[] arr, Object obj)
@@ -373,6 +373,51 @@ public class DeDuperUtil {
              out.write(buffer, 0, len);
          }
 		return out.toByteArray();
+	}
+	
+	/**
+	 * an optimized way to split a string from it's first instanceof a char
+	 */
+	public static String[] splitFirst(String s, char reg)
+	{
+		String[] parts = new String[2];
+		for(int i=0;i<s.length();i++)
+		{
+			char c = s.charAt(i);
+			if(c == reg)
+			{
+				parts[0] = s.substring(0, i);
+				parts[1] = s.substring(i + 1, s.length());
+				break;
+			}
+		}
+		if(parts[0] == null)
+			return new String[]{s};
+		return parts;
+	}
+	
+	public static String parseQuotes(String s, int index, String q) 
+	{
+		if(index == -1)
+			return "";
+		char lquote = q.charAt(0);
+		char rquote = q.length() > 1 ? q.charAt(1) : lquote;
+		
+		String strid = "";
+		int quote = 0;
+		for(int i=index;i<s.length();i++)
+		{
+			if(quote == 2)
+				break; //if end of parsing object stop loop and return getParts(strid,":");
+			char tocompare = s.charAt(i);
+			boolean contains = tocompare == lquote && quote == 0 || tocompare == rquote;
+			
+			if(contains)
+				quote++;
+			if(!contains && quote > 0)
+				strid += tocompare;
+		}
+		return strid;
 	}
 
 }

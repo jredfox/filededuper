@@ -1,22 +1,17 @@
 package jredfox.filededuper.command;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import jredfox.filededuper.DeDuperUtil;
+import jredfox.filededuper.Main;
 import jredfox.filededuper.config.csv.CSV;
 
 public class Commands {
@@ -58,7 +53,7 @@ public class Commands {
 		public void run(File... args) 
 		{
 			File dir = args[0];
-			List<File> files = DeDuperUtil.getDirFiles(dir, "*");//TODO: configurable extension for spreadsheet gen
+			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
 			List<String> outStrs = new ArrayList<String>(files.size() + 10);
 			Set<String> md5s = new HashSet<>(files.size() + 10);
 			outStrs.add("#name, md5, sha-256, date-modified, boolean modified(jar only), path");
@@ -122,7 +117,7 @@ public class Commands {
 			for(String[] line : compare.lines)
 			{
 				String md5 = line[1];
-				if(!md5s.contains(md5))
+				if(!md5s.contains(md5) && (Main.compareExt.equals("*") || line[0].endsWith(Main.compareExt)))
 				{
 					output.lines.add(line);
 					md5s.add(md5);
@@ -179,9 +174,9 @@ public class Commands {
 				Scanner scanner = new Scanner(System.in);
 				System.out.println("input jar to check:");
 				File toCheck = new File(scanner.nextLine());
-//				System.out.println("input jar of origin:");
-//				File origin = new File(scanner.nextLine());
-				return new File[]{toCheck};
+				System.out.println("input jar of origin:");
+				File origin = new File(scanner.nextLine());
+				return new File[]{toCheck, origin};
 			}
 			return new File[]{new File(inputs[1]), inputs.length == 3 ? new File(inputs[2]) : new File(inputs[1])};
 		}
@@ -195,7 +190,7 @@ public class Commands {
 			ZipFile zip = new ZipFile(toCheck);
 			List<ZipEntry> entryList = DeDuperUtil.getZipEntries(zip);
 			long compileTime = DeDuperUtil.getCompileTime(entryList);
-			long maxTime = compileTime + ( (1000L * 60L) * 30L);//TODO:
+			long maxTime = compileTime + ( (1000L * 60L) * Main.time);
 			for(ZipEntry entry : entryList)
 			{
 				long time = entry.getTime();

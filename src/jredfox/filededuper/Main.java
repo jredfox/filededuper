@@ -17,6 +17,7 @@ import com.google.common.io.Files;
 import jredfox.filededuper.command.CMDNotFoundException;
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.command.Commands;
+import jredfox.filededuper.config.simple.MapConfig;
 
 public class Main {
 	
@@ -25,6 +26,7 @@ public class Main {
 	
 	public static void main(String[] programArgs)
 	{
+		loadConfig();
 		if(programArgs.length != 0)
 		{
 			Command cmd = Commands.getCommand(programArgs[0]);
@@ -35,6 +37,25 @@ public class Main {
 			cmd.run(cmdArgs);
 			System.out.println("finished " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
 		}
+	}
+
+	public static long time;
+	public static String genExt;
+	public static String compareExt;
+	
+	public static void loadConfig() 
+	{
+		MapConfig cfg = new MapConfig(new File(getProgramDir(), "filededuper.cfg"));
+		cfg.load();
+		time = cfg.get("maxCompileTimeOffset", 30L);
+		genExt = cfg.get("genMD5Extension","*").toLowerCase();
+		compareExt = cfg.get("compareMD5Extension","*").toLowerCase();
+		cfg.save();
+	}
+	
+	public static File getProgramDir()
+	{
+		return new File(System.getProperty("user.dir"));
 	}
 
 }
