@@ -446,7 +446,10 @@ public class DeDuperUtil {
 			}
 		}
 		if(entriesOut.isEmpty())
+		{
+			zip.close();
 			return;
+		}
 		System.out.println("modified jar detected:" + jar);
 		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outputDir));
@@ -460,15 +463,6 @@ public class DeDuperUtil {
 			stream.close();
 		}
 		out.close();
-		
-//		for(ZipEntry e : entriesOut)
-//		{
-//			long time = e.getTime();
-//			File file = new File(outputDir, e.getName());
-//			file.getParentFile().mkdirs();
-//			copy(zip.getInputStream(e), new FileOutputStream(file), true);
-//			file.setLastModified(time);
-//		}
 		zip.close();
 	}
 	
@@ -522,7 +516,12 @@ public class DeDuperUtil {
 		}
 		
 		if(entriesOut.isEmpty())
+		{
+			zip.close();
+			orgZip.close();
 			return;
+		}
+		System.out.println("modified jar detected:" + jar);
 		
 		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outputDir));
@@ -536,7 +535,6 @@ public class DeDuperUtil {
 			stream.close();
 		}
 		out.close();
-		
 		zip.close();
 		orgZip.close();
 	}
