@@ -501,14 +501,14 @@ public class DeDuperUtil {
 			ZipEntry orgEntry = orgZip.getEntry(entry.getName());
 			if(orgEntry == null)
 			{
-				entriesOut.add(new ArchiveEntry(zip, entry, new ZipEntry((Main.addedCompareDir ? "added/" : "mod/") + entry.getName())));
+				entriesOut.add(new ArchiveEntry(zip, entry, new ZipEntry((Main.archiveDir ? "added/" : "mod/") + entry.getName())));
 				continue;
 			}
 			String md5 = DeDuperUtil.getMD5(zip, entry);
 			String orgMd5 = DeDuperUtil.getMD5(orgZip, orgEntry);
 			if(!md5.equals(orgMd5))
 			{
-				entriesOut.add(new ArchiveEntry(zip, entry, new ZipEntry( (Main.addedCompareDir ? "modified/": "mod/") + entry.getName())));
+				entriesOut.add(new ArchiveEntry(zip, entry, new ZipEntry( (Main.archiveDir ? "modified/": "mod/") + entry.getName())));
 			}
 		}
 		//compare jarOrg with jar to detect missing files
