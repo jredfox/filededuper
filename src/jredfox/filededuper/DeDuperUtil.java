@@ -415,7 +415,7 @@ public class DeDuperUtil {
 				}
 				);
 		PointTimeEntry point = points.get(points.size() - 1);
-		Collections.sort(point.times, Collections.reverseOrder());
+		Collections.sort(point.times);
 		return point.times.get(0);
 	}
 	
@@ -602,6 +602,11 @@ public class DeDuperUtil {
 	public static String getSHA256(ZipFile zip, ZipEntry entry) throws IOException
 	{
 		return DeDuperUtil.getSHA256(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+	}
+
+	public static void verifyJar(File file) 
+	{
+		
 	}
 
 }

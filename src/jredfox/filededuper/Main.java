@@ -1,15 +1,30 @@
 package jredfox.filededuper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.codec.binary.Base32InputStream;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import com.google.common.io.Files;
@@ -22,9 +37,9 @@ import jredfox.filededuper.config.simple.MapConfig;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.3.3";
+	public static final String VERSION = "0.3.4";
 	
-	public static void main(String[] programArgs)
+	public static void main(String[] programArgs) throws UnsupportedEncodingException
 	{
 		loadConfig();
 		if(programArgs.length != 0)
@@ -38,10 +53,10 @@ public class Main {
 			System.out.println("finished " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
 		}
 	}
-
-	public static long time;
+	
 	public static String genExt;
 	public static String compareExt;
+	public static long time;
 	public static boolean archiveDir;
 	public static boolean compileTimePoints;
 	public static String[] programDirs;
@@ -55,7 +70,7 @@ public class Main {
 		compareExt = cfg.get("compareMD5Extension","*").toLowerCase();
 		archiveDir = cfg.get("archiveDir", false);
 		compileTimePoints = cfg.get("compileTimePoints", true);//fetch compile time algorithm based on most consistent classes in dir of program
-		programDirs = cfg.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft").split(",");
+		programDirs = cfg.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/a").split(",");
 		int index = 0;
 		for(String s : programDirs)
 			programDirs[index++] = s.trim();//repair for user friendlyness
