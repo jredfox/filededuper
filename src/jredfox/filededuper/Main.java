@@ -22,7 +22,7 @@ import jredfox.filededuper.config.simple.MapConfig;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.3.2";
+	public static final String VERSION = "0.3.3";
 	
 	public static void main(String[] programArgs)
 	{
@@ -43,6 +43,8 @@ public class Main {
 	public static String genExt;
 	public static String compareExt;
 	public static boolean archiveDir;
+	public static boolean compileTimePoints;
+	public static String[] programDirs;
 	
 	public static void loadConfig() 
 	{
@@ -52,6 +54,11 @@ public class Main {
 		genExt = cfg.get("genMD5Extension","*").toLowerCase();
 		compareExt = cfg.get("compareMD5Extension","*").toLowerCase();
 		archiveDir = cfg.get("archiveDir", false);
+		compileTimePoints = cfg.get("compileTimePoints", true);//fetch compile time algorithm based on most consistent classes in dir of program
+		programDirs = cfg.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft").split(",");
+		int index = 0;
+		for(String s : programDirs)
+			programDirs[index++] = s.trim();//repair for user friendlyness
 		cfg.save();
 	}
 	

@@ -16,9 +16,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -342,10 +346,15 @@ public class DeDuperUtil {
 		return entryList;
 	}
 	
+	public static long getCompileTime(List<ZipEntry> entries)
+	{
+		return Main.compileTimePoints ? getCompileTimePoints(entries) : getCompileTimeLeast(entries);
+	}
+	
 	/**
 	 * gets the most likely compiledTime based on lowest date modified of the class file
 	 */
-	public static long getCompileTime(List<ZipEntry> entries)
+	public static long getCompileTimeLeast(List<ZipEntry> entries)
 	{
 		long ms = -1;
 		ZipEntry compileTime = null;
@@ -362,6 +371,52 @@ public class DeDuperUtil {
 		}
 		System.out.println("compileTimeClass:\t" + compileTime);
 		return ms;
+	}
+	
+	/**
+	 * gets compile time based on program dir points
+	 */
+	public static long getCompileTimePoints(List<ZipEntry> entries)
+	{
+		List<PointTimeEntry> points = new ArrayList<>();
+		//compile times in an arraylist of ranges
+		for(ZipEntry entry : entries)
+		{
+			String name = entry.getName();
+			if(!name.endsWith(".class"))
+				continue;
+			long time = entry.getTime();
+			boolean added = false;
+			for(PointTimeEntry point : points)
+			{
+				if(point.isWithinRange(name, time))
+				{
+					point.times.add(time);
+					added = true;
+					break;
+				}
+			}
+			if(!added)
+			{
+				PointTimeEntry point = new PointTimeEntry(name, time);
+				if(point.programDir != null)
+				{
+					points.add(point);
+				}
+			}
+		}
+		Collections.sort(points, new Comparator<PointTimeEntry>()
+				{
+					@Override
+					public int compare(PointTimeEntry p, PointTimeEntry p2)
+					{
+						return ((Integer)p.times.size()).compareTo(p2.times.size());
+					}
+				}
+				);
+		PointTimeEntry point = points.get(points.size() - 1);
+		Collections.sort(point.times, Collections.reverseOrder());
+		return point.times.get(0);
 	}
 	
 	/**
@@ -440,7 +495,7 @@ public class DeDuperUtil {
 			{
 				entriesOut.add(entry);
 			}
-			else if(time < minTime && entry.getName().startsWith("META-INF/"))
+			else if(time < minTime && (entry.getName().endsWith(".class") || entry.getName().startsWith("META-INF/")))
 			{
 				entriesOut.add(entry);
 			}
