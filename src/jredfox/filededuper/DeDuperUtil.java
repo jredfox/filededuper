@@ -29,6 +29,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import com.google.common.io.Files;
 
+import jredfox.filededuper.zip.ArchiveEntry;
+
 public class DeDuperUtil {
 	
 	public static void move(List<File> files, File input, File outputDir, boolean sameDir)
@@ -419,6 +421,9 @@ public class DeDuperUtil {
 		return strid;
 	}
 	
+	/**
+	 * check the jar self integrity with itself
+	 */
 	public static void checkJar(File jar) throws ZipException, IOException
 	{
 		ZipFile zip = new ZipFile(jar);
@@ -447,7 +452,7 @@ public class DeDuperUtil {
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outputDir));
 		for(ZipEntry e : entriesOut)
 		{
-			ZipEntry outEntry = new ZipEntry(e.getName());
+			ZipEntry outEntry = new ZipEntry("mod/" + e.getName());
 			outEntry.setTime(e.getTime());
 			out.putNextEntry(outEntry);
 			InputStream stream = zip.getInputStream(e);
@@ -482,25 +487,28 @@ public class DeDuperUtil {
    	 	}
 	}
 
+	/**
+	 * compare jar with the original jar file and output any modifications
+	 */
 	public static void checkJar(File jar, File org) throws ZipException, IOException
 	{
 		ZipFile zip = new ZipFile(jar);
 		ZipFile orgZip = new ZipFile(org);
 		List<ZipEntry> entries = DeDuperUtil.getZipEntries(zip);
-		List<ZipEntry> entriesOut = new ArrayList();
+		List<ArchiveEntry> entriesOut = new ArrayList();
 		for(ZipEntry entry : entries)
 		{
 			ZipEntry orgEntry = orgZip.getEntry(entry.getName());
 			if(orgEntry == null)
 			{
-				entriesOut.add(entry);
+				entriesOut.add(new ArchiveEntry(zip, entry, new ZipEntry((Main.addedCompareDir ? "added/" : "mod/") + entry.getName())));
 				continue;
 			}
 			String md5 = DeDuperUtil.getMD5(zip, entry);
 			String orgMd5 = DeDuperUtil.getMD5(orgZip, orgEntry);
 			if(!md5.equals(orgMd5))
 			{
-				entriesOut.add(entry);
+				entriesOut.add(new ArchiveEntry(zip, entry, new ZipEntry( (Main.addedCompareDir ? "modified/": "mod/") + entry.getName())));
 			}
 		}
 		//compare jarOrg with jar to detect missing files
@@ -509,18 +517,21 @@ public class DeDuperUtil {
 		{
 			if(zip.getEntry(e.getName()) == null)
 			{
-				System.out.println("missing file:" + e);
+				entriesOut.add(new ArchiveEntry(orgZip, e, new ZipEntry("removed/" + e.getName())));
 			}
 		}
 		
+		if(entriesOut.isEmpty())
+			return;
+		
 		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outputDir));
-		for(ZipEntry e : entriesOut)
+		for(ArchiveEntry e : entriesOut)
 		{
-			ZipEntry outEntry = new ZipEntry(e.getName());
-			outEntry.setTime(e.getTime());
+			ZipEntry outEntry = new ZipEntry(e.output.getName());
+			outEntry.setTime(e.input.getTime());
 			out.putNextEntry(outEntry);
-			InputStream stream = zip.getInputStream(e);
+			InputStream stream = e.zip.getInputStream(e.input);//is no redirect assume missing file
 			copy(stream, out, false);
 			stream.close();
 		}

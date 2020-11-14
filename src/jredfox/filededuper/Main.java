@@ -42,6 +42,7 @@ public class Main {
 	public static long time;
 	public static String genExt;
 	public static String compareExt;
+	public static boolean addedCompareDir;
 	
 	public static void loadConfig() 
 	{
@@ -50,6 +51,7 @@ public class Main {
 		time = cfg.get("maxCompileTimeOffset", 30L);
 		genExt = cfg.get("genMD5Extension","*").toLowerCase();
 		compareExt = cfg.get("compareMD5Extension","*").toLowerCase();
+		addedCompareDir = cfg.get("addedCompareDir", false);
 		cfg.save();
 	}
 	

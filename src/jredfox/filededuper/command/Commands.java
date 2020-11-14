@@ -179,7 +179,9 @@ public class Commands {
 				File origin = new File(scanner.nextLine());
 				return new File[]{toCheck, origin};
 			}
-			return new File[]{new File(inputs[1]), inputs.length == 3 ? new File(inputs[2]) : new File(inputs[1])};
+			File jar = new File(inputs[1]);
+			File jarOrg = inputs.length == 3 ? new File(inputs[2]) : jar;
+			return new File[]{jar, jarOrg};
 		}
 
 		@Override
@@ -187,10 +189,15 @@ public class Commands {
 		{
 			try
 			{
-				if(args[0].equals(args[1]))
+				if(args[0] == args[1])
+				{
+					
 					DeDuperUtil.checkJar(args[0]);
+				}
 				else
+				{
 					DeDuperUtil.checkJar(args[0], args[1]);
+				}
 			}
 			catch(Exception e)
 			{
