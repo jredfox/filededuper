@@ -28,7 +28,7 @@ public class Commands {
 	}
 	
 	public static Command<File> genMD5s = new Command<File>("genMD5s")
-	{	
+	{
 		@Override
 		public File[] getParams(String... inputs) 
 		{
@@ -66,13 +66,8 @@ public class Commands {
 					continue;
 				String sha256 = DeDuperUtil.getSHA256(f);
 				long lastModified = f.lastModified();
-				String ext = DeDuperUtil.getExtension(f);
-				if(ext.equals("jar"))
-				{
-					//TODO:
-				}
 				String path = DeDuperUtil.getRealtivePath(dir.isFile() ? dir.getParentFile() : dir, f);
-				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + false + "," + path);
+				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + DeDuperUtil.isJarModded(f, Main.checkJarSigned) + "," + path);
 				md5s.add(md5);
 			}
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getFileTrueName(dir) + "-output.csv");
@@ -190,9 +185,15 @@ public class Commands {
 			try
 			{
 				if(args[0].equals(args[1]))
-					DeDuperUtil.checkJar(args[0]);
+				{
+					if(DeDuperUtil.dumpJarMod(args[0]))
+						System.out.println("Dumped jarMod");
+				}
 				else
-					DeDuperUtil.checkJar(args[0], args[1]);
+				{
+					if(DeDuperUtil.dumpJarMod(args[0], args[1]))
+						System.out.println("Dumped jarMod");
+				}
 			}
 			catch(Exception e)
 			{

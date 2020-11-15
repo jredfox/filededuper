@@ -60,6 +60,7 @@ public class Main {
 	public static boolean archiveDir;
 	public static boolean compileTimePoints;
 	public static String[] programDirs;
+	public static boolean checkJarSigned;
 	
 	public static void loadConfig() 
 	{
@@ -69,6 +70,7 @@ public class Main {
 		genExt = cfg.get("genMD5Extension","*").toLowerCase();
 		compareExt = cfg.get("compareMD5Extension","*").toLowerCase();
 		archiveDir = cfg.get("archiveDir", false);
+		checkJarSigned = cfg.get("checkJarSigned", true);
 		compileTimePoints = cfg.get("compileTimePoints", true);//fetch compile time algorithm based on most consistent classes in dir of program
 		programDirs = cfg.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/a").split(",");
 		int index = 0;

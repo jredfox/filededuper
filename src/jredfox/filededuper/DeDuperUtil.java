@@ -484,12 +484,124 @@ public class DeDuperUtil {
 	}
 	
 	/**
+	 * is cpu & disk intensive
+	 */
+	public static boolean isJarModded(File file, boolean signed)
+	{
+		if(!DeDuperUtil.getExtension(file).equals("jar"))
+			return false;
+		
+		ZipFile zip = null;
+		boolean modded = false;
+		try
+		{
+			zip = new ZipFile(file);
+			modded = !getModdedFiles(zip).isEmpty() && checkMetainf(zip, signed);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeQuietly(zip);
+		}
+		return modded;
+	}
+	
+	/**
+	 * is cpu & disk intensive
+	 */
+	public static boolean isJarModded(File file, File orgFile, boolean signed) throws ZipException, IOException
+	{
+		ZipFile zip = null;
+		ZipFile orgZip = null;
+		boolean modded = false;
+		try
+		{
+			zip = new ZipFile(file);
+			orgZip = new ZipFile(orgFile);
+			modded = !getModdedFiles(zip, orgZip).isEmpty();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeQuietly(zip);
+			closeQuietly(orgZip);
+		}
+		return modded;
+	}
+	
+	public static boolean checkMetainf(ZipFile jar, boolean signed) 
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	/**
+	 * @return if the jar was modded and dumped
+	 */
+	public static boolean dumpJarMod(File file) throws IOException
+	{
+		ZipFile zip = null;
+		try
+		{
+			zip = new ZipFile(file);
+			List<ArchiveEntry> entries = getModdedFiles(zip);
+			if(entries.isEmpty())
+				return false;
+			saveZip(entries, new File(file.getParent(), DeDuperUtil.getFileTrueName(file) + "-output.zip"));
+			return true;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeQuietly(zip);
+		}
+		return false;
+	}
+	
+	/**
+	 * @return if the jar was modded and dumped
+	 */
+	public static boolean dumpJarMod(File file, File orgFile)
+	{
+		ZipFile zip = null;
+		ZipFile orgZip = null;
+		try
+		{
+			zip = new ZipFile(file);
+			orgZip = new ZipFile(orgFile);
+			List<ArchiveEntry> entries = getModdedFiles(zip, orgZip);
+			if(entries.isEmpty())
+				return false;
+			saveZip(entries, new File(file.getParent(), DeDuperUtil.getFileTrueName(file) + "-output.zip"));
+			return true;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeQuietly(zip);
+			closeQuietly(orgZip);
+		}
+		return false;
+	}
+
+	/**
 	 * check the jar self integrity with itself
 	 */
-	public static void checkJar(File jar) throws ZipException, IOException
+	public static List<ArchiveEntry> getModdedFiles(ZipFile zip)
 	{
-		ZipFile zip = new ZipFile(jar);
-		List<ZipEntry> entriesOut = new ArrayList();
+		List<ArchiveEntry> entriesOut = new ArrayList();
 		List<ZipEntry> entries = DeDuperUtil.getZipEntries(zip);
 		long compileTime = DeDuperUtil.getCompileTime(entries);
 		long maxTime = compileTime + ( (1000L * 60L) * Main.time);
@@ -500,56 +612,21 @@ public class DeDuperUtil {
 			long time = entry.getTime();
 			if(time > maxTime)
 			{
-				entriesOut.add(entry);
+				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
 			else if(time < minTime && (entry.getName().endsWith(".class") || entry.getName().startsWith("META-INF/")))
 			{
-				entriesOut.add(entry);
+				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
 		}
-		if(entriesOut.isEmpty())
-		{
-			zip.close();
-			return;
-		}
-		System.out.println("modified jar detected:" + jar);
-		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
-		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outputDir));
-		for(ZipEntry e : entriesOut)
-		{
-			ZipEntry outEntry = new ZipEntry("mod/" + e.getName());
-			outEntry.setTime(e.getTime());
-			out.putNextEntry(outEntry);
-			InputStream stream = zip.getInputStream(e);
-			copy(stream, out, false);
-			stream.close();
-		}
-		out.close();
-		zip.close();
+		return entriesOut;
 	}
 	
-	public static void copy(InputStream in, OutputStream out, boolean close) throws IOException
-	{
-		byte[] buffer = new byte[1048576/2];
-		int length;
-   	 	while ((length = in.read(buffer)) > 0)
-		{
-			out.write(buffer, 0, length);
-		}
-   	 	if(close)
-   	 	{
-   	 		in.close();
-   	 		out.close();
-   	 	}
-	}
-
 	/**
 	 * compare jar with the original jar file and output any modifications
 	 */
-	public static void checkJar(File jar, File org) throws ZipException, IOException
+	public static List<ArchiveEntry> getModdedFiles(ZipFile zip, ZipFile orgZip)
 	{
-		ZipFile zip = new ZipFile(jar);
-		ZipFile orgZip = new ZipFile(org);
 		List<ZipEntry> entries = DeDuperUtil.getZipEntries(zip);
 		List<ArchiveEntry> entriesOut = new ArrayList();
 		for(ZipEntry entry : entries)
@@ -576,39 +653,120 @@ public class DeDuperUtil {
 				entriesOut.add(new ArchiveEntry(orgZip, e, new ZipEntry("removed/" + e.getName())));
 			}
 		}
-		
-		if(entriesOut.isEmpty())
-		{
-			zip.close();
-			orgZip.close();
-			return;
-		}
-		System.out.println("modified jar detected:" + jar);
-		
-		File outputDir = new File(jar.getParent(), DeDuperUtil.getFileTrueName(jar) + "-output.zip");
-		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outputDir));
-		for(ArchiveEntry e : entriesOut)
-		{
-			ZipEntry outEntry = new ZipEntry(e.output.getName());
-			outEntry.setTime(e.input.getTime());
-			out.putNextEntry(outEntry);
-			InputStream stream = e.zip.getInputStream(e.input);//is no redirect assume missing file
-			copy(stream, out, false);
-			stream.close();
-		}
-		out.close();
-		zip.close();
-		orgZip.close();
+		return entriesOut;
 	}
 	
-	public static String getMD5(ZipFile zip, ZipEntry entry) throws IOException
+	public static void saveZip(List<ArchiveEntry> entries, File output)
 	{
-		return DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+		ZipOutputStream out = null;
+		try
+		{
+			out = new ZipOutputStream(new FileOutputStream(output));
+			for(ArchiveEntry e : entries)
+			{
+				ZipEntry outEntry = new ZipEntry(e.output.getName());
+				outEntry.setTime(e.input.getTime());
+				out.putNextEntry(outEntry);
+				InputStream stream = e.zip.getInputStream(e.input);//is no redirect assume missing file
+				copy(stream, out, false);
+				stream.close();
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			if(out != null)
+			{
+				try 
+				{
+					out.close();
+				} 
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
-	public static String getSHA256(ZipFile zip, ZipEntry entry) throws IOException
+	public static void copy(InputStream in, OutputStream out, boolean close) throws IOException
 	{
-		return DeDuperUtil.getSHA256(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+		byte[] buffer = new byte[1048576/2];
+		int length;
+   	 	while ((length = in.read(buffer)) > 0)
+		{
+			out.write(buffer, 0, length);
+		}
+   	 	if(close)
+   	 	{
+   	 		in.close();
+   	 		out.close();
+   	 	}
+	}
+	
+	public static String getMD5(ZipFile zip, ZipEntry entry)
+	{
+		try
+		{
+			return DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static String getSHA256(ZipFile zip, ZipEntry entry)
+	{
+		try 
+		{
+			return DeDuperUtil.getSHA256(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static void closeQuietly(ZipFile zip)
+	{
+		if(zip != null)
+		{
+			try
+			{
+				zip.close();	
+			}
+			catch(Exception e){}
+		}
+	}
+	
+	public static void closeQuietly(InputStream stream)
+	{
+		if(stream != null)
+		{
+			try
+			{
+				stream.close();	
+			}
+			catch(Exception e){}
+		}
+	}
+	
+	public static void closeQuitely(OutputStream stream)
+	{
+		if(stream != null)
+		{
+			try
+			{
+				stream.close();	
+			}
+			catch(Exception e){}
+		}
 	}
 
 }
