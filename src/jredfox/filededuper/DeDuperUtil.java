@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -38,6 +39,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 import jredfox.filededuper.zip.ArchiveEntry;
@@ -491,12 +493,12 @@ public class DeDuperUtil {
 		if(!DeDuperUtil.getExtension(file).equals("jar"))
 			return false;
 		
-		ZipFile zip = null;
+		JarFile jar = null;
 		boolean modded = false;
 		try
 		{
-			zip = new ZipFile(file);
-			modded = !getModdedFiles(zip).isEmpty() || !checkMetainf(zip, signed);
+			jar = new JarFile(file);
+			modded = !checkMetainf(jar, signed) || !getModdedFiles(jar).isEmpty();
 		}
 		catch(Exception e)
 		{
@@ -504,7 +506,7 @@ public class DeDuperUtil {
 		}
 		finally
 		{
-			closeQuietly(zip);
+			closeQuietly(jar);
 		}
 		return modded;
 	}
@@ -538,11 +540,118 @@ public class DeDuperUtil {
 		return modded;
 	}
 	
-	public static boolean checkMetainf(ZipFile jar, boolean signed) 
+	public static boolean checkMetainf(JarFile jar, boolean signed) throws IOException 
 	{
-		return true;//TODO:
+		Manifest mani = jar.getManifest();
+		if(signed)
+		{
+			ZipEntry dsa = getDSA(jar);
+			ZipEntry rsa = getRSA(jar);
+			if(!checkSignature(jar, dsa) && !checkSignature(jar, rsa))
+			{
+				return false;
+			}
+			
+			ZipEntry sf = getSF(jar);
+			if(sf == null || !checkManifest(jar, new Manifest(jar.getInputStream(sf)), signed))
+			{
+				return false;
+			}
+		}
+		
+		return checkManifest(jar, mani, signed);
 	}
 	
+	public static boolean checkSignature(ZipFile zip, ZipEntry sig)
+	{
+		if(sig == null)
+			return false;
+		try
+		{
+			BufferedReader reader = new BufferedReader(new InputStreamReader(zip.getInputStream(sig), StandardCharsets.UTF_8));
+			String signature = DeDuperUtil.getFileLines(reader).get(0).replaceAll("" + (char)65533, "").trim();
+			return !signature.isEmpty();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static boolean checkManifest(ZipFile zip, Manifest mf, boolean signed)
+	{
+		if(mf == null || mf.getMainAttributes().isEmpty())
+		{
+			return false;
+		}
+		if(signed)
+		{
+			if(mf.getEntries().isEmpty())
+				return false;
+			List<String> names = new ArrayList(mf.getEntries().entrySet().size());
+			for(Map.Entry<String, Attributes> pair : mf.getEntries().entrySet())
+			{
+				String name = pair.getKey();
+				Attributes abb = pair.getValue();
+				for(Map.Entry<Object, Object> map : abb.entrySet())
+				{
+					String att = map.getKey().toString();
+					if(att.contains("-Digest"))
+						names.add(name);
+				}
+			}
+			List<String> actualNames = new ArrayList();
+			for(ZipEntry entry : DeDuperUtil.getZipEntries(zip))
+			{
+				if(entry.getName().startsWith("META-INF/"))
+					continue;
+				actualNames.add(entry.getName());
+			}
+			Collections.sort(names);
+			Collections.sort(actualNames);
+			return names.equals(actualNames);
+		}
+		return true;
+	}
+	
+	private static ZipEntry getSF(JarFile jar) {
+		return getSafley(getEntries(jar, "META-INF/", ".SF"), 0);
+	}
+	
+	private static ZipEntry getRSA(JarFile jar) {
+		return getSafley(getEntries(jar, "META-INF/", ".RSA"), 0);
+	}
+
+	private static ZipEntry getDSA(JarFile jar) {
+		return getSafley(getEntries(jar, "META-INF/", ".DSA"), 0);
+	}
+
+	/**
+	 * prevents ArrayIndexOutOfBoundsException
+	 */
+	public static <T> T getSafley(List<T> entries, int index) 
+	{
+		if(DeDuperUtil.isWithinRange(entries.isEmpty() ? index + 1 : 0, entries.size() - 1, index))
+			return entries.get(index);
+		return null;
+	}
+	
+	public static List<ZipEntry> getEntries(ZipFile file, String path, String ext)
+	{
+		List<ZipEntry> list = new ArrayList(2);
+		List<ZipEntry> entries = DeDuperUtil.getZipEntries(file);
+		for(ZipEntry e : entries)
+		{
+			String name = e.getName();
+			if(name.startsWith(path) && name.toLowerCase().endsWith(ext.toLowerCase()))
+			{
+				list.add(e);
+			}
+		}
+		return list;
+	}
+
 	/**
 	 * @return if the jar was modded and dumped
 	 */
