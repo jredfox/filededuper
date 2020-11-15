@@ -616,7 +616,7 @@ public class DeDuperUtil {
 			{
 				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
-			else if(time < minTime && endsWith(entry.getName(), new String[] {".class", ".RSA", ".DSA", ".MF", ".SF"}))
+			else if(time < minTime && endsWith(entry.getName(), Main.programExts))
 			{
 				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
@@ -626,9 +626,10 @@ public class DeDuperUtil {
 	
 	public static boolean endsWith(String str, String[] exts)
 	{
+		String orgExt = str.toLowerCase();
 		for(String ext : exts)
 		{
-			if(str.toLowerCase().endsWith(ext.toLowerCase()))
+			if(orgExt.endsWith(ext.toLowerCase()))
 				return true;
 		}
 		return false;

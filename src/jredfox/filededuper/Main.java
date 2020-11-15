@@ -61,6 +61,7 @@ public class Main {
 	public static boolean compileTimePoints;
 	public static String[] programDirs;
 	public static boolean checkJarSigned;
+	public static final String[] programExts = new String[] {".class", ".RSA", ".DSA", ".MF", ".SF"};
 	
 	public static void loadConfig() 
 	{
