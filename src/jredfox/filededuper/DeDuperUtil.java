@@ -496,7 +496,7 @@ public class DeDuperUtil {
 		try
 		{
 			zip = new ZipFile(file);
-			modded = !getModdedFiles(zip).isEmpty() && checkMetainf(zip, signed);
+			modded = !getModdedFiles(zip).isEmpty() || !checkMetainf(zip, signed);
 		}
 		catch(Exception e)
 		{
@@ -512,8 +512,11 @@ public class DeDuperUtil {
 	/**
 	 * is cpu & disk intensive
 	 */
-	public static boolean isJarModded(File file, File orgFile, boolean signed) throws ZipException, IOException
+	public static boolean isJarModded(File file, File orgFile)
 	{
+		if(!DeDuperUtil.getExtension(file).equals("jar") || !DeDuperUtil.getExtension(orgFile).equals("jar"))
+			return false;
+		
 		ZipFile zip = null;
 		ZipFile orgZip = null;
 		boolean modded = false;
@@ -537,8 +540,7 @@ public class DeDuperUtil {
 	
 	public static boolean checkMetainf(ZipFile jar, boolean signed) 
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return true;//TODO:
 	}
 	
 	/**
