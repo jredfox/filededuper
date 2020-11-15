@@ -37,7 +37,7 @@ import jredfox.filededuper.config.simple.MapConfig;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.3.5";
+	public static final String VERSION = "0.3.6";
 	
 	public static void main(String[] programArgs)
 	{

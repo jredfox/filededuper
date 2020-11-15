@@ -423,6 +423,8 @@ public class DeDuperUtil {
 					}
 				}
 				);
+		if(points.isEmpty())
+			throw new RuntimeException("Program Directory for DeDuperUtil#getCompileTimePoints() is not found. Add one to the config");
 		PointTimeEntry point = points.get(points.size() - 1);
 		Collections.sort(point.times);
 		return point.times.get(0);
@@ -723,6 +725,7 @@ public class DeDuperUtil {
 			long time = entry.getTime();
 			if(time > maxTime)
 			{
+				System.out.println("compileTime:" + compileTime + "," + maxTime + "," + entry);
 				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
 			else if(time < minTime && endsWith(entry.getName(), Main.programExts))
