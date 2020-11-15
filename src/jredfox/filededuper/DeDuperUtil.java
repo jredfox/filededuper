@@ -15,6 +15,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +27,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -602,11 +609,6 @@ public class DeDuperUtil {
 	public static String getSHA256(ZipFile zip, ZipEntry entry) throws IOException
 	{
 		return DeDuperUtil.getSHA256(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
-	}
-
-	public static void verifyJar(File file) 
-	{
-		
 	}
 
 }
