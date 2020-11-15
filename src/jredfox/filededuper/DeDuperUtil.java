@@ -616,12 +616,22 @@ public class DeDuperUtil {
 			{
 				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
-			else if(time < minTime && (entry.getName().endsWith(".class") || entry.getName().startsWith("META-INF/")))
+			else if(time < minTime && endsWith(entry.getName(), new String[] {".class", ".RSA", ".DSA", ".MF", ".SF"}))
 			{
 				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
 		}
 		return entriesOut;
+	}
+	
+	public static boolean endsWith(String str, String[] exts)
+	{
+		for(String ext : exts)
+		{
+			if(str.toLowerCase().endsWith(ext.toLowerCase()))
+				return true;
+		}
+		return false;
 	}
 	
 	/**
