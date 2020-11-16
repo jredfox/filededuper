@@ -544,7 +544,6 @@ public class DeDuperUtil {
 	
 	public static boolean checkMetainf(JarFile jar, boolean signed) throws IOException 
 	{
-		Manifest mani = jar.getManifest();
 		if(signed)
 		{
 			ZipEntry dsa = getDSA(jar);
@@ -560,7 +559,7 @@ public class DeDuperUtil {
 				return false;
 			}
 		}
-		
+		Manifest mani = jar.getManifest();
 		return checkManifest(jar, mani, signed);
 	}
 	
@@ -725,7 +724,7 @@ public class DeDuperUtil {
 			long time = entry.getTime();
 			if(time > maxTime)
 			{
-				System.out.println("compileTime:" + compileTime + "," + maxTime + "," + entry);
+//				System.out.println("compileTime:" + compileTime + "," + maxTime + "," + entry);
 				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
 			else if(time < minTime && endsWith(entry.getName(), Main.programExts))
