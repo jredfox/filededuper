@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import jredfox.filededuper.DeDuperUtil;
+import jredfox.filededuper.util.DeDuperUtil;
 
 public class CSV {
 	

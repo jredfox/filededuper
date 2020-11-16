@@ -11,9 +11,11 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import jredfox.filededuper.DeDuperUtil;
 import jredfox.filededuper.Main;
 import jredfox.filededuper.config.csv.CSV;
+import jredfox.filededuper.util.DeDuperUtil;
+import jredfox.filededuper.util.IOUtils;
+import jredfox.filededuper.util.JarUtil;
 
 public class Commands {
 	
@@ -67,11 +69,11 @@ public class Commands {
 				String sha256 = DeDuperUtil.getSHA256(f);
 				long lastModified = f.lastModified();
 				String path = DeDuperUtil.getRealtivePath(dir.isFile() ? dir.getParentFile() : dir, f);
-				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + DeDuperUtil.isJarModded(f, Main.checkJarSigned) + "," + path);
+				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + JarUtil.isJarModded(f, Main.checkJarSigned) + "," + path);
 				md5s.add(md5);
 			}
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getFileTrueName(dir) + "-output.csv");
-			DeDuperUtil.saveFileLines(outStrs, outputFile, true);
+			IOUtils.saveFileLines(outStrs, outputFile, true);
 		}
 	};
 	
@@ -186,12 +188,12 @@ public class Commands {
 			{
 				if(args[0].equals(args[1]))
 				{
-					if(DeDuperUtil.dumpJarMod(args[0]))
+					if(JarUtil.dumpJarMod(args[0]))
 						System.out.println("Dumped jarMod");
 				}
 				else
 				{
-					if(DeDuperUtil.dumpJarMod(args[0], args[1]))
+					if(JarUtil.dumpJarMod(args[0], args[1]))
 						System.out.println("Dumped jarMod");
 				}
 			}

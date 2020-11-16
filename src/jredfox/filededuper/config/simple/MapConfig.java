@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import jredfox.filededuper.DeDuperUtil;
+import jredfox.filededuper.util.DeDuperUtil;
 
 /**
  * a Config that will only support key=value

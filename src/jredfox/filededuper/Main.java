@@ -61,7 +61,7 @@ public class Main {
 	public static boolean compileTimePoints;
 	public static String[] programDirs;
 	public static boolean checkJarSigned;
-	public static final String[] programExts = new String[] {".class", ".RSA", ".DSA", ".MF", ".SF"};
+	public static String[] programExts;
 	
 	public static void loadConfig() 
 	{
@@ -77,6 +77,7 @@ public class Main {
 		int index = 0;
 		for(String s : programDirs)
 			programDirs[index++] = s.trim();//repair for user friendlyness
+		programExts = cfg.get("programExts", "class,rsa,dsa,mf,sf").toLowerCase().split(",");
 		cfg.save();
 	}
 	

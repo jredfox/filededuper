@@ -3,6 +3,8 @@ package jredfox.filededuper;
 import java.util.ArrayList;
 import java.util.List;
 
+import jredfox.filededuper.util.DeDuperUtil;
+
 public class PointTimeEntry {
 	
 	public String programDir;
