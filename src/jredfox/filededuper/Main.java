@@ -37,7 +37,7 @@ import jredfox.filededuper.config.simple.MapConfig;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.4.0";
+	public static final String VERSION = "0.4.2";
 	
 	public static void main(String[] programArgs)
 	{
@@ -80,14 +80,14 @@ public class Main {
 		compileTimePoints = jarCheck.get("compileTimePoints", true);//getCompile time based on maximum points based on the program dir then the lowest one in there
 		compileTimeOffset = jarCheck.get("compileTimeOffset", 30);//amount of minuets is allowed since the compile time before it's considered a mod
 		checkJarSigned = jarCheck.get("checkJarSigned", true);
-		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf").toLowerCase().trim().split(",");
+		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf,jar").toLowerCase().trim().split(",");
 		programDirs = getProgramDirs(jarCheck);
 		jarCheck.save();
 	}
 	
 	private static String[] getProgramDirs(MapConfig jarCheck) 
 	{
-		String[] dirs = jarCheck.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/a").split(",");
+		String[] dirs = jarCheck.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/a,jredfox/filededuper").split(",");
 		int index = 0;
 		for(String s : dirs)
 			dirs[index++] = s.trim();//repair for user friendlyness

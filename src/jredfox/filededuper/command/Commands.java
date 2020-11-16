@@ -309,4 +309,97 @@ public class Commands {
 		}
 	};
 	
+	public static Command<File> isJarConsistent = new Command<File>("isJarConsistent")
+	{
+		@Override
+		public File[] getParams(String... inputs)
+		{
+			if(inputs.length == 1)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input jar to check:");
+				File file = new File(scanner.nextLine());
+				return new File[]{file};
+			}
+			return new File[]{new File(inputs[1])};
+		}
+
+		@Override
+		public void run(File... args) 
+		{
+			try
+			{
+				File file = args[0];
+				ZipFile zip = new ZipFile(file);
+				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+				long timestamp = JarUtil.getCompileTime(entries);
+				boolean consistent = true;
+				for(ZipEntry e : entries)
+				{
+					if(e.isDirectory())
+						continue;
+					long time = e.getTime();
+					if(timestamp != time)
+					{
+						consistent = false;
+						System.out.println("inconsistent:\t" + e.getName() + ", time:" + time +  " with:" + timestamp);
+					}
+				}
+				System.out.println(consistent + " ---> " + file);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}	
+	};
+	
+	public static Command<File> printJarConsistent = new Command<File>("printJarConsistent")
+	{
+		@Override
+		public File[] getParams(String... inputs)
+		{
+			if(inputs.length == 1)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input jar to check:");
+				File file = new File(scanner.nextLine());
+				return new File[]{file};
+			}
+			return new File[]{new File(inputs[1])};
+		}
+
+		@Override
+		public void run(File... args) 
+		{
+			try
+			{
+				File file = args[0];
+				ZipFile zip = new ZipFile(file);
+				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+				long timestamp = JarUtil.getCompileTime(entries);
+				boolean consistent = false;
+				for(ZipEntry e : entries)
+				{
+					if(e.isDirectory())
+						continue;
+					long time = e.getTime();
+					if(timestamp == time && !DeDuperUtil.endsWith(e.getName(), Main.programExts))
+					{
+						consistent = true;
+						System.out.println("consistent:\t" + e.getName() + ", time:" + time);
+					}
+				}
+				if(consistent)
+					System.out.println("file had consistentcies: " + file);
+				else
+					System.out.println("file had NO consistentcies: " + file);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+	};
+	
 }
