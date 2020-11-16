@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import jredfox.filededuper.util.DeDuperUtil;
+import jredfox.filededuper.util.IOUtils;
 
 /**
  * a Config that will only support key=value
@@ -90,7 +91,7 @@ public class MapConfig {
 		this.clear();
 		try
 		{
-			BufferedReader reader = DeDuperUtil.getReader(this.file);
+			BufferedReader reader = IOUtils.getReader(this.file);
 			String line = "";
 			while(line != null)
 			{
@@ -128,7 +129,7 @@ public class MapConfig {
 			File parent = this.file.getParentFile();
 			if(!parent.exists())
 				parent.mkdirs();
-			BufferedWriter writer = DeDuperUtil.getWriter(this.file);
+			BufferedWriter writer = IOUtils.getWriter(this.file);
 			writer.write("#build:" + version + "\r\n");
 			for(String key : this.list.keySet())
 			{

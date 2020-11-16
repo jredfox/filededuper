@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jredfox.filededuper.util.DeDuperUtil;
+import jredfox.filededuper.util.IOUtils;
 
 public class CSV {
 	
@@ -18,7 +19,7 @@ public class CSV {
 	
 	public void parse()
 	{
-		List<String> fileLines = DeDuperUtil.getFileLines(this.file);
+		List<String> fileLines = IOUtils.getFileLines(this.file);
 		this.lines = new ArrayList<>(fileLines.size() + 10);
 		for(String line : fileLines)
 		{
@@ -43,7 +44,7 @@ public class CSV {
 		List<String> writing = new ArrayList(this.lines.size());
 		for(String[] line : this.lines)
 			writing.add(this.toString(line));
-		DeDuperUtil.saveFileLines(writing, this.file, true);
+		IOUtils.saveFileLines(writing, this.file, true);
 	}
 
 	public String toString(String[] line) 
