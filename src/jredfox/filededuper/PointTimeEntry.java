@@ -16,7 +16,7 @@ public class PointTimeEntry {
 	
 	public PointTimeEntry(String dir, long time)
 	{
-		this(dir, time - ( (1000L * 60L) * Main.time), time + ( (1000L * 60L) * Main.time) ,time);
+		this(dir, time - ( (1000L * 60L) * Main.compileTimeOffset), time + ( (1000L * 60L) * Main.compileTimeOffset) ,time);
 	}
 	
 	public PointTimeEntry(String programDir, long min, long max, long time)

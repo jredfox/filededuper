@@ -64,7 +64,7 @@ public class Commands {
 			{
 				String name = f.getName();
 				String md5 = DeDuperUtil.getMD5(f);
-				if(md5s.contains(md5))
+				if(md5s.contains(md5) || md5 == null)
 					continue;
 				String sha256 = DeDuperUtil.getSHA256(f);
 				long lastModified = f.lastModified();
@@ -72,7 +72,9 @@ public class Commands {
 				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + JarUtil.isJarModded(f, Main.checkJarSigned) + "," + path);
 				md5s.add(md5);
 			}
-			File outputFile = new File(dir.getParent(), DeDuperUtil.getFileTrueName(dir) + "-output.csv");
+			if(outStrs.size() == 1)
+				return;
+			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output.csv");
 			IOUtils.saveFileLines(outStrs, outputFile, true);
 		}
 	};
@@ -99,7 +101,7 @@ public class Commands {
 		{
 			CSV origin = new CSV(files[0]);
 			CSV compare = new CSV(files[1]);
-			CSV output = new CSV(new File(origin.file.getParent(), DeDuperUtil.getFileTrueName(origin.file) + "-compared.csv"));
+			CSV output = new CSV(new File(origin.file.getParent(), DeDuperUtil.getTrueName(origin.file) + "-compared.csv"));
 			output.add("#name, md5, sha-256, date-modified, boolean modified(jar only), path");
 			origin.parse();
 			compare.parse();

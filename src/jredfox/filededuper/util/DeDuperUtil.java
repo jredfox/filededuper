@@ -61,7 +61,7 @@ public class DeDuperUtil {
 					System.out.println("skipping dupe file:" + md5 + ", " + f);
 					continue;
 				}
-				String hashName = getFileTrueName(f) + "-" + md5 + getExtensionFull(f);
+				String hashName = getTrueName(f) + "-" + md5 + getExtensionFull(f);
 				File outputFile = sameDir ? (new File(outputDir,  hashName)) : new File(outputDir, getRealtivePath(input, f));
 				if(outputFile.exists())
 				{
@@ -89,7 +89,7 @@ public class DeDuperUtil {
 		output.setLastModified(input.lastModified());
 	}
 	
-	public static String getFileTrueName(File file)
+	public static String getTrueName(File file)
 	{
 		if(!file.getName().contains("."))
 			return file.getName();
@@ -292,7 +292,7 @@ public class DeDuperUtil {
 	{
 		try
 		{
-			return DeDuperUtil.getMD5(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+			return DeDuperUtil.getMD5(new ByteArrayInputStream(JarUtil.extractInMemory(zip, entry)));
 		}
 		catch(IOException e)
 		{
@@ -305,26 +305,13 @@ public class DeDuperUtil {
 	{
 		try 
 		{
-			return DeDuperUtil.getSHA256(new ByteArrayInputStream(DeDuperUtil.extractInMemory(zip, entry)));
+			return DeDuperUtil.getSHA256(new ByteArrayInputStream(JarUtil.extractInMemory(zip, entry)));
 		} 
 		catch (IOException e) 
 		{
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	/**
-	 * get the byte[] in memory from a zip entry
-	 * @throws IOException 
-	 */
-	@Deprecated
-	public static byte[] extractInMemory(ZipFile zipFile, ZipEntry entry) throws IOException
-	{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		InputStream input = zipFile.getInputStream(entry);
-		IOUtils.copy(input, out, true);
-		return out.toByteArray();
 	}
 
 }

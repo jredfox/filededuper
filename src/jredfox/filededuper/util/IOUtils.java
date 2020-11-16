@@ -21,6 +21,11 @@ public class IOUtils {
 	
 	public static final byte[] buffer = new byte[1048576/2];
 	
+	public static void copy(InputStream in, OutputStream out) throws IOException
+	{
+		copy(in, out, true);
+	}
+	
 	public static void copy(InputStream in, OutputStream out, boolean close) throws IOException
 	{
 		int length;

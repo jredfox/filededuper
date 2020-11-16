@@ -1,6 +1,7 @@
 package jredfox.filededuper.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -93,7 +94,7 @@ public class JarUtil {
 			List<ArchiveEntry> entries = getModdedFiles(zip);
 			if(entries.isEmpty())
 				return false;
-			saveZip(entries, new File(file.getParent(), DeDuperUtil.getFileTrueName(file) + "-output.zip"));
+			saveZip(entries, new File(file.getParent(), DeDuperUtil.getTrueName(file) + "-output.zip"));
 			return true;
 		}
 		catch(Exception e)
@@ -121,7 +122,7 @@ public class JarUtil {
 			List<ArchiveEntry> entries = getModdedFiles(zip, orgZip);
 			if(entries.isEmpty())
 				return false;
-			saveZip(entries, new File(file.getParent(), DeDuperUtil.getFileTrueName(file) + "-output.zip"));
+			saveZip(entries, new File(file.getParent(), DeDuperUtil.getTrueName(file) + "-output.zip"));
 			return true;
 		}
 		catch(Exception e)
@@ -144,8 +145,8 @@ public class JarUtil {
 		List<ArchiveEntry> entriesOut = new ArrayList();
 		List<ZipEntry> entries = getZipEntries(zip);
 		long compileTime = getCompileTime(entries);
-		long maxTime = compileTime + ( (1000L * 60L) * Main.time);
-		long minTime = compileTime - ( (1000L * 60L) * Main.time);
+		long maxTime = compileTime + ( (1000L * 60L) * Main.compileTimeOffset);
+		long minTime = compileTime - ( (1000L * 60L) * Main.compileTimeOffset);
 		
 		for(ZipEntry entry : entries)
 		{
@@ -280,12 +281,14 @@ public class JarUtil {
 			ZipEntry rsa = getRSA(jar);
 			if(!checkSignature(jar, dsa) && !checkSignature(jar, rsa))
 			{
+//				System.out.println("failed on the DSA/RSA");
 				return false;
 			}
 			
 			ZipEntry sf = getSF(jar);
 			if(sf == null || !checkManifest(jar, new Manifest(jar.getInputStream(sf)), signed))
 			{
+//				System.out.println("failed on the SF manifest");
 				return false;
 			}
 		}
@@ -348,19 +351,20 @@ public class JarUtil {
 	}
 	
 	private static ZipEntry getSF(JarFile jar) {
-		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".SF"), 0);
+		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".sf"), 0);
 	}
 	
 	private static ZipEntry getRSA(JarFile jar) {
-		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".RSA"), 0);
+		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".rsa"), 0);
 	}
 
 	private static ZipEntry getDSA(JarFile jar) {
-		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".DSA"), 0);
+		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".dsa"), 0);
 	}
 	
 	public static List<ZipEntry> getEntriesFromDir(ZipFile file, String path, String ext)
 	{
+		ext = ext.toLowerCase();
 		List<ZipEntry> list = new ArrayList(2);
 		List<ZipEntry> entries = getZipEntries(file);
 		for(ZipEntry e : entries)
@@ -388,6 +392,17 @@ public class JarUtil {
 			entryList.add(entry);
 		}
 		return entryList;
+	}
+	
+	/**
+	 * use this when getting file hashes from a ZipFile it's slightly faster somehow using this
+	 */
+	public static byte[] extractInMemory(ZipFile zipFile, ZipEntry entry) throws IOException
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		InputStream input = zipFile.getInputStream(entry);
+		IOUtils.copy(input, out, true);
+		return out.toByteArray();
 	}
 	
 	public static void saveZip(List<ArchiveEntry> entries, File output)
