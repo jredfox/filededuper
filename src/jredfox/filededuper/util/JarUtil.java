@@ -405,6 +405,14 @@ public class JarUtil {
 		return out.toByteArray();
 	}
 	
+	public static List<ArchiveEntry> getArchiveEntries(ZipFile zip, List<ZipEntry> entries)
+	{
+		List<ArchiveEntry> archs = new ArrayList(entries.size());
+		for(ZipEntry e : entries)
+			archs.add(new ArchiveEntry(zip, e));
+		return archs;
+	}
+	
 	public static void saveZip(List<ArchiveEntry> entries, File output)
 	{
 		ZipOutputStream out = null;

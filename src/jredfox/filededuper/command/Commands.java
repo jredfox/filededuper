@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.google.common.io.Files;
+
 import jredfox.filededuper.Main;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.util.DeDuperUtil;
@@ -258,6 +260,52 @@ public class Commands {
 		{
 			File file = (File) args[0];
 			System.out.println(file.exists() ? ("" + file.lastModified()) : ("INVALID FILE" + file));
+		}
+	};
+	
+	/**
+	 * sets the time stamp to a specified file
+	 */
+	public static Command<Object> setTimeStampArchive = new Command<Object>("setTimeStampArchive")
+	{
+		@Override
+		public Object[] getParams(String... inputs) 
+		{
+			if(inputs.length == 1)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input file");
+				File file = new File(scanner.nextLine());
+				System.out.println("input timestamp in ms:");
+				long timestamp = Long.parseLong(scanner.nextLine());
+				return new Object[]{file, timestamp};
+			}
+			return new Object[]{new File(inputs[1]), Long.parseLong(inputs[2])};
+		}
+
+		@Override
+		public void run(Object... args) 
+		{
+			try
+			{
+				File file = (File) args[0];
+				ZipFile zip = new ZipFile(file);
+				long timestamp = (long) (Long) args[1];
+				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+				for(ZipEntry e : entries)
+				{
+					e.setTime(timestamp);
+				}
+				File output = new File(file.getParent(), DeDuperUtil.getTrueName(file) + "-tmp.zip");
+				JarUtil.saveZip(JarUtil.getArchiveEntries(zip, entries), output);
+				zip.close();
+				Files.move(output, file);
+				file.setLastModified(timestamp);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 	};
 	
