@@ -61,7 +61,7 @@ public class Commands {
 			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
 			List<String> outStrs = new ArrayList<String>(files.size() + 10);
 			Set<String> md5s = new HashSet<>(files.size() + 10);
-			outStrs.add("#name, md5, sha-256, date-modified, boolean modified(jar only), path");
+			outStrs.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), path");
 			for(File f : files)
 			{
 				String name = f.getName();
@@ -70,8 +70,9 @@ public class Commands {
 					continue;
 				String sha256 = DeDuperUtil.getSHA256(f);
 				long lastModified = f.lastModified();
+				long compileTime = DeDuperUtil.getExtension(f).equals("jar") ? JarUtil.getCompileTime(f) : -1;
 				String path = DeDuperUtil.getRealtivePath(dir.isFile() ? dir.getParentFile() : dir, f);
-				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + JarUtil.isJarModded(f, Main.checkJarSigned) + "," + path);
+				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + compileTime + "," + JarUtil.isJarModded(f, Main.checkJarSigned) + "," + path);
 				md5s.add(md5);
 			}
 			if(outStrs.size() == 1)
@@ -354,7 +355,7 @@ public class Commands {
 		}	
 	};
 	
-	public static Command<File> printJarConsistent = new Command<File>("printJarConsistent")
+	public static Command<File> printJarConsistent = new Command<File>("printJarConsistents")
 	{
 		@Override
 		public File[] getParams(String... inputs)

@@ -28,7 +28,7 @@ public class PointTimeEntry {
 		this.times.add(time);
 	}
 	
-	private String fixProgramDir(String dir) 
+	public static String fixProgramDir(String dir) 
 	{
 		if(!dir.contains("/"))
 			dir = defaultDir;

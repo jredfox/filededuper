@@ -439,4 +439,18 @@ public class JarUtil {
 		}
 	}
 
+	public static long getCompileTime(File f) 
+	{
+		try
+		{
+			ZipFile zip = new ZipFile(f);
+			return getCompileTime(getZipEntries(zip));
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
 }
