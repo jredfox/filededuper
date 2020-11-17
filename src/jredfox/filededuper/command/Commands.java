@@ -58,29 +58,92 @@ public class Commands {
 		public void run(File... args) 
 		{
 			File dir = args[0];
-			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
-			List<String> outStrs = new ArrayList<String>(files.size() + 10);
-			Set<String> md5s = new HashSet<>(files.size() + 10);
-			outStrs.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), path");
-			for(File f : files)
-			{
-				String name = f.getName();
-				String md5 = DeDuperUtil.getMD5(f);
-				if(md5s.contains(md5) || md5 == null)
-					continue;
-				String sha256 = DeDuperUtil.getSHA256(f);
-				long lastModified = f.lastModified();
-				long compileTime = DeDuperUtil.getExtension(f).equals("jar") ? JarUtil.getCompileTime(f) : -1;
-				String path = DeDuperUtil.getRealtivePath(dir.isFile() ? dir.getParentFile() : dir, f);
-				outStrs.add(name + "," + md5 + "," + sha256 + "," + lastModified + "," + compileTime + "," + JarUtil.isJarModded(f, Main.checkJarSigned) + "," + path);
-				md5s.add(md5);
-			}
-			if(outStrs.size() == 1)
+			List<File> files = DeDuperUtil.getDirFiles(dir, "jar", "zip");
+			if(!dir.exists() || files.isEmpty())
 				return;
-			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output.csv");
-			IOUtils.saveFileLines(outStrs, outputFile, true);
+			List<String> index = new ArrayList<>(files.size());
+			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), path");
+			Set<String> md5s = new HashSet<>(files.size());
+			for(File file : files)
+			{
+				addEntry(dir, file, md5s, index);
+			}
+			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + ".csv");
+			IOUtils.saveFileLines(index, outputFile, true);
 		}
 	};
+	
+	public static Command<File> genArchiveMD5s = new Command<File>("genArchiveMD5s")
+	{
+		@Override
+		public File[] getParams(String... inputs) 
+		{
+			File dir = null;
+			if(inputs.length < 2)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input directory to generate a spreadsheet:");
+				dir = new File(scanner.nextLine());
+				if(!dir.exists())
+				{
+					throw new CMDMaulformedException("directory or file doesn't exist:" + dir);
+				}
+			}
+			else
+			{
+				dir = new File(inputs[1]);
+			}
+			return new File[]{ dir };
+		}
+
+		@Override
+		public void run(File... args)
+		{
+			File dir = args[0];
+			List<File> files = DeDuperUtil.getDirFiles(dir, "jar", "zip");
+			if(!dir.exists() || files.isEmpty())
+				return;
+			File outDir = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
+			outDir.mkdir();
+			List<String> index = new ArrayList<>(files.size());
+			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), path");
+			Set<String> md5s = new HashSet<>(files.size());
+			for(File file : files)
+			{
+				addEntry(dir, file, md5s, index);
+				String md5 = DeDuperUtil.getMD5(file);
+				CSV csv = new CSV(new File(outDir, DeDuperUtil.getTrueName(file) + "-" + md5 + ".csv"));
+				boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
+				if(isJar)
+				{
+					JarUtil.addJarEntries(file, csv);
+				}
+				else
+				{
+					JarUtil.addZipEntries(file, csv);
+				}
+				csv.save();
+			}
+			File outputIndex = new File(outDir, "index-" + DeDuperUtil.getTrueName(dir) + ".csv");
+			IOUtils.saveFileLines(index, outputIndex, true);
+		}
+	};
+	
+	public static void addEntry(File dir, File file, Set<String> md5s, List<String> list)
+	{
+		String name = file.getName();
+		String md5 = DeDuperUtil.getMD5(file);
+		if(md5s.contains(md5))
+			return;
+		String sha256 = DeDuperUtil.getSHA256(file);
+		long time = file.lastModified();
+		boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
+		long compileTime = isJar ? JarUtil.getCompileTime(file) : -1;
+		boolean modified = JarUtil.isJarModded(file, Main.checkJarSigned);
+		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
+		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + path);
+		md5s.add(md5);
+	}
 	
 	public static Command<File> compareMD5s = new Command<File>("compareMD5s")
 	{	
@@ -355,7 +418,7 @@ public class Commands {
 		}	
 	};
 	
-	public static Command<File> printJarConsistent = new Command<File>("printJarConsistents")
+	public static Command<File> printJarConsistencies = new Command<File>("printJarConsistencies")
 	{
 		@Override
 		public File[] getParams(String... inputs)

@@ -9,12 +9,18 @@ import jredfox.filededuper.util.IOUtils;
 
 public class CSV {
 	
-	public List<String[]> lines = new ArrayList<>();
+	public List<String[]> lines;
 	public File file;
 	
 	public CSV(File file)
 	{
+		this(file, 10);//10 is the default array capacity
+	}
+	
+	public CSV(File file, int initCapacity)
+	{
 		this.file = file;
+		this.lines = new ArrayList<>(initCapacity);
 	}
 	
 	public void parse()
@@ -23,7 +29,8 @@ public class CSV {
 		this.lines = new ArrayList<>(fileLines.size() + 10);
 		for(String line : fileLines)
 		{
-			if(line.trim().isEmpty() || line.startsWith("#"))//skip invalid lines
+			line = line.trim();
+			if(line.isEmpty() || line.startsWith("#"))//skip invalid lines
 				continue;
 			this.add(line);
 		}

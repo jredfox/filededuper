@@ -18,12 +18,14 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import jredfox.filededuper.Main;
 import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
+import jredfox.filededuper.config.csv.CSV;
 
 public class JarUtil {
 	
@@ -145,22 +147,12 @@ public class JarUtil {
 		List<ArchiveEntry> entriesOut = new ArrayList();
 		List<ZipEntry> entries = getZipEntries(zip);
 		long compileTime = getCompileTime(entries);
-		long maxTime = compileTime + ( (1000L * 60L) * Main.compileTimeOffset);
-		long minTime = compileTime - ( (1000L * 60L) * Main.compileTimeOffset);
+		long minTime = getMinTime(compileTime);
+		long maxTime = getMaxTime(compileTime);
 		
 		for(ZipEntry entry : entries)
 		{
-			long time = entry.getTime();
-			if(Main.consistentCheckJar && time != compileTime)
-			{
-				entriesOut.add(new ArchiveEntry(zip, entry));
-			}
-			else if(time > maxTime)
-			{
-//				System.out.println("compileTime:" + compileTime + "," + maxTime + "," + entry);
-				entriesOut.add(new ArchiveEntry(zip, entry));
-			}
-			else if(time < minTime && DeDuperUtil.endsWith(entry.getName(), Main.programExts))
+			if(isEntryModified(entry, compileTime, minTime, maxTime))
 			{
 				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
@@ -168,6 +160,36 @@ public class JarUtil {
 		return entriesOut;
 	}
 	
+	public static boolean isEntryModified(ZipEntry entry, long compileTime, long minTime, long maxTime)
+	{
+		long time = entry.getTime();
+		if(Main.consistentCheckJar && time != compileTime)
+		{
+			return true;
+		}
+		else if(time > maxTime)
+		{
+			return true;
+		}
+		else if(time < minTime && DeDuperUtil.endsWith(entry.getName(), Main.programExts))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	public static long getMaxTime(long compileTime)
+	{
+		long maxTime = compileTime + ( (1000L * 60L) * Main.compileTimeOffset);
+		return maxTime;
+	}
+
+	public static long getMinTime(long compileTime) 
+	{
+		long minTime = compileTime - ( (1000L * 60L) * Main.compileTimeOffset);
+		return minTime;
+	}
+
 	/**
 	 * compare jar with the original jar file and output any modifications
 	 */
@@ -455,6 +477,60 @@ public class JarUtil {
 			e.printStackTrace();
 		}
 		return -1;
+	}
+	
+	public static void addZipEntries(File f, CSV csv) 
+	{
+		try
+		{
+			ZipFile zip = new ZipFile(f);
+			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+			csv.add("#name, md5, sha256, date-modified, path");
+			for(ZipEntry entry : entries)
+			{
+				String name = new File(entry.getName()).getName();
+				String md5 = DeDuperUtil.getMD5(zip, entry);
+				String sha256 = DeDuperUtil.getSHA256(zip, entry);
+				long time = entry.getTime();
+				String path = entry.getName();
+				csv.add(name + "," + md5 + "," + sha256 + "," + time + "," + path);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void addJarEntries(File f, CSV csv) 
+	{
+		try
+		{
+			ZipFile zip = new ZipFile(f);
+			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+			csv.add("#name, md5, sha256, date-modified, compileTime, boolean modified, consistent resource file, path");
+			long compileTime = JarUtil.getCompileTime(f);
+			long minTime = JarUtil.getMinTime(compileTime);
+			long maxTime = JarUtil.getMaxTime(compileTime);
+			
+			for(ZipEntry entry : entries)
+			{
+				if(entry.isDirectory())
+					continue;
+				String name = new File(entry.getName()).getName();
+				String md5 = DeDuperUtil.getMD5(zip, entry);
+				String sha256 = DeDuperUtil.getSHA256(zip, entry);
+				long time = entry.getTime();
+				boolean modified = isEntryModified(entry, compileTime, minTime, maxTime);
+				boolean consistent = compileTime == time && !DeDuperUtil.endsWith(name, Main.programExts);
+				String path = entry.getName();
+				csv.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + (consistent ? "consistent resource file" : "false") + "," + path);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }
