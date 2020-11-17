@@ -10,7 +10,7 @@ import jredfox.filededuper.config.simple.MapConfig;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.4.4";
+	public static final String VERSION = "0.4.5";
 	
 	public static void main(String[] programArgs)
 	{
@@ -37,6 +37,7 @@ public class Main {
 	public static boolean compileTimePoints;
 	public static long compileTimeOffset;
 	public static boolean checkJarSigned;
+	public static boolean consistentCheckJar;
 	public static String[] programExts;
 	public static String[] programDirs;
 	
@@ -54,6 +55,7 @@ public class Main {
 		compileTimePoints = jarCheck.get("compileTimePoints", true);//getCompile time based on maximum points based on the program dir then the lowest one in there
 		compileTimeOffset = jarCheck.get("compileTimeOffset", 30);//amount of minuets is allowed since the compile time before it's considered a mod
 		checkJarSigned = jarCheck.get("checkJarSigned", true);
+		consistentCheckJar = jarCheck.get("consistentCheckJar", false);
 		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf").toLowerCase().trim().split(",");
 		programDirs = getProgramDirs(jarCheck);
 		jarCheck.save();

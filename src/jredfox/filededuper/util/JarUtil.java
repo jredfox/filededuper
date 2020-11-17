@@ -151,7 +151,11 @@ public class JarUtil {
 		for(ZipEntry entry : entries)
 		{
 			long time = entry.getTime();
-			if(time > maxTime)
+			if(Main.consistentCheckJar && time != compileTime)
+			{
+				entriesOut.add(new ArchiveEntry(zip, entry));
+			}
+			else if(time > maxTime)
 			{
 //				System.out.println("compileTime:" + compileTime + "," + maxTime + "," + entry);
 				entriesOut.add(new ArchiveEntry(zip, entry));
