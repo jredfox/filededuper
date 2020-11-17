@@ -66,7 +66,7 @@ public class Commands {
 			Set<String> md5s = new HashSet<>(files.size());
 			for(File file : files)
 			{
-				addEntry(dir, file, md5s, index);
+				DeDuperUtil.genMD5s(dir, file, md5s, index);
 			}
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + ".csv");
 			IOUtils.saveFileLines(index, outputFile, true);
@@ -111,7 +111,7 @@ public class Commands {
 			Set<String> md5s = new HashSet<>(files.size());
 			for(File file : files)
 			{
-				addEntry(dir, file, md5s, index);
+				DeDuperUtil.genMD5s(dir, file, md5s, index);
 				String md5 = DeDuperUtil.getMD5(file);
 				CSV csv = new CSV(new File(outArchive, DeDuperUtil.getTrueName(file) + "-" + md5 + ".csv"));
 				boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
@@ -129,22 +129,6 @@ public class Commands {
 			IOUtils.saveFileLines(index, outputIndex, true);
 		}
 	};
-	
-	public static void addEntry(File dir, File file, Set<String> md5s, List<String> list)
-	{
-		String name = file.getName();
-		String md5 = DeDuperUtil.getMD5(file);
-		if(md5s.contains(md5))
-			return;
-		String sha256 = DeDuperUtil.getSHA256(file);
-		long time = file.lastModified();
-		boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
-		long compileTime = isJar ? JarUtil.getCompileTime(file) : -1;
-		boolean modified = JarUtil.isJarModded(file, Main.checkJarSigned);
-		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
-		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + path);
-		md5s.add(md5);
-	}
 	
 	public static Command<File> compareMD5s = new Command<File>("compareMD5s")
 	{	

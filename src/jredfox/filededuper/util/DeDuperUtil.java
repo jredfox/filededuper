@@ -314,5 +314,21 @@ public class DeDuperUtil {
 		}
 		return null;
 	}
+	
+	public static void genMD5s(File dir, File file, Set<String> md5s, List<String> list)
+	{
+		String name = file.getName();
+		String md5 = DeDuperUtil.getMD5(file);
+		if(md5s.contains(md5))
+			return;
+		String sha256 = DeDuperUtil.getSHA256(file);
+		long time = file.lastModified();
+		boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
+		long compileTime = isJar ? JarUtil.getCompileTime(file) : -1;
+		boolean modified = JarUtil.isJarModded(file, Main.checkJarSigned);
+		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
+		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + path);
+		md5s.add(md5);
+	}
 
 }
