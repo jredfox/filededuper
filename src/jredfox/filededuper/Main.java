@@ -53,7 +53,7 @@ public class Main {
 		compileTimePoints = jarCheck.get("compileTimePoints", true);//getCompile time based on maximum points based on the program dir then the lowest one in there
 		compileTimeOffset = jarCheck.get("compileTimeOffset", 30);//amount of minuets is allowed since the compile time before it's considered a mod
 		checkJarSigned = jarCheck.get("checkJarSigned", true);
-		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf,jar").toLowerCase().trim().split(",");
+		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf").toLowerCase().trim().split(",");
 		programDirs = getProgramDirs(jarCheck);
 		jarCheck.save();
 	}
