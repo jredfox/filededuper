@@ -104,7 +104,8 @@ public class Commands {
 			if(!dir.exists() || files.isEmpty())
 				return;
 			File outDir = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
-			outDir.mkdir();
+			File outArchive = new File(outDir, "archives");
+			outArchive.mkdirs();
 			List<String> index = new ArrayList<>(files.size());
 			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), path");
 			Set<String> md5s = new HashSet<>(files.size());
@@ -112,7 +113,7 @@ public class Commands {
 			{
 				addEntry(dir, file, md5s, index);
 				String md5 = DeDuperUtil.getMD5(file);
-				CSV csv = new CSV(new File(outDir, DeDuperUtil.getTrueName(file) + "-" + md5 + ".csv"));
+				CSV csv = new CSV(new File(outArchive, DeDuperUtil.getTrueName(file) + "-" + md5 + ".csv"));
 				boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
 				if(isJar)
 				{
