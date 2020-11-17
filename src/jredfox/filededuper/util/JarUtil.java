@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -485,15 +487,21 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+			Set<String> md5s = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha256, date-modified, path");
 			for(ZipEntry entry : entries)
 			{
+				if(entry.isDirectory())
+					continue;
 				String name = new File(entry.getName()).getName();
 				String md5 = DeDuperUtil.getMD5(zip, entry);
+				if(md5s.contains(md5))
+					continue;
 				String sha256 = DeDuperUtil.getSHA256(zip, entry);
 				long time = entry.getTime();
 				String path = entry.getName();
 				csv.add(name + "," + md5 + "," + sha256 + "," + time + "," + path);
+				md5s.add(md5);
 			}
 		}
 		catch (Exception e)
@@ -508,6 +516,7 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+			Set<String> md5s = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha256, date-modified, compileTime, boolean modified, consistent resource file, path");
 			long compileTime = JarUtil.getCompileTime(f);
 			long minTime = JarUtil.getMinTime(compileTime);
@@ -518,13 +527,23 @@ public class JarUtil {
 				if(entry.isDirectory())
 					continue;
 				String name = new File(entry.getName()).getName();
+				boolean modified = isEntryModified(entry, compileTime, minTime, maxTime);
 				String md5 = DeDuperUtil.getMD5(zip, entry);
+				if(md5s.contains(md5))
+				{
+					if(modified)
+					{
+						String[] line = csv.getLine(md5, 1);
+						line[5] = "true";//hotfix for duplicate entries having different timestamps
+					}
+					continue;
+				}
 				String sha256 = DeDuperUtil.getSHA256(zip, entry);
 				long time = entry.getTime();
-				boolean modified = isEntryModified(entry, compileTime, minTime, maxTime);
 				boolean consistent = compileTime == time && !DeDuperUtil.endsWith(name, Main.programExts);
 				String path = entry.getName();
 				csv.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + (consistent ? "consistent resource file" : "false") + "," + path);
+				md5s.add(md5);
 			}
 		}
 		catch (Exception e)

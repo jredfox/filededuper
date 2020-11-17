@@ -46,6 +46,35 @@ public class CSV {
 		this.lines.add(index, line.split(","));
 	}
 	
+	public String[] getLine(String key, int colum)
+	{
+		for(String[] line : this.lines)
+		{
+			String str = line[colum];
+			if(str.equals(key))
+			{
+				return line;
+			}
+		}
+		return null;
+	}
+	
+	public boolean appendIf(String key, int colum, String value)
+	{
+		int count = 0;
+		for(String[] line : this.lines)
+		{
+			String str = line[colum];
+			if(str.equals(key))
+			{
+				this.lines.set(count, (toString(line) + "," + value).split(","));
+				return true;
+			}
+			count++;
+		}
+		return false;
+	}
+	
 	public void save()
 	{
 		List<String> writing = new ArrayList(this.lines.size());
