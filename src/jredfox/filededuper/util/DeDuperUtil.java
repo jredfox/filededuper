@@ -196,11 +196,6 @@ public class DeDuperUtil {
 		return null;
 	}
 	
-	public static String getMD5(InputStream input) throws IOException
-	{
-		return Main.lowercaseHash ? DigestUtils.md5Hex(input) : DigestUtils.md5Hex(input).toUpperCase();
-	}
-	
 	public static String getSHA256(File f)
 	{
 		try
@@ -214,9 +209,25 @@ public class DeDuperUtil {
 		return null;
 	}
 	
+	public static String getMD5(InputStream input) throws IOException
+	{
+		String hash = DigestUtils.md5Hex(input);
+		if(!Main.lowercaseHash)
+			hash = hash.toUpperCase();
+		input.close();
+		return hash;
+	}
+	
+	/**
+	 * closes inputstream
+	 */
 	public static String getSHA256(InputStream input) throws IOException
 	{
-		return Main.lowercaseHash ? DigestUtils.sha256Hex(input) : DigestUtils.sha256Hex(input).toUpperCase();
+		String hash = DigestUtils.sha256Hex(input);
+		if(!Main.lowercaseHash)
+			hash = hash.toUpperCase();
+		input.close();
+		return hash;
 	}
 	
 
