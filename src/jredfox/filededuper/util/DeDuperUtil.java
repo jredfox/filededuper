@@ -45,6 +45,7 @@ import com.google.common.io.Files;
 import jredfox.filededuper.Main;
 import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
+import jredfox.filededuper.util.JarUtil.Consistencies;
 
 public class DeDuperUtil {
 	
@@ -315,6 +316,11 @@ public class DeDuperUtil {
 		return null;
 	}
 	
+	public static boolean isProgramExt(String name)
+	{
+		return DeDuperUtil.endsWith(name, Main.programExts);
+	}
+	
 	public static void genMD5s(File dir, File file, Set<String> md5s, List<String> list)
 	{
 		String name = file.getName();
@@ -325,9 +331,10 @@ public class DeDuperUtil {
 		long time = file.lastModified();
 		boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
 		long compileTime = isJar ? JarUtil.getCompileTime(file) : -1;
-		boolean modified = JarUtil.isJarModded(file, Main.checkJarSigned);
+		boolean modified = isJar ? JarUtil.isJarModded(file, Main.checkJarSigned) : false;
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
-		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + path);
+		JarUtil.Consistencies consistency = isJar ? JarUtil.getConsistentcy(file) : Consistencies.none;
+		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistency + "," + path);
 		md5s.add(md5);
 	}
 

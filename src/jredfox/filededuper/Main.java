@@ -10,11 +10,11 @@ import jredfox.filededuper.config.simple.MapConfig;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.4.6";
+	public static final String VERSION = "0.5.0";
 	
 	public static void main(String[] programArgs)
 	{
-		System.out.println("staring");
+		System.out.println("starting");
 		loadConfigs();
 		if(programArgs.length != 0)
 		{

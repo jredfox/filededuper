@@ -28,17 +28,25 @@ import jredfox.filededuper.Main;
 import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.config.csv.CSV;
+import jredfox.filededuper.util.JarUtil.Consistencies;
 
 public class JarUtil {
+	
+	public static enum Consistencies
+	{
+		consistentJar(),
+		consistentResource(),
+		consistentClass(),
+		inconsistentClass(),
+		inconsistentResource(),
+		none(),
+	}
 	
 	/**
 	 * is cpu & disk intensive
 	 */
 	public static boolean isJarModded(File file, boolean signed)
 	{
-		if(!DeDuperUtil.getExtension(file).equals("jar"))
-			return false;
-		
 		JarFile jar = null;
 		boolean modded = false;
 		try
@@ -173,7 +181,7 @@ public class JarUtil {
 		{
 			return true;
 		}
-		else if(time < minTime && DeDuperUtil.endsWith(entry.getName(), Main.programExts))
+		else if(time < minTime && DeDuperUtil.isProgramExt(entry.getName()))
 		{
 			return true;
 		}
@@ -517,7 +525,7 @@ public class JarUtil {
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> md5s = new HashSet<>(entries.size());
-			csv.add("#name, md5, sha256, date-modified, compileTime, boolean modified, consistent resource file, path");
+			csv.add("#name, md5, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
 			long compileTime = JarUtil.getCompileTime(f);
 			long minTime = JarUtil.getMinTime(compileTime);
 			long maxTime = JarUtil.getMaxTime(compileTime);
@@ -540,9 +548,9 @@ public class JarUtil {
 				}
 				String sha256 = DeDuperUtil.getSHA256(zip, entry);
 				long time = entry.getTime();
-				boolean consistent = compileTime == time && !DeDuperUtil.endsWith(name, Main.programExts);
+				Consistencies consistencies = getConsistency(entry, compileTime, time);
 				String path = entry.getName();
-				csv.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + (consistent ? "consistent resource file" : "false") + "," + path);
+				csv.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistencies + "," + path);
 				md5s.add(md5);
 			}
 		}
@@ -550,6 +558,48 @@ public class JarUtil {
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * gets the consistenty of an individual ZipEntry
+	 */
+	public static Consistencies getConsistency(ZipEntry entry, long compileTime, long time)
+	{
+		boolean consistent = compileTime == time;
+		boolean programFile = DeDuperUtil.isProgramExt(entry.getName());
+		return consistent ? (programFile ? Consistencies.consistentClass : Consistencies.consistentResource) : (programFile ? Consistencies.inconsistentClass : Consistencies.inconsistentResource);
+	}
+
+	/**
+	 * gets the consistency of the entire jar file.
+	 * @return {@link Consistencies#consistentJar} if all files are consistent.
+	 *  Consistencies#consistentResource is if one resource matches compile time.
+	 *  Consistencies#none for all other forms
+	 */
+	public static Consistencies getConsistentcy(File file) 
+	{
+		try
+		{
+			ZipFile zip = new ZipFile(file);
+			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+			Set<Consistencies> test = new HashSet(4);
+			long compileTime = JarUtil.getCompileTime(entries);
+			for(ZipEntry e : entries)
+			{
+				if(e.isDirectory())
+					continue;
+				long time = e.getTime();
+				Consistencies c = getConsistency(e, compileTime, time);
+				test.add(c);
+			}
+			zip.close();
+			return test.contains(Consistencies.inconsistentClass) || test.contains(Consistencies.inconsistentResource) ? (test.contains(Consistencies.consistentResource) ? Consistencies.consistentResource : Consistencies.none) : Consistencies.consistentJar;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return Consistencies.none;
 	}
 
 }

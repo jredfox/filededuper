@@ -62,7 +62,7 @@ public class Commands {
 			if(!dir.exists() || files.isEmpty())
 				return;
 			List<String> index = new ArrayList<>(files.size());
-			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), path");
+			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path");
 			Set<String> md5s = new HashSet<>(files.size());
 			for(File file : files)
 			{
@@ -107,7 +107,7 @@ public class Commands {
 			File outArchive = new File(outDir, "archives");
 			outArchive.mkdirs();
 			List<String> index = new ArrayList<>(files.size());
-			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), path");
+			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency, path");
 			Set<String> md5s = new HashSet<>(files.size());
 			for(File file : files)
 			{
@@ -433,7 +433,7 @@ public class Commands {
 					if(e.isDirectory())
 						continue;
 					long time = e.getTime();
-					if(timestamp == time && !DeDuperUtil.endsWith(e.getName(), Main.programExts))
+					if(timestamp == time && !DeDuperUtil.isProgramExt(e.getName()))
 					{
 						consistent = true;
 						System.out.println("consistent:\t" + e.getName() + ", time:" + time);
