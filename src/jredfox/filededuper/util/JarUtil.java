@@ -48,14 +48,14 @@ public class JarUtil {
 	/**
 	 * is cpu & disk intensive
 	 */
-	public static boolean isJarModded(File file, boolean signed)
+	public static boolean isJarModded(File file, List<ZipEntry> entries, boolean signed)
 	{
 		JarFile jar = null;
 		boolean modded = false;
 		try
 		{
 			jar = new JarFile(file, true);
-			modded = !checkMetainf(jar, signed) || !getModdedFiles(jar).isEmpty();
+			modded = !checkMetainf(jar, entries, signed) || !getModdedFiles(jar, entries).isEmpty();
 		}
 		catch(SecurityException e)
 		{
@@ -153,13 +153,18 @@ public class JarUtil {
 		return false;
 	}
 	
+	public static List<ArchiveEntry> getModdedFiles(ZipFile zip)
+	{
+		List<ZipEntry> entries = getZipEntries(zip);
+		return getModdedFiles(zip, entries);
+	}
+	
 	/**
 	 * check the jar self integrity with itself
 	 */
-	public static List<ArchiveEntry> getModdedFiles(ZipFile zip)
+	public static List<ArchiveEntry> getModdedFiles(ZipFile zip, List<ZipEntry> entries)
 	{
 		List<ArchiveEntry> entriesOut = new ArrayList();
-		List<ZipEntry> entries = getZipEntries(zip);
 		long compileTime = getCompileTime(entries);
 		long minTime = getMinTime(compileTime);
 		long maxTime = getMaxTime(compileTime);
@@ -313,7 +318,7 @@ public class JarUtil {
 		return point.times.get(0);
 	}
 	
-	public static boolean checkMetainf(JarFile jar, boolean signed) throws IOException 
+	public static boolean checkMetainf(JarFile jar, List<ZipEntry> entries, boolean signed) throws IOException 
 	{
 		if(signed)
 		{
@@ -326,14 +331,14 @@ public class JarUtil {
 			}
 			
 			ZipEntry sf = getSF(jar);
-			if(sf == null || !checkManifest(jar, new Manifest(jar.getInputStream(sf)), signed))
+			if(sf == null || !checkManifest(entries, new Manifest(jar.getInputStream(sf)), signed))
 			{
 //				System.out.println("failed on the SF manifest");
 				return false;
 			}
 		}
 		Manifest mani = jar.getManifest();
-		return checkManifest(jar, mani, signed);
+		return checkManifest(entries, mani, signed);
 	}
 	
 	public static boolean checkSignature(ZipFile zip, ZipEntry sig)
@@ -353,7 +358,7 @@ public class JarUtil {
 		return false;
 	}
 
-	public static boolean checkManifest(ZipFile zip, Manifest mf, boolean signed)
+	public static boolean checkManifest(List<ZipEntry> entries, Manifest mf, boolean signed)
 	{
 		if(mf == null || mf.getMainAttributes().isEmpty())
 		{
@@ -376,7 +381,6 @@ public class JarUtil {
 				}
 			}
 			List<String> actualNames = new ArrayList();
-			List<ZipEntry> entries = getZipEntries(zip);
 			for(ZipEntry entry : entries)
 			{
 				if(entry.getName().startsWith("META-INF/"))
@@ -571,11 +575,10 @@ public class JarUtil {
 	 * {@link Consistencies#none} if the jar's resources are inconsistent with compile time not all classes are matching and no resources are matching.
 	 * this isn't a boolean for is modded just an enum for how the compiler/obfuscator/jar signer works.
 	 */
-	public static Consistencies getConsistentcy(ZipFile zip) 
+	public static Consistencies getConsistentcy(List<ZipEntry> entries) 
 	{
 		try
 		{
-			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<Consistencies> cs = new HashSet<>(4);
 			long compileTime = JarUtil.getCompileTime(entries);
 			for(ZipEntry e : entries)

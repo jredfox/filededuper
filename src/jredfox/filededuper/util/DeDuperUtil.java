@@ -345,8 +345,8 @@ public class DeDuperUtil {
 		Zip jar = isJar ? JarUtil.getZipFile(file) : null;
 		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
 		long compileTime = isJar ? JarUtil.getCompileTime(entries) : -1;
-		boolean modified = isJar ? JarUtil.isJarModded(jar.file, Main.checkJarSigned) : false;
-		JarUtil.Consistencies consistency = isJar ? JarUtil.getConsistentcy(jar) : Consistencies.none;
+		boolean modified = isJar ? JarUtil.isJarModded(jar.file, entries, Main.checkJarSigned) : false;
+		JarUtil.Consistencies consistency = isJar ? JarUtil.getConsistentcy(entries) : Consistencies.none;
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
 		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistency + "," + path);
 		md5s.add(md5);
