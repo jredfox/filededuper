@@ -36,9 +36,11 @@ public class JarUtil {
 	{
 		consistentJar(),
 		consistentResource(),
+		hasConsistentResource(),
 		consistentClass(),
 		inconsistentClass(),
 		inconsistentResource(),
+		matchingClasses(),
 		none(),
 	}
 	
@@ -561,7 +563,7 @@ public class JarUtil {
 	}
 	
 	/**
-	 * gets the consistenty of an individual ZipEntry
+	 * gets the consistencies of an individual ZipEntry
 	 */
 	public static Consistencies getConsistency(ZipEntry entry, long compileTime, long time)
 	{
@@ -573,8 +575,10 @@ public class JarUtil {
 	/**
 	 * gets the consistency of the entire jar file.
 	 * @return {@link Consistencies#consistentJar} if all files are consistent.
-	 *  Consistencies#consistentResource is if one resource matches compile time.
-	 *  Consistencies#none for all other forms
+	 *  {@link Consistencies#consistentResource} if all resources match the compile time but, the classes are inconsistent
+	 * {@link Consistencies#hasConsistentResource} if one or more resources match the compile time
+	 * {@link Consistencies#matchingClasses} if all the program files match the timestamp but, have no matching resources
+	 * {@link Consistencies#none} if the jar's resources are inconsistent with compile time and no matching classes are found, note this isn't a boolean for modded just the way the compiler works
 	 */
 	public static Consistencies getConsistentcy(File file) 
 	{
@@ -582,7 +586,7 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(file);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-			Set<Consistencies> test = new HashSet(4);
+			Set<Consistencies> cs = new HashSet<>(4);
 			long compileTime = JarUtil.getCompileTime(entries);
 			for(ZipEntry e : entries)
 			{
@@ -590,10 +594,16 @@ public class JarUtil {
 					continue;
 				long time = e.getTime();
 				Consistencies c = getConsistency(e, compileTime, time);
-				test.add(c);
+				cs.add(c);
 			}
 			zip.close();
-			return test.contains(Consistencies.inconsistentClass) || test.contains(Consistencies.inconsistentResource) ? (test.contains(Consistencies.consistentResource) ? Consistencies.consistentResource : Consistencies.none) : Consistencies.consistentJar;
+			return !cs.contains(Consistencies.inconsistentClass) && !cs.contains(Consistencies.inconsistentResource) ? 
+					Consistencies.consistentJar : 
+						(cs.contains(Consistencies.consistentResource) ? 
+								(cs.contains(Consistencies.inconsistentResource) ? 
+										Consistencies.hasConsistentResource : Consistencies.consistentResource) : 
+											cs.contains(Consistencies.inconsistentClass) ? 
+													Consistencies.none : Consistencies.matchingClasses);
 		}
 		catch(Exception e)
 		{
