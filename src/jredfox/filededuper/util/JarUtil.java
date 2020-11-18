@@ -27,6 +27,7 @@ import java.util.zip.ZipOutputStream;
 import jredfox.filededuper.Main;
 import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
+import jredfox.filededuper.archive.Zip;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.util.JarUtil.Consistencies;
 
@@ -53,17 +54,18 @@ public class JarUtil {
 		boolean modded = false;
 		try
 		{
-			jar = new JarFile(file);
+			jar = new JarFile(file, true);
 			modded = !checkMetainf(jar, signed) || !getModdedFiles(jar).isEmpty();
+		}
+		catch(SecurityException e)
+		{
+			
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-		finally
-		{
-			IOUtils.closeQuietly(jar);
-		}
+		IOUtils.close(jar, true);
 		return modded;
 	}
 	
@@ -420,6 +422,8 @@ public class JarUtil {
 	
 	public static List<ZipEntry> getZipEntries(ZipFile zip) 
 	{
+		if(zip == null)
+			return null;
 		List<ZipEntry> entryList = new ArrayList<>(150);
 		Enumeration entries = zip.entries();
 		while(entries.hasMoreElements())
@@ -476,20 +480,6 @@ public class JarUtil {
 			IOUtils.close(out);
 		}
 	}
-
-	public static long getCompileTime(File f) 
-	{
-		try
-		{
-			ZipFile zip = new ZipFile(f);
-			return getCompileTime(getZipEntries(zip));
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		return -1;
-	}
 	
 	public static void addZipEntries(File f, CSV csv) 
 	{
@@ -528,7 +518,7 @@ public class JarUtil {
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> md5s = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
-			long compileTime = JarUtil.getCompileTime(f);
+			long compileTime = JarUtil.getCompileTime(entries);
 			long minTime = JarUtil.getMinTime(compileTime);
 			long maxTime = JarUtil.getMaxTime(compileTime);
 			
@@ -581,11 +571,10 @@ public class JarUtil {
 	 * {@link Consistencies#none} if the jar's resources are inconsistent with compile time not all classes are matching and no resources are matching.
 	 * this isn't a boolean for is modded just an enum for how the compiler/obfuscator/jar signer works.
 	 */
-	public static Consistencies getConsistentcy(File file) 
+	public static Consistencies getConsistentcy(ZipFile zip) 
 	{
 		try
 		{
-			ZipFile zip = new ZipFile(file);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<Consistencies> cs = new HashSet<>(4);
 			long compileTime = JarUtil.getCompileTime(entries);
@@ -597,7 +586,6 @@ public class JarUtil {
 				Consistencies c = getConsistency(e, compileTime, time);
 				cs.add(c);
 			}
-			zip.close();
 			return !cs.contains(Consistencies.inconsistentClass) && !cs.contains(Consistencies.inconsistentResource) ? 
 					Consistencies.consistentJar : 
 						(cs.contains(Consistencies.consistentResource) ? 
@@ -611,6 +599,19 @@ public class JarUtil {
 			e.printStackTrace();
 		}
 		return Consistencies.none;
+	}
+
+	public static Zip getZipFile(File file)
+	{
+		try
+		{
+			return new Zip(file);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

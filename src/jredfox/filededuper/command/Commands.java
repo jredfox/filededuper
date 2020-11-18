@@ -161,13 +161,13 @@ public class Commands {
 			Set<String> md5s = new HashSet(origin.lines.size() + 10);
 			for(String[] line : origin.lines)
 			{
-				md5s.add(line[1]);
+				md5s.add(line[1].toLowerCase());
 			}
 			
 			//inject any new entries
 			for(String[] line : compare.lines)
 			{
-				String md5 = line[1];
+				String md5 = line[1].toLowerCase();
 				if(!md5s.contains(md5) && (Main.compareExt.equals("*") || line[0].endsWith(Main.compareExt)))
 				{
 					output.lines.add(line);

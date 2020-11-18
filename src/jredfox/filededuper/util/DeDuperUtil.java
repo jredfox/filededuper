@@ -45,6 +45,7 @@ import com.google.common.io.Files;
 import jredfox.filededuper.Main;
 import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
+import jredfox.filededuper.archive.Zip;
 import jredfox.filededuper.util.JarUtil.Consistencies;
 
 public class DeDuperUtil {
@@ -197,7 +198,7 @@ public class DeDuperUtil {
 	
 	public static String getMD5(InputStream input) throws IOException
 	{
-		return DigestUtils.md5Hex(input).toUpperCase();
+		return Main.lowercaseHash ? DigestUtils.md5Hex(input) : DigestUtils.md5Hex(input).toUpperCase();
 	}
 	
 	public static String getSHA256(File f)
@@ -215,7 +216,7 @@ public class DeDuperUtil {
 	
 	public static String getSHA256(InputStream input) throws IOException
 	{
-		return DigestUtils.sha256Hex(input).toUpperCase();
+		return Main.lowercaseHash ? DigestUtils.sha256Hex(input) : DigestUtils.sha256Hex(input).toUpperCase();
 	}
 	
 
@@ -330,12 +331,15 @@ public class DeDuperUtil {
 		String sha256 = DeDuperUtil.getSHA256(file);
 		long time = file.lastModified();
 		boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
-		long compileTime = isJar ? JarUtil.getCompileTime(file) : -1;
-		boolean modified = isJar ? JarUtil.isJarModded(file, Main.checkJarSigned) : false;
+		Zip jar = isJar ? JarUtil.getZipFile(file) : null;
+		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
+		long compileTime = isJar ? JarUtil.getCompileTime(entries) : -1;
+		boolean modified = isJar ? JarUtil.isJarModded(jar.file, Main.checkJarSigned) : false;
+		JarUtil.Consistencies consistency = isJar ? JarUtil.getConsistentcy(jar) : Consistencies.none;
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
-		JarUtil.Consistencies consistency = isJar ? JarUtil.getConsistentcy(file) : Consistencies.none;
 		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistency + "," + path);
 		md5s.add(md5);
+		IOUtils.close(jar, true);
 	}
 
 }

@@ -10,11 +10,11 @@ import jredfox.filededuper.config.simple.MapConfig;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.5.0";
+	public static final String VERSION = "0.5.1";
 	
 	public static void main(String[] programArgs)
 	{
-		System.out.println("starting");
+		System.out.println("starting file-de-duper:" + VERSION);
 		loadConfigs();
 		if(programArgs.length != 0)
 		{
@@ -31,6 +31,7 @@ public class Main {
 	//file deduper config
 	public static String genExt;
 	public static String compareExt;
+	public static boolean lowercaseHash;
 	
 	//checkJar config
 	public static boolean archiveDir;
@@ -47,6 +48,7 @@ public class Main {
 		mainCfg.load();
 		genExt = mainCfg.get("genMD5Extension","*").toLowerCase();
 		compareExt = mainCfg.get("compareMD5Extension","*").toLowerCase();
+		lowercaseHash = mainCfg.get("lowercaseHash", false);
 		mainCfg.save();
 		
 		MapConfig jarCheck = new MapConfig(new File(getProgramDir(), "checkJar.cfg"));
