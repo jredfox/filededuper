@@ -254,7 +254,6 @@ public class JarUtil {
 	public static long getCompileTimeLeast(List<ZipEntry> entries)
 	{
 		long ms = -1;
-		ZipEntry compileTime = null;
 		for(ZipEntry e : entries)
 		{
 			if(!e.getName().endsWith(".class"))
@@ -263,10 +262,8 @@ public class JarUtil {
 			if(time < ms || ms == -1)
 			{
 				ms = time;
-				compileTime = e;
 			}
 		}
-//		System.out.println("compileTimeClass:\t" + compileTime);
 		return ms;
 	}
 	
@@ -286,9 +283,8 @@ public class JarUtil {
 			boolean added = false;
 			for(PointTimeEntry point : points)
 			{
-				if(point.isWithinRange(name, time))
+				if(point.add(name, time))
 				{
-					point.times.add(time);
 					added = true;
 					break;
 				}
@@ -307,15 +303,15 @@ public class JarUtil {
 					@Override
 					public int compare(PointTimeEntry p, PointTimeEntry p2)
 					{
-						return ((Integer)p.times.size()).compareTo(p2.times.size());
+						return ((Integer)p2.getPoints()).compareTo(p.getPoints());
 					}
 				}
 				);
 		if(points.isEmpty())
 			throw new RuntimeException("Program Directory for DeDuperUtil#getCompileTimePoints() is not found. Add one to the config");
-		PointTimeEntry point = points.get(points.size() - 1);
-		Collections.sort(point.times);
-		return point.times.get(0);
+		PointTimeEntry point = points.get(0);
+		long ms = point.getPointEntry().getKey();
+		return ms;
 	}
 	
 	public static boolean checkMetainf(JarFile jar, List<ZipEntry> entries, boolean signed) throws IOException 
