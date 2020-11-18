@@ -578,7 +578,7 @@ public class JarUtil {
 	 *  {@link Consistencies#consistentResource} if all resources match the compile time but, the classes are inconsistent
 	 * {@link Consistencies#hasConsistentResource} if one or more resources match the compile time
 	 * {@link Consistencies#matchingClasses} if all the program files match the timestamp but, have no matching resources
-	 * {@link Consistencies#none} if the jar's resources are inconsistent with compile time and no matching classes are found, note this isn't a boolean for modded just the way the compiler works
+	 * {@link Consistencies#none} if the jar's resources are inconsistent with compile time and no matching classes are found, note this isn't a boolean for modded just the way the compiler works and or the signing of jars
 	 */
 	public static Consistencies getConsistentcy(File file) 
 	{
