@@ -29,8 +29,8 @@ public class Main {
 	}
 	
 	//file deduper config
-	public static String genExt;
-	public static String compareExt;
+	public static String[] genExt;
+	public static String[] compareExt;
 	public static boolean lowercaseHash;
 	
 	//checkJar config
@@ -46,8 +46,8 @@ public class Main {
 	{
 		MapConfig mainCfg = new MapConfig(new File(getProgramDir(), "filededuper.cfg"));
 		mainCfg.load();
-		genExt = mainCfg.get("genMD5Extension","*").toLowerCase();
-		compareExt = mainCfg.get("compareMD5Extension","*").toLowerCase();
+		genExt = mainCfg.get("genMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
+		compareExt = mainCfg.get("compareMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
 		lowercaseHash = mainCfg.get("lowercaseHash", false);
 		mainCfg.save();
 		
