@@ -379,4 +379,18 @@ public class DeDuperUtil {
 		return lowerCase ? string.toLowerCase() : string.toUpperCase();
 	}
 
+	public static String toString(String[] args, String sep) 
+	{
+		if(args == null)
+			return null;
+		StringBuilder b = new StringBuilder();
+		int index = 0;
+		for(String s : args)
+		{
+			b.append(index + 1 != args.length ? s + sep : s);
+			index++;
+		}
+		return b.toString();
+	}
+
 }

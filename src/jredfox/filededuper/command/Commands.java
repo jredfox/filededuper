@@ -1,13 +1,13 @@
 package jredfox.filededuper.command;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -21,7 +21,7 @@ import jredfox.filededuper.util.JarUtil;
 
 public class Commands {
 	
-	public static HashMap<String, Command> cmds = new HashMap<>();
+	public static Map<String, Command> cmds = new TreeMap<>();
 	
 	/**
 	 * get a command based on it's id
@@ -70,6 +70,12 @@ public class Commands {
 			}
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + ".csv");
 			IOUtils.saveFileLines(index, outputFile, true);
+		}
+
+		@Override
+		public String[] getArgs()
+		{
+			return new String[]{"Dir/File"};
 		}
 	};
 	
@@ -127,6 +133,12 @@ public class Commands {
 			}
 			File outputIndex = new File(outDir, "index-" + DeDuperUtil.getTrueName(dir) + ".csv");
 			IOUtils.saveFileLines(index, outputIndex, true);
+		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"Dir/File"};
 		}
 	};
 	
@@ -187,6 +199,12 @@ public class Commands {
 				System.out.println("NO NEW FILES FOUND");
 			}
 		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"csv", "origin csv"};
+		}
 	};
 	
 	public static Command<File> deDupe = new Command<File>("deDupe")
@@ -201,19 +219,35 @@ public class Commands {
 		public void run(File... agrs) {
 			// TODO Auto-generated method stub
 		}
+
+		@Override
+		public String[] getArgs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	};
 	
-	public static Command<File> deepCompare = new Command<File>("deepCompare")
+	public static Command<Object> help = new Command<Object>("help")
 	{
 		@Override
-		public File[] getParams(String... inputs) {
-			// TODO Auto-generated method stub
+		public Object[] getParams(String... inputs) 
+		{
 			return null;
 		}
 
 		@Override
-		public void run(File... agrs) {
-			// TODO Auto-generated method stub
+		public void run(Object... args) 
+		{
+			for(Command c : Commands.cmds.values())
+			{
+				System.out.println(c.id + " " + DeDuperUtil.toString(c.getArgs(), " || "));
+			}
+		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{""};
 		}
 	};
 
@@ -257,6 +291,12 @@ public class Commands {
 				e.printStackTrace();
 			}
 		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"Jar", "Archive-File & Archive-File"};
+		}
 	};
 	
 	/**
@@ -286,6 +326,12 @@ public class Commands {
 			long timestamp = (long) args[1];
 			file.setLastModified(timestamp);
 		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"File"};
+		}
 	};
 	
 	/**
@@ -311,6 +357,12 @@ public class Commands {
 		{
 			File file = (File) args[0];
 			System.out.println(file.exists() ? ("" + file.lastModified()) : ("INVALID FILE" + file));
+		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"File"};
 		}
 	};
 	
@@ -358,6 +410,12 @@ public class Commands {
 				e.printStackTrace();
 			}
 		}
+
+		@Override
+		public String[] getArgs()
+		{
+			return new String[]{"Archive-File"};
+		}
 	};
 	
 	public static Command<File> isJarConsistent = new Command<File>("isJarConsistent")
@@ -402,6 +460,12 @@ public class Commands {
 			{
 				e.printStackTrace();
 			}
+		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"Jar"};
 		}	
 	};
 	
@@ -450,6 +514,12 @@ public class Commands {
 			{
 				e.printStackTrace();
 			}
+		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"Jar"};
 		}
 	};
 	

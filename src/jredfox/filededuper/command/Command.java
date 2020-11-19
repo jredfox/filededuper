@@ -10,6 +10,7 @@ public abstract class Command<T> {
 		Commands.cmds.put(cmd, this);
 	}
 	
+	public abstract String[] getArgs();
 	public abstract T[] getParams(String... inputs);
 	public abstract void run(T... args);
 
