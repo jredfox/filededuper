@@ -68,7 +68,7 @@ public class Main {
 		String[] dirs = jarCheck.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/mojang,com/a,jredfox/filededuper").split(",");
 		int index = 0;
 		for(String s : dirs)
-			dirs[index++] = s.trim();//repair for user friendlyness
+			dirs[index++] = s.trim();//repair for user friendliness
 		return dirs;
 	}
 
