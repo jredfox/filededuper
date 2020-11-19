@@ -335,22 +335,48 @@ public class DeDuperUtil {
 	
 	public static void genMD5s(File dir, File file, Set<String> md5s, List<String> list)
 	{
+		boolean isJar = getExtension(file).equals("jar");
+		if(isJar)
+			genJarMD5s(dir, file, md5s, list);
+		else
+			genFileMD5s(dir, file, md5s, list);//if I really felt like it I could make plugins for each extension that other people create
+	}
+
+	private static void genFileMD5s(File dir, File file, Set<String> md5s, List<String> list) 
+	{
 		String name = file.getName();
 		String md5 = DeDuperUtil.getMD5(file);
 		if(md5s.contains(md5))
 			return;
 		String sha256 = DeDuperUtil.getSHA256(file);
 		long time = file.lastModified();
-		boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
-		Zip jar = isJar ? JarUtil.getZipFile(file) : null;
+		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
+		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + path);
+		md5s.add(md5);
+	}
+
+	private static void genJarMD5s(File dir, File file, Set<String> md5s, List<String> list)
+	{
+		String name = file.getName();
+		String md5 = DeDuperUtil.getMD5(file);
+		if(md5s.contains(md5))
+			return;
+		String sha256 = DeDuperUtil.getSHA256(file);
+		long time = file.lastModified();
+		Zip jar = JarUtil.getZipFile(file);
 		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
-		long compileTime = isJar ? JarUtil.getCompileTime(entries) : -1;
-		boolean modified = isJar ? JarUtil.isJarModded(jar.file, entries, Main.checkJarSigned) : false;
-		JarUtil.Consistencies consistency = isJar ? JarUtil.getConsistentcy(entries) : Consistencies.none;
+		long compileTime = JarUtil.getCompileTime(entries);
+		boolean modified = JarUtil.isJarModded(jar.file, entries, Main.checkJarSigned);
+		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(entries);
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
 		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistency + "," + path);
 		md5s.add(md5);
 		IOUtils.close(jar, true);
+	}
+
+	public static String caseString(String string, boolean lowerCase) 
+	{
+		return lowerCase ? string.toLowerCase() : string.toUpperCase();
 	}
 
 }

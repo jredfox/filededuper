@@ -58,7 +58,7 @@ public class Commands {
 		public void run(File... args) 
 		{
 			File dir = args[0];
-			List<File> files = DeDuperUtil.getDirFiles(dir, "jar", "zip");
+			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
 			if(!dir.exists() || files.isEmpty())
 				return;
 			List<String> index = new ArrayList<>(files.size());
@@ -158,7 +158,7 @@ public class Commands {
 			compare.parse();
 			
 			//fetch the md5s from the origin
-			Set<String> md5s = new HashSet(origin.lines.size() + 10);
+			Set<String> md5s = new HashSet(origin.lines.size());
 			for(String[] line : origin.lines)
 			{
 				md5s.add(line[1].toLowerCase());
@@ -170,6 +170,8 @@ public class Commands {
 				String md5 = line[1].toLowerCase();
 				if(!md5s.contains(md5) && (Main.compareExt.equals("*") || line[0].endsWith(Main.compareExt)))
 				{
+					line[1] = DeDuperUtil.caseString(line[1], Main.lowercaseHash);
+					line[2] = DeDuperUtil.caseString(line[2], Main.lowercaseHash);
 					output.lines.add(line);
 					md5s.add(md5);
 				}
