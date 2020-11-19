@@ -203,7 +203,7 @@ public class Commands {
 		@Override
 		public String[] getArgs() 
 		{
-			return new String[]{"csv", "origin csv"};
+			return new String[]{"csv & origin csv"};
 		}
 	};
 	
@@ -240,7 +240,7 @@ public class Commands {
 		{
 			for(Command c : Commands.cmds.values())
 			{
-				System.out.println(c.id + " " + DeDuperUtil.toString(c.getArgs(), " || "));
+				System.out.println(c.id + " " + DeDuperUtil.toString(c.getArgs(), " OR "));
 			}
 		}
 

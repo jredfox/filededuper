@@ -10,7 +10,7 @@ import jredfox.filededuper.config.simple.MapConfig;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.5.3";
+	public static final String VERSION = "0.5.4";
 	
 	public static void main(String[] programArgs)
 	{
@@ -19,7 +19,6 @@ public class Main {
 		Command cmd = Commands.getCommand(programArgs.length > 0 ? programArgs[0] : "help");
 		if(cmd == null)
 			throw new CMDNotFoundException("Invalid command:\"" + programArgs[0] + "\"");
-		System.out.println(cmd);
 		Object[] cmdArgs = cmd.getParams(programArgs);
 		long ms = System.currentTimeMillis();
 		cmd.run(cmdArgs);
