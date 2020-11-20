@@ -523,4 +523,32 @@ public class Commands {
 		}
 	};
 	
+	public static Command<File> getCompileTime = new Command<File>("getCompileTime")
+	{
+		@Override
+		public String[] getArgs()
+		{
+			return new String[]{"Jar"};
+		}
+
+		@Override
+		public File[] getParams(String... inputs) 
+		{
+			if(inputs.length == 1)
+			{
+				Scanner scanner = new Scanner(System.in);
+				System.out.println("input file:");
+				File file = new File(scanner.nextLine());
+				return new File[]{file};
+			}
+			return new File[]{new File(inputs[1])};
+		}
+
+		@Override
+		public void run(File... args) 
+		{
+			System.out.println("compileTime:" + JarUtil.getCompileTime(args[0]));
+		}
+	};
+	
 }

@@ -243,6 +243,25 @@ public class JarUtil {
 		return entriesOut;
 	}
 	
+	public static long getCompileTime(File file)
+	{
+		ZipFile zip = null;
+		try
+		{
+			zip = new ZipFile(file);
+			return getCompileTime(JarUtil.getZipEntries(zip));
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			IOUtils.close(zip, true);
+		}
+		return -1;
+	}
+	
 	public static long getCompileTime(List<ZipEntry> entries)
 	{
 		return Main.compileTimePoints ? getCompileTimePoints(entries) : getCompileTimeLeast(entries);
