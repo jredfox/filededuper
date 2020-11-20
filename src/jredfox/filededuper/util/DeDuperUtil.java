@@ -164,15 +164,17 @@ public class DeDuperUtil {
 	public static String getExtensionFull(File file) 
 	{
 		String ext = getExtension(file);
-		if(!ext.isEmpty())
-			ext = "." + ext;
-		return ext;
+		return ext.isEmpty() ? "" : "." + ext;
 	}
 
+	/**
+	 * get a file extension. Note directories do not have file extensions
+	 */
 	public static String getExtension(File file) 
 	{
 		String name = file.getName();
-		return name.contains(".") ? name.split("\\.")[name.split("\\.").length - 1].toLowerCase() : "";
+		int index = name.lastIndexOf('.');
+		return index != -1 && !file.isDirectory() ? name.substring(index + 1) : "";
 	}
 
 	public static boolean contains(Object[] arr, Object obj)

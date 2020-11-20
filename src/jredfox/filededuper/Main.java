@@ -6,6 +6,7 @@ import jredfox.filededuper.command.CMDNotFoundException;
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.command.Commands;
 import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.DeDuperUtil;
 
 public class Main {
 	
