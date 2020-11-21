@@ -2,6 +2,7 @@ package jredfox.filededuper.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,65 +41,22 @@ public class IOUtils {
    	 	}
 	}
 	
-	public static void closeQuietly(ZipFile zip)
+	public static void closeQuietly(Closeable zip)
 	{
 		close(zip, false);
 	}
 	
-	public static void closeQuietly(InputStream stream)
-	{
-		close(stream, false);
-	}
-	
-	public static void closeQuitely(OutputStream stream)
-	{
-		close(stream, false);
-	}
-	
-	public static void close(OutputStream out)
+	public static void close(Closeable out)
 	{
 		close(out, true);
 	}
-	
-	public static void close(InputStream in)
-	{
-		close(in, true);
-	}
 
-	public static void close(OutputStream out, boolean print)
+	public static void close(Closeable out, boolean print)
 	{
 		try 
 		{
 			if(out != null)
 				out.close();
-		}
-		catch (IOException e)
-		{
-			if(print)
-				e.printStackTrace();
-		}
-	}
-	
-	public static void close(InputStream in, boolean print)
-	{
-		try 
-		{
-			if(in != null)
-				in.close();
-		}
-		catch (IOException e)
-		{
-			if(print)
-				e.printStackTrace();
-		}
-	}
-	
-	public static void close(ZipFile zip, boolean print)
-	{
-		try 
-		{
-			if(zip != null)
-				zip.close();
 		}
 		catch (IOException e)
 		{

@@ -8,6 +8,7 @@ import jredfox.filededuper.command.CMDNotFoundException;
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.command.Commands;
 import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
@@ -32,6 +33,7 @@ public class Main {
 		long ms = System.currentTimeMillis();
 		cmd.run(cmdArgs);
 		System.out.println("finished " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
+		scanner.close();
 	}
 
 	//file deduper config
