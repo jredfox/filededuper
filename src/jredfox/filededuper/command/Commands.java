@@ -19,15 +19,6 @@ import jredfox.filededuper.util.JarUtil;
 
 public class Commands {
 	
-	/**
-	 * get a command based on it's id
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T extends Object> Command<T> getCommand(String id)
-	{
-		return (Command<T>) Command.cmds.get(id);
-	}
-	
 	public static Command<File> genMD5s = new Command<File>("genMD5s")
 	{
 		@Override
@@ -526,5 +517,14 @@ public class Commands {
 			System.out.println("compileTime:" + JarUtil.getCompileTime(args[0]));
 		}
 	};
+	
+	/**
+	 * get a command based on it's id
+	 */
+	@SuppressWarnings("unchecked")
+	protected static <T extends Object> Command<T> get(String id)
+	{
+		return (Command<T>) Command.cmds.get(id);
+	}
 	
 }

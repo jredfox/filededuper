@@ -15,18 +15,25 @@ import jredfox.selfcmd.SelfCommandPrompt;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.6.2";
+	public static final String VERSION = "0.6.3";
 	public static final String name = "File de-duper " + VERSION;
-	public static void main(String[] programArgs)
+	public static void main(String[] args)
 	{
-		SelfCommandPrompt.runwithCMD(programArgs, name, false);
+		SelfCommandPrompt.runwithCMD(args, name, false);
 		System.out.println("Starting " + name);
 		loadConfigs();
-		do
+		if(args.length != 0)
 		{
-			Command.run(Command.nextCommand());
+			Command.run(args);
 		}
-		while(true);
+		else
+		{
+			do
+			{
+				Command.run(Command.nextCommand());
+			}
+			while(true);
+		}
 	}
 
 	//file deduper config

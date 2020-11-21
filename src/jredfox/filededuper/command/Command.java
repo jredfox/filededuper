@@ -71,11 +71,16 @@ public abstract class Command<T> {
 	{
 		return this.id.hashCode();
 	}
+	
+	public static Command<?> get(String id) 
+	{
+		return Commands.get(id);
+	}
 
 	public static String[] nextCommand() 
 	{
 		String[] args = getScanner().nextLine().split(" ");
-		Command c = Commands.getCommand(args[0]);
+		Command c = Command.get(args[0]);
 		if(c == null)
 		{
 			System.out.println("Invalid command \"" + args[0] + "\". Input new command or try using \"help\":");
@@ -89,12 +94,14 @@ public abstract class Command<T> {
 	 */
 	public static void run(String[] args)
 	{
+		Command c = Command.get(args[0]);
+		Object[] params = c.getParams(getCmdArgs(args));
 		long ms = System.currentTimeMillis();
-		Command c = Commands.getCommand(args[0]);
-		c.run(c.getParams(getCmdArgs(args)));
+		c.run(params);
+		System.gc();//clean memory
 		System.out.println("finished:" + c.id + " in:" + (System.currentTimeMillis() - ms) + "ms");
 	}
-	
+
 	protected static String[] getCmdArgs(String[] args)
 	{
 		if(args.length > 0)
