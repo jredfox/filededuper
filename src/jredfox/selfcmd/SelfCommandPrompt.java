@@ -1,4 +1,4 @@
-package jredfox.filededuper;
+package jredfox.selfcmd;
 
 import java.io.Console;
 import java.io.File;
