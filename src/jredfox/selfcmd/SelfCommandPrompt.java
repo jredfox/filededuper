@@ -39,7 +39,7 @@ public class SelfCommandPrompt {
 	/**
 	 * supports all platforms
 	 */
-	public static void runWithJavaCMD(String appTitle)
+	public static void runWithJavaCMD(String appTitle, boolean onlyCompiled)
 	{
 		//TODO:
 	}
