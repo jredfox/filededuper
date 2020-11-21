@@ -1,29 +1,36 @@
 package jredfox.filededuper;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
 
 import jredfox.filededuper.command.CMDNotFoundException;
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.command.Commands;
 import jredfox.filededuper.config.simple.MapConfig;
-import jredfox.filededuper.util.DeDuperUtil;
 
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.5.5";
+	public static final String VERSION = "0.6.0";
 	
 	public static void main(String[] programArgs)
 	{
-		System.out.println("starting file-de-duper:" + VERSION);
+		SelfCommandPrompt.runwithCMD(Main.class, programArgs, "File de-duper " + VERSION, false);
 		loadConfigs();
-		Command cmd = Commands.getCommand(programArgs.length > 0 ? programArgs[0] : "help");
+		Scanner scanner = new Scanner(System.in);
+		String strCmd = programArgs.length > 0 ? programArgs[0] : scanner.nextLine();
+		Command cmd = Commands.getCommand(strCmd);
 		if(cmd == null)
-			throw new CMDNotFoundException("Invalid command:\"" + programArgs[0] + "\"");
+			throw new CMDNotFoundException("Invalid command:\"" + strCmd + "\"" + " use the \"help\" command to list the commands");
 		Object[] cmdArgs = cmd.getParams(programArgs);
 		long ms = System.currentTimeMillis();
 		cmd.run(cmdArgs);
 		System.out.println("finished " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
+	}
+	
+	private static boolean isTrue() {
+		return true;
 	}
 	
 	//file deduper config
