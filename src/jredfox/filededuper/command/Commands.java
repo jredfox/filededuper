@@ -33,22 +33,11 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs) 
 		{
-			File dir = null;
-			if(inputs.length < 2)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input directory to generate a spreadsheet:");
-				dir = new File(scanner.nextLine());
-				if(!dir.exists())
-				{
-					throw new CMDMaulformedException("directory or file doesn't exist:" + dir);
-				}
+				return new File[]{this.nextFile("input dir to gen a spreadsheet:")};
 			}
-			else
-			{
-				dir = new File(inputs[1]);
-			}
-			return new File[]{ dir };
+			return new File[]{ new File(inputs[0])};
 		}
 		
 		@Override
@@ -81,22 +70,11 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs) 
 		{
-			File dir = null;
-			if(inputs.length < 2)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input directory to generate a spreadsheet:");
-				dir = new File(scanner.nextLine());
-				if(!dir.exists())
-				{
-					throw new CMDMaulformedException("directory or file doesn't exist:" + dir);
-				}
+				this.nextFile("input dir to gen a spreadsheet:");
 			}
-			else
-			{
-				dir = new File(inputs[1]);
-			}
-			return new File[]{ dir };
+			return new File[]{ new File(inputs[1])};
 		}
 
 		@Override

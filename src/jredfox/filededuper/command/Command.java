@@ -53,17 +53,6 @@ public abstract class Command<T> {
 		if(!msg.isEmpty())
 			System.out.println(msg);
 	}
-
-	public static Command<Object> getCommandFromConsole(String strCommand)
-	{
-		Command c = Commands.getCommand(strCommand);
-		while(c == null)
-		{
-			System.out.println("Invalid command \"" + strCommand + "\". Input new command or try using \"help\":");
-			c = Commands.getCommand(getScanner().nextLine());
-		}
-		return c;
-	}
 	
 	@Override
 	public String toString()
@@ -81,6 +70,40 @@ public abstract class Command<T> {
 	public int hashCode()
 	{
 		return this.id.hashCode();
+	}
+
+	public static String[] nextCommand() 
+	{
+		String[] args = getScanner().nextLine().split(" ");
+		Command c = Commands.getCommand(args[0]);
+		if(c == null)
+		{
+			System.out.println("Invalid command \"" + args[0] + "\". Input new command or try using \"help\":");
+			return nextCommand();
+		}
+		return args;
+	}
+	
+	/**
+	 * run a command starting with id and any command arguments that are required or optional can go next
+	 */
+	public static void run(String[] args)
+	{
+		long ms = System.currentTimeMillis();
+		Command c = Commands.getCommand(args[0]);
+		c.run(c.getParams(getCmdArgs(args)));
+		System.out.println("finished:" + c.id + " in:" + (System.currentTimeMillis() - ms) + "ms");
+	}
+	
+	protected static String[] getCmdArgs(String[] args)
+	{
+		if(args.length > 0)
+		{
+			String[] actualArgs = new String[args.length - 1];
+			System.arraycopy(args, 1, actualArgs, 0, actualArgs.length);
+			return actualArgs;
+		}
+		return args;
 	}
 
 }

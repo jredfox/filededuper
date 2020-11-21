@@ -22,13 +22,11 @@ public class Main {
 		SelfCommandPrompt.runwithCMD(programArgs, name, false);
 		System.out.println("Starting " + name);
 		loadConfigs();
-		Scanner scanner = DeDuperUtil.scanner;
-		boolean hasCommand = programArgs.length > 0;
-		Command<Object> cmd = Command.getCommandFromConsole(hasCommand ? programArgs[0] : scanner.nextLine());
-		Object[] cmdArgs = cmd.getParams(programArgs);
-		long ms = System.currentTimeMillis();
-		cmd.run(cmdArgs);
-		System.out.println("finished " + cmd.id + " " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
+		do
+		{
+			Command.run(Command.nextCommand());
+		}
+		while(true);
 	}
 
 	//file deduper config
