@@ -13,11 +13,11 @@ import jredfox.selfcmd.SelfCommandPrompt;
 public class Main {
 	
 	public static boolean errored;
-	public static final String VERSION = "0.6.1";
+	public static final String VERSION = "0.6.2";
 	public static final String name = "File de-duper " + VERSION;
 	public static void main(String[] programArgs)
 	{
-		SelfCommandPrompt.runwithCMD(Main.class, programArgs, name, false);
+		SelfCommandPrompt.runwithCMD(programArgs, name, false);
 		System.out.println("Starting " + name);
 		loadConfigs();
 		Scanner scanner = new Scanner(System.in);
