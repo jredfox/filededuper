@@ -1,17 +1,38 @@
 package jredfox.selfcmd;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
 import java.io.Console;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-
-import jredfox.filededuper.util.DeDuperUtil;
-
+import java.util.Scanner;
+/**
+ * @author jredfox. Credits to Chocohead#7137 for helping
+ */
 public class SelfCommandPrompt {
 	
 	public static void main(String[] args)
 	{
+		try
+		{
+			Class mainClass = Class.forName(args[0].replace("?", "."));
+			String[] actualArgs = new String[args.length - 1];
+			System.arraycopy(args, 1, actualArgs, 0, actualArgs.length);
+			Method method = mainClass.getMethod("main", String[].class);
+			method.invoke(null, new Object[]{actualArgs});
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		
+		//got to make sure to pause the command prompt until the user has read the info
+		Scanner scanner = new Scanner(System.in).useDelimiter("\n");
+		System.out.println("Press enter to continue:");
+		scanner.next();
 	}
 	
 	/**
@@ -30,10 +51,10 @@ public class SelfCommandPrompt {
         Console console = System.console();
         if(console == null)
         {
-            try 
+            try
             {
-            	String argsStr = toString(args, " ");
-            	argsStr = argsStr.isEmpty() ? "" : " " + argsStr;
+            	String str = toString(args, " ");
+            	String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
             	String jarPath = mainClass.getProtectionDomain().getCodeSource().getLocation().getPath();//get the path of the currently running jar
             	String filename = URLDecoder.decode(jarPath, "UTF-8").substring(1);
             	boolean compiled = getExtension(new File(filename)).equals("jar");
@@ -41,17 +62,19 @@ public class SelfCommandPrompt {
             		return;
             	
             	String os = System.getProperty("os.name").toLowerCase();
+            	String command = "java " + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + argsStr;
             	if(os.contains("windows"))
             	{
-            		new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", ("java " + "-jar " + filename + argsStr + " & pause")).start();
+            		System.out.println(command);
+            		new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", command).start();
             	}
             	else if(os.contains("mac"))
             	{
-            		new ProcessBuilder("/bin/bash", "-c", ("java " + "-jar " + filename + argsStr)).start();
+            		new ProcessBuilder("/bin/bash", "-c", command).start();
             	}
             	else if(os.contains("linux"))
             	{
-            		new ProcessBuilder("xfce4-terminal", "--title=" + appTitle, "--hold", "-x", ("java " + "-jar " + filename + argsStr)).start();
+            		new ProcessBuilder("xfce4-terminal", "--title=" + appTitle, "--hold", "-x", command).start();
             	}
 			}
             catch (Exception e)
@@ -60,15 +83,6 @@ public class SelfCommandPrompt {
 			}
             System.exit(0);
         }
-	}
-	
-	/**
-	 * get the classpaths
-	 */
-	public static String[] getCPs()
-	{
-		String str = System.getProperty("java.class.path");
-		return str.split(File.pathSeparator);
 	}
 	
 	public static String toString(String[] args, String sep) 

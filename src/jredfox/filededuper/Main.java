@@ -31,6 +31,10 @@ public class Main {
 		System.out.println("finished " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
 	}
 	
+	private static boolean isTrue() {
+		return true;
+	}
+
 	//file deduper config
 	public static String[] genExt;
 	public static String[] compareExt;
