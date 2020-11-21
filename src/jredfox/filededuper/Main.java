@@ -1,15 +1,9 @@
 package jredfox.filededuper;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Scanner;
 
-import jredfox.filededuper.command.CMDNotFoundException;
 import jredfox.filededuper.command.Command;
-import jredfox.filededuper.command.Commands;
 import jredfox.filededuper.config.simple.MapConfig;
-import jredfox.filededuper.util.DeDuperUtil;
-import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {

@@ -25,12 +25,18 @@ public abstract class Command<T> {
 	public File nextFile(String msg)
 	{
 		this.print(msg);
-		return new File(this.next());
+		return new File(this.next(true));
 	}
 	
-	public String next() 
+	public String next()
 	{
-		return getScanner().nextLine();
+		return next(false);
+	}
+	
+	public String next(boolean removeQuotes) 
+	{
+		String next = getScanner().nextLine();
+		return removeQuotes ? next.replace("\"", "") : next;
 	}
 	
 	public boolean hasScanner(String... inputs)
@@ -79,7 +85,12 @@ public abstract class Command<T> {
 
 	public static String[] nextCommand() 
 	{
-		String[] args = getScanner().nextLine().split(" ");
+		String nextLine = getScanner().nextLine();
+		String[] args = DeDuperUtil.split(nextLine, ' ', '"', '"');
+		int index = 0;
+		for(String s : args)
+			args[index++] = s.replace("\"", "");
+		
 		Command c = Command.get(args[0]);
 		if(c == null)
 		{

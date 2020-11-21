@@ -14,11 +14,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -396,6 +398,55 @@ public class DeDuperUtil {
 			index++;
 		}
 		return b.toString();
+	}
+	
+	/**
+	 * split with quote ignoring support
+	 */
+	public static String[] split(String str, char sep, char lquote, char rquote) 
+	{
+		if(str.isEmpty())
+			return new String[]{str};
+		List<String> list = new ArrayList();
+		boolean inside = false;
+		for(int i = 0; i < str.length(); i += 1)
+		{
+			String a = str.substring(i, i + 1);
+			String prev = i == 0 ? "a" : str.substring(i-1, i);
+			boolean escape = prev.charAt(0) ==  '\\';
+			if(a.equals("" + lquote) && !escape || a.equals("" + rquote) && !escape)
+			{
+				inside = !inside;
+			}
+			if(a.equals("" + sep) && !inside)
+			{
+				String section = str.substring(0, i);
+				list.add(section);
+				str = str.substring(i + ("" + sep).length(), str.length());
+				i = -1;
+			}
+		}
+		list.add(str);//add the rest of the string
+		return toArray(list, String.class);
+	}
+	
+	/**
+	 * the array type cannot be casted out of Object[] use toArray(Collection col, Class clazz) instead
+	 */
+	public static Object[] toArray(Collection col)
+	{
+		return toArray(col, Object.class);
+	}
+	
+	public static <T> T[] toArray(Collection<T> col, Class<T> clazz)
+	{
+	    T[] li = (T[]) Array.newInstance(clazz, col.size());
+	    int index = 0;
+	    for(T obj : col)
+	    {
+	        li[index++] = obj;
+	    }
+	    return li;
 	}
 
 }

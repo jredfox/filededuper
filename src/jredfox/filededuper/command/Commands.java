@@ -37,7 +37,10 @@ public class Commands {
 			File dir = args[0];
 			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
 			if(!dir.exists() || files.isEmpty())
+			{
+				System.out.println("ERR file not found:" + dir);
 				return;
+			}
 			List<String> index = new ArrayList<>(files.size());
 			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path");
 			Set<String> md5s = new HashSet<>(files.size());
