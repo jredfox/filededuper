@@ -68,7 +68,7 @@ public class Commands {
 			{
 				this.nextFile("input dir to gen a spreadsheet:");
 			}
-			return new File[]{ new File(inputs[1])};
+			return new File[]{ new File(inputs[0])};
 		}
 
 		@Override
@@ -116,16 +116,13 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs)
 		{
-			if(inputs.length < 2)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input origin.csv");
-				File origin = new File(scanner.nextLine());
-				System.out.println("input compare.csv");
-				File compare = new File(scanner.nextLine());
+				File origin = this.nextFile("input origin.csv");
+				File compare = this.nextFile("input compare.csv");
 				return new File[]{origin, compare};
 			}
-			return new File[]{new File(inputs[1]), new File(inputs[2])};
+			return new File[]{new File(inputs[0]), new File(inputs[1])};
 		}
 		
 		@Override
@@ -226,17 +223,14 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs)
 		{
-			if(inputs.length == 1)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input jar to check:");
-				File toCheck = new File(scanner.nextLine());
-				System.out.println("input jar of origin:");
-				File origin = new File(scanner.nextLine());
+				File toCheck = this.nextFile("input jar to check:");
+				File origin = this.nextFile("input jar of origin:");
 				return new File[]{toCheck, origin};
 			}
-			File jar = new File(inputs[1]);
-			File jarOrg = inputs.length == 3 ? new File(inputs[2]) : jar;
+			File jar = new File(inputs[0]);
+			File jarOrg = inputs.length == 1 ? jar : new File(inputs[1]);
 			return new File[]{jar, jarOrg};
 		}
 
@@ -272,21 +266,48 @@ public class Commands {
 	/**
 	 * sets the time stamp to a specified file
 	 */
+	public static Command<File> getTimeStamp = new Command<File>("getTimeStamp")
+	{
+		@Override
+		public File[] getParams(String... inputs) 
+		{
+			if(this.hasScanner(inputs))
+			{
+				File file = this.nextFile("input file to getTimeStamp:");
+				return new File[]{file};
+			}
+			return new File[]{new File(inputs[0])};
+		}
+
+		@Override
+		public void run(File... args) 
+		{
+			File file = (File) args[0];
+			System.out.println(file.exists() ? ("" + file.lastModified()) : ("INVALID FILE" + file));
+		}
+
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"File"};
+		}
+	};
+	
+	/**
+	 * sets the time stamp to a specified file
+	 */
 	public static Command<Object> setTimeStamp = new Command<Object>("setTimeStamp")
 	{
 		@Override
 		public Object[] getParams(String... inputs) 
 		{
-			if(inputs.length == 1)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input file:");
-				File file = new File(scanner.nextLine());
-				System.out.println("input timestamp in ms:");
-				long timestamp = Long.parseLong(scanner.nextLine());
+				File file = this.nextFile("input file:");
+				long timestamp = this.nextLong("input timestamp in ms:");
 				return new Object[]{file, timestamp};
 			}
-			return new Object[]{new File(inputs[1]), Long.parseLong(inputs[2])};
+			return new Object[]{new File(inputs[0]), Long.parseLong(inputs[1])};
 		}
 
 		@Override
@@ -307,53 +328,18 @@ public class Commands {
 	/**
 	 * sets the time stamp to a specified file
 	 */
-	public static Command<File> getTimeStamp = new Command<File>("getTimeStamp")
-	{
-		@Override
-		public File[] getParams(String... inputs) 
-		{
-			if(inputs.length == 1)
-			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input file to getTimeStamp:");
-				File file = new File(scanner.nextLine());
-				return new File[]{file};
-			}
-			return new File[]{new File(inputs[1])};
-		}
-
-		@Override
-		public void run(File... args) 
-		{
-			File file = (File) args[0];
-			System.out.println(file.exists() ? ("" + file.lastModified()) : ("INVALID FILE" + file));
-		}
-
-		@Override
-		public String[] getArgs() 
-		{
-			return new String[]{"File"};
-		}
-	};
-	
-	/**
-	 * sets the time stamp to a specified file
-	 */
 	public static Command<Object> setTimeStampArchive = new Command<Object>("setTimeStampArchive")
 	{
 		@Override
 		public Object[] getParams(String... inputs) 
 		{
-			if(inputs.length == 1)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input file");
-				File file = new File(scanner.nextLine());
-				System.out.println("input timestamp in ms:");
-				long timestamp = Long.parseLong(scanner.nextLine());
+				File file = this.nextFile("input archive:");
+				long timestamp = this.nextLong("input timestamp in ms:");
 				return new Object[]{file, timestamp};
 			}
-			return new Object[]{new File(inputs[1]), Long.parseLong(inputs[2])};
+			return new Object[]{new File(inputs[0]), Long.parseLong(inputs[1])};
 		}
 
 		@Override
@@ -393,14 +379,12 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs)
 		{
-			if(inputs.length == 1)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input jar to check:");
-				File file = new File(scanner.nextLine());
+				File file = this.nextFile("input jar to check:");
 				return new File[]{file};
 			}
-			return new File[]{new File(inputs[1])};
+			return new File[]{new File(inputs[0])};
 		}
 
 		@Override
@@ -444,14 +428,12 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs)
 		{
-			if(inputs.length == 1)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input jar to check:");
-				File file = new File(scanner.nextLine());
+				File file = this.nextFile("input jar to check:");
 				return new File[]{file};
 			}
-			return new File[]{new File(inputs[1])};
+			return new File[]{new File(inputs[0])};
 		}
 
 		@Override
@@ -504,14 +486,12 @@ public class Commands {
 		@Override
 		public File[] getParams(String... inputs) 
 		{
-			if(inputs.length == 1)
+			if(this.hasScanner(inputs))
 			{
-				Scanner scanner = new Scanner(System.in);
-				System.out.println("input file:");
-				File file = new File(scanner.nextLine());
+				File file = this.nextFile("input jar:");
 				return new File[]{file};
 			}
-			return new File[]{new File(inputs[1])};
+			return new File[]{new File(inputs[0])};
 		}
 
 		@Override
