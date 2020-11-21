@@ -8,6 +8,7 @@ import jredfox.filededuper.command.CMDNotFoundException;
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.command.Commands;
 import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.SelfCommandPrompt;
 
@@ -21,19 +22,13 @@ public class Main {
 		SelfCommandPrompt.runwithCMD(programArgs, name, false);
 		System.out.println("Starting " + name);
 		loadConfigs();
-		Scanner scanner = new Scanner(System.in);
-		if(programArgs.length == 0)
-		{
-			programArgs = new String[]{scanner.nextLine()};
-		}
-		Command cmd = Commands.getCommand(programArgs[0]);
-		if(cmd == null)
-			throw new CMDNotFoundException("Invalid command:\"" + programArgs[0] + "\"" + " use the \"help\" command to list the commands");
+		Scanner scanner = DeDuperUtil.scanner;
+		boolean hasCommand = programArgs.length > 0;
+		Command<Object> cmd = Command.getCommandFromConsole(hasCommand ? programArgs[0] : scanner.nextLine());
 		Object[] cmdArgs = cmd.getParams(programArgs);
 		long ms = System.currentTimeMillis();
 		cmd.run(cmdArgs);
-		System.out.println("finished " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
-		scanner.close();
+		System.out.println("finished " + cmd.id + " " + (errored ? "with errors" : "successfully in ") + (System.currentTimeMillis() - ms) + "ms");
 	}
 
 	//file deduper config

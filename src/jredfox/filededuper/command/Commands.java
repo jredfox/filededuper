@@ -4,10 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -21,14 +19,13 @@ import jredfox.filededuper.util.JarUtil;
 
 public class Commands {
 	
-	public static Map<String, Command> cmds = new TreeMap<>();
-	
 	/**
 	 * get a command based on it's id
 	 */
-	public static Command getCommand(String id)
+	@SuppressWarnings("unchecked")
+	public static <T extends Object> Command<T> getCommand(String id)
 	{
-		return cmds.get(id);
+		return (Command<T>) Command.cmds.get(id);
 	}
 	
 	public static Command<File> genMD5s = new Command<File>("genMD5s")
@@ -235,10 +232,11 @@ public class Commands {
 			return null;
 		}
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		public void run(Object... args) 
 		{
-			for(Command c : Commands.cmds.values())
+			for(Command c : Command.cmds.values())
 			{
 				System.out.println(c.id + " " + DeDuperUtil.toString(c.getArgs(), " OR "));
 			}

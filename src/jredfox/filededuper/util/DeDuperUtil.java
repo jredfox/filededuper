@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -49,6 +50,8 @@ import jredfox.filededuper.archive.Zip;
 import jredfox.filededuper.util.JarUtil.Consistencies;
 
 public class DeDuperUtil {
+	
+	public static final Scanner scanner = new Scanner(System.in);
 	
 	public static void move(List<File> files, File input, File outputDir, boolean sameDir)
 	{
