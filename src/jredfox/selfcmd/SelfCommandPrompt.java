@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import java.util.Scanner;
 /**
  * @author jredfox. Credits to Chocohead#7137 for helping
+ * this class is a wrapper for your program. It fires command prompt and stops it from quitting without user input
  */
 public class SelfCommandPrompt {
 	
@@ -31,7 +32,7 @@ public class SelfCommandPrompt {
 		
 		//got to make sure to pause the command prompt until the user has read the info
 		Scanner scanner = new Scanner(System.in).useDelimiter("\n");
-		System.out.println("Press enter to continue:");
+		System.out.println("Press ENTER to continue:");
 		scanner.next();
 	}
 	
@@ -65,7 +66,6 @@ public class SelfCommandPrompt {
             	String command = "java " + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + argsStr;
             	if(os.contains("windows"))
             	{
-            		System.out.println(command);
             		new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", command).start();
             	}
             	else if(os.contains("mac"))
