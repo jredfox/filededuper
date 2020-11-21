@@ -81,9 +81,23 @@ public class DeDuperUtil {
 			catch(Exception e)
 			{
 				e.printStackTrace();
-				Main.errored = true;
 			}
 		}
+	}
+	
+	public static File newFile(String str)
+	{
+		return new File(str).getAbsoluteFile();
+	}
+	
+	public static File newFile(String dir, String path)
+	{
+		return new File(dir, path).getAbsoluteFile();
+	}
+	
+	public static File newFile(File dir, String path)
+	{
+		return new File(dir, path).getAbsoluteFile();
 	}
 	
 	/**
@@ -106,6 +120,8 @@ public class DeDuperUtil {
 	
 	public static String getRealtivePath(File dir, File file) 
 	{
+		if(!dir.isAbsolute() || !file.isAbsolute())
+			throw new IllegalArgumentException("directorty & file must be abosolute!");
 		String fpath = file.getPath();
 		return fpath.substring(dir.getPath().indexOf(dir.getPath()) + dir.getPath().length() + 1, fpath.length());
 	}

@@ -8,9 +8,9 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static boolean errored;
-	public static final String VERSION = "0.6.3";
+	public static final String VERSION = "0.7.0";
 	public static final String name = "File de-duper " + VERSION;
+	
 	public static void main(String[] args)
 	{
 		SelfCommandPrompt.runwithCMD(args, name, false);

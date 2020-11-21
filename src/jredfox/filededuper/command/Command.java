@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
+import jredfox.filededuper.Main;
 import jredfox.filededuper.util.DeDuperUtil;
 
 public abstract class Command<T> {
@@ -19,13 +20,13 @@ public abstract class Command<T> {
 	}
 
 	public abstract String[] getArgs();
-	public abstract T[] getParams(String... inputs);
+	public abstract T[] getParams(String... cmdArgs);
 	public abstract void run(T... args);
 	
 	public File nextFile(String msg)
 	{
 		this.print(msg);
-		return new File(this.next(true));
+		return new File(this.next(true)).getAbsoluteFile();
 	}
 	
 	public String next()
@@ -106,11 +107,21 @@ public abstract class Command<T> {
 	public static void run(String[] args)
 	{
 		Command c = Command.get(args[0]);
-		Object[] params = c.getParams(getCmdArgs(args));
+		boolean errored = false;
 		long ms = System.currentTimeMillis();
-		c.run(params);
-		System.gc();//clean memory
-		System.out.println("finished:" + c.id + " in:" + (System.currentTimeMillis() - ms) + "ms");
+		try
+		{
+			Object[] params = c.getParams(getCmdArgs(args));
+			ms = System.currentTimeMillis();//try to make the time be before the running of the command if the exeption occurs during parsing the command it will display older ms
+			c.run(params);
+			System.gc();//clean memory
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+			errored = true;
+		}
+		System.out.println("finished:" + c.id + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
 	}
 
 	protected static String[] getCmdArgs(String[] args)

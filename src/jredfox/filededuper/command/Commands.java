@@ -28,7 +28,7 @@ public class Commands {
 			{
 				return new File[]{this.nextFile("input dir to gen a spreadsheet:")};
 			}
-			return new File[]{ new File(inputs[0])};
+			return new File[]{DeDuperUtil.newFile(inputs[0])};
 		}
 		
 		@Override
@@ -68,7 +68,7 @@ public class Commands {
 			{
 				this.nextFile("input dir to gen a spreadsheet:");
 			}
-			return new File[]{ new File(inputs[0])};
+			return new File[]{ DeDuperUtil.newFile(inputs[0])};
 		}
 
 		@Override
@@ -122,7 +122,7 @@ public class Commands {
 				File compare = this.nextFile("input compare.csv");
 				return new File[]{origin, compare};
 			}
-			return new File[]{new File(inputs[0]), new File(inputs[1])};
+			return new File[]{DeDuperUtil.newFile(inputs[0]), DeDuperUtil.newFile(inputs[1])};
 		}
 		
 		@Override
@@ -229,8 +229,8 @@ public class Commands {
 				File origin = this.nextFile("input jar of origin:");
 				return new File[]{toCheck, origin};
 			}
-			File jar = new File(inputs[0]);
-			File jarOrg = inputs.length == 1 ? jar : new File(inputs[1]);
+			File jar = DeDuperUtil.newFile(inputs[0]);
+			File jarOrg = inputs.length == 1 ? jar : DeDuperUtil.newFile(inputs[1]);
 			return new File[]{jar, jarOrg};
 		}
 
@@ -276,7 +276,7 @@ public class Commands {
 				File file = this.nextFile("input file to getTimeStamp:");
 				return new File[]{file};
 			}
-			return new File[]{new File(inputs[0])};
+			return new File[]{DeDuperUtil.newFile(inputs[0])};
 		}
 
 		@Override
@@ -307,7 +307,7 @@ public class Commands {
 				long timestamp = this.nextLong("input timestamp in ms:");
 				return new Object[]{file, timestamp};
 			}
-			return new Object[]{new File(inputs[0]), Long.parseLong(inputs[1])};
+			return new Object[]{DeDuperUtil.newFile(inputs[0]), Long.parseLong(inputs[1])};
 		}
 
 		@Override
@@ -339,7 +339,7 @@ public class Commands {
 				long timestamp = this.nextLong("input timestamp in ms:");
 				return new Object[]{file, timestamp};
 			}
-			return new Object[]{new File(inputs[0]), Long.parseLong(inputs[1])};
+			return new Object[]{DeDuperUtil.newFile(inputs[0]), Long.parseLong(inputs[1])};
 		}
 
 		@Override
@@ -384,7 +384,7 @@ public class Commands {
 				File file = this.nextFile("input jar to check:");
 				return new File[]{file};
 			}
-			return new File[]{new File(inputs[0])};
+			return new File[]{DeDuperUtil.newFile(inputs[0])};
 		}
 
 		@Override
@@ -433,7 +433,7 @@ public class Commands {
 				File file = this.nextFile("input jar to check:");
 				return new File[]{file};
 			}
-			return new File[]{new File(inputs[0])};
+			return new File[]{DeDuperUtil.newFile(inputs[0])};
 		}
 
 		@Override
@@ -491,7 +491,7 @@ public class Commands {
 				File file = this.nextFile("input jar:");
 				return new File[]{file};
 			}
-			return new File[]{new File(inputs[0])};
+			return new File[]{DeDuperUtil.newFile(inputs[0])};
 		}
 
 		@Override
