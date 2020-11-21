@@ -8,6 +8,12 @@ import java.net.URLDecoder;
 import jredfox.filededuper.util.DeDuperUtil;
 
 public class SelfCommandPrompt {
+	
+	public static void main(String[] args)
+	{
+		
+	}
+	
 	/**
 	 * run your current program with command prompt and close your current program without one
 	 */
@@ -33,11 +39,11 @@ public class SelfCommandPrompt {
             	}
             	else if(os.contains("mac"))
             	{
-            		new ProcessBuilder(new String[] {"/bin/bash", "-c", "java", "-jar", filename}).start();
+            		new ProcessBuilder(new String[] {"/bin/bash", "-c", ("java " + "-jar " + filename + (argsStr.isEmpty() ? "" : " " + argsStr)) }).start();
             	}
             	else if(os.contains("linux"))
             	{
-            		new ProcessBuilder(new String[] {"xfce4-terminal", "--title=" + appTitle, "--hold", "-x", "java", "-jar", filename}).start();
+            		new ProcessBuilder(new String[] {"xfce4-terminal", "--title=" + appTitle, "--hold", "-x", ("java " + "-jar " + filename + (argsStr.isEmpty() ? "" : " " + argsStr)) }).start();
             	}
 			}
             catch (Exception e)
@@ -46,6 +52,15 @@ public class SelfCommandPrompt {
 			}
             System.exit(0);
         }
+	}
+	
+	/**
+	 * get the classpaths
+	 */
+	public static String[] getCPs()
+	{
+		String str = System.getProperty("java.class.path");
+		return str.split(File.pathSeparator);
 	}
 	
 	public static String toString(String[] args, String sep) 
