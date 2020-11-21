@@ -17,7 +17,7 @@ public class Main {
 	
 	public static void main(String[] programArgs)
 	{
-		SelfCommandPrompt.runwithCMD(Main.class, programArgs, "File de-duper " + VERSION, false);
+		SelfCommandPrompt.runwithCMD(Main.class, programArgs, "File de-duper " + VERSION, true);
 		loadConfigs();
 		Scanner scanner = new Scanner(System.in);
 		String strCmd = programArgs.length > 0 ? programArgs[0] : scanner.nextLine();

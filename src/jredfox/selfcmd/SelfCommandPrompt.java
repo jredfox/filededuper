@@ -24,13 +24,12 @@ public class SelfCommandPrompt {
             	File file = new File(filename);
             	boolean compiled = getExtension(file).equals("jar");
             	if(!compiled && onlyCompiled)
-            	{
             		return;
-            	}
+            	
             	String os = System.getProperty("os.name").toLowerCase();
             	if(os.contains("windows"))
             	{
-            		new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", ("java " + "-jar " + filename + (argsStr.isEmpty() ? "" : " " + argsStr) + " & pause")).start();
+            		Process p = new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", ("java " + "-jar " + filename + (argsStr.isEmpty() ? "" : " " + argsStr) + " & pause")).start();
             	}
             	else if(os.contains("mac"))
             	{
