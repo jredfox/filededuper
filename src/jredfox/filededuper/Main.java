@@ -21,6 +21,7 @@ public class Main {
 		loadConfigs();
 		Scanner scanner = new Scanner(System.in);
 		String strCmd = programArgs.length > 0 ? programArgs[0] : scanner.nextLine();
+		programArgs = programArgs.length > 0 ? programArgs : new String[]{strCmd};
 		Command cmd = Commands.getCommand(strCmd);
 		if(cmd == null)
 			throw new CMDNotFoundException("Invalid command:\"" + strCmd + "\"" + " use the \"help\" command to list the commands");

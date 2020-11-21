@@ -15,6 +15,14 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
+	 * supports all platforms
+	 */
+	public static void runWithJavaCMD(String appTitle)
+	{
+		//TODO:
+	}
+	
+	/**
 	 * run your current program with command prompt and close your current program without one
 	 */
 	public static void runwithCMD(Class mainClass, String[] args, String appTitle, boolean onlyCompiled) 
@@ -25,25 +33,25 @@ public class SelfCommandPrompt {
             try 
             {
             	String argsStr = toString(args, " ");
-            	String jarPath = mainClass.getProtectionDomain().getCodeSource().getLocation().getPath();// get the path of the currently running jar
+            	argsStr = argsStr.isEmpty() ? "" : " " + argsStr;
+            	String jarPath = mainClass.getProtectionDomain().getCodeSource().getLocation().getPath();//get the path of the currently running jar
             	String filename = URLDecoder.decode(jarPath, "UTF-8").substring(1);
-            	File file = new File(filename);
-            	boolean compiled = getExtension(file).equals("jar");
+            	boolean compiled = getExtension(new File(filename)).equals("jar");
             	if(!compiled && onlyCompiled)
             		return;
             	
             	String os = System.getProperty("os.name").toLowerCase();
             	if(os.contains("windows"))
             	{
-            		Process p = new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", ("java " + "-jar " + filename + (argsStr.isEmpty() ? "" : " " + argsStr) + " & pause")).start();
+            		new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", ("java " + "-jar " + filename + argsStr + " & pause")).start();
             	}
             	else if(os.contains("mac"))
             	{
-            		new ProcessBuilder(new String[] {"/bin/bash", "-c", ("java " + "-jar " + filename + (argsStr.isEmpty() ? "" : " " + argsStr)) }).start();
+            		new ProcessBuilder("/bin/bash", "-c", ("java " + "-jar " + filename + argsStr)).start();
             	}
             	else if(os.contains("linux"))
             	{
-            		new ProcessBuilder(new String[] {"xfce4-terminal", "--title=" + appTitle, "--hold", "-x", ("java " + "-jar " + filename + (argsStr.isEmpty() ? "" : " " + argsStr)) }).start();
+            		new ProcessBuilder("xfce4-terminal", "--title=" + appTitle, "--hold", "-x", ("java " + "-jar " + filename + argsStr)).start();
             	}
 			}
             catch (Exception e)
