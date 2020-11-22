@@ -26,15 +26,21 @@ public abstract class Command<T> {
 	public File nextFile(String msg)
 	{
 		this.print(msg);
-		return new File(this.next(true)).getAbsoluteFile();
+		return new File(this.next()).getAbsoluteFile();
 	}
 	
 	public String next()
 	{
-		return next(false);
+		return this.nextRaw(true);
 	}
 	
-	public String next(boolean removeQuotes) 
+	public String next(String msg)
+	{
+		this.print(msg);
+		return this.nextRaw(true);
+	}
+	
+	public String nextRaw(boolean removeQuotes) 
 	{
 		String next = getScanner().nextLine().trim();
 		return removeQuotes ? next.replace("\"", "") : next;

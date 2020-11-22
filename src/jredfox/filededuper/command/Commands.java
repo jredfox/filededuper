@@ -305,10 +305,11 @@ public class Commands {
 			if(this.hasScanner(inputs))
 			{
 				File file = this.nextFile("input file:");
-				long timestamp = this.nextLong("input timestamp in ms:");
+				String strlong = this.next("input timestamp in ms:");
+				long timestamp = DeDuperUtil.parseTimeStamp(strlong);
 				return new Object[]{file, timestamp};
 			}
-			return new Object[]{DeDuperUtil.newFile(inputs[0]), Long.parseLong(inputs[1])};
+			return new Object[]{DeDuperUtil.newFile(inputs[0]), DeDuperUtil.parseTimeStamp(inputs[1])};
 		}
 
 		@Override
@@ -337,10 +338,11 @@ public class Commands {
 			if(this.hasScanner(inputs))
 			{
 				File file = this.nextFile("input archive:");
-				long timestamp = this.nextLong("input timestamp in ms:");
+				String strlong = this.next("input timestamp in ms:");
+				long timestamp = DeDuperUtil.parseTimeStamp(strlong);
 				return new Object[]{file, timestamp};
 			}
-			return new Object[]{DeDuperUtil.newFile(inputs[0]), Long.parseLong(inputs[1])};
+			return new Object[]{DeDuperUtil.newFile(inputs[0]), DeDuperUtil.parseTimeStamp(inputs[1])};
 		}
 
 		@Override
@@ -499,6 +501,27 @@ public class Commands {
 		public void run(File... args) 
 		{
 			System.out.println("compileTime:" + JarUtil.getCompileTime(args[0]));
+		}
+	};
+	
+	public static Command<Object> currentMs = new Command<Object>("currentMs")
+	{
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{""};
+		}
+
+		@Override
+		public Object[] getParams(String... cmdArgs) 
+		{
+			return null;
+		}
+
+		@Override
+		public void run(Object... args) 
+		{
+			System.out.println("currentMs:" + System.currentTimeMillis());
 		}
 	};
 	

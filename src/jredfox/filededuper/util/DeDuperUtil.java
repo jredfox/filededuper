@@ -465,4 +465,9 @@ public class DeDuperUtil {
 	    return li;
 	}
 
+	public static Long parseTimeStamp(String init)
+	{
+		return init.equals("current") ? System.currentTimeMillis() : Long.parseLong(init);
+	}
+
 }
