@@ -308,6 +308,7 @@ public class Commands {
 				long timestamp = this.nextLong("input timestamp in ms:");
 				return new Object[]{file, timestamp};
 			}
+			System.out.println(DeDuperUtil.toString(inputs, ","));
 			return new Object[]{DeDuperUtil.newFile(inputs[0]), Long.parseLong(inputs[1])};
 		}
 
