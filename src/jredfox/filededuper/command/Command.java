@@ -52,6 +52,7 @@ public abstract class Command<T> {
 
 	public Long nextLong(String msg)
 	{
+		this.print(msg);
 		return Long.parseLong(this.next());
 	}
 	
