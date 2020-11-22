@@ -2,8 +2,11 @@ package jredfox.selfcmd;
 
 import java.io.Console;
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.Scanner;
 
 import jredfox.filededuper.util.DeDuperUtil;
@@ -55,6 +58,7 @@ public class SelfCommandPrompt {
 	/**
 	 * use this command to support wrappers like eclipses jar in jar loader
 	 * NOTE: doesn't support debug function will not launch in debug mode use your ide when this happens.
+	 * IF YOU FIND A WAY TO GET DEBUG MODE WORKING LET ME KNOW
 	 */
 	public static void runwithCMD(String[] args, String appTitle, boolean onlyCompiled, boolean pause)
 	{
@@ -64,11 +68,10 @@ public class SelfCommandPrompt {
 	/**
 	 * run your current program with command prompt and close your current program without one. Doesn't support wrappers unless you use {@link SelfCommandPrompt#getMainClass()}
 	 * NOTE: doesn't support debug function will not launch in debug mode use your ide when this happens. 
+	 * IF YOU FIND A WAY TO GET DEBUG MODE WORKING LET ME KNOW
 	 */
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appTitle, boolean onlyCompiled, boolean pause) 
 	{
-		if(isDebugMode())
-			return;
         Console console = System.console();
         if(console == null)
         {
@@ -82,8 +85,10 @@ public class SelfCommandPrompt {
             	if(!compiled && onlyCompiled)
             		return;
             	
+            	String jvmArgs = getJVMArgs();
             	String os = System.getProperty("os.name").toLowerCase();
-            	String command = "java " + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
+            	String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
+            	System.out.println(command);
             	if(os.contains("windows"))
             	{
             		new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", command).start();
@@ -103,6 +108,22 @@ public class SelfCommandPrompt {
 			}
             System.exit(0);
         }
+	}
+	
+	public static String getJVMArgs()
+	{
+		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+		List<String> arguments = runtimeMxBean.getInputArguments();
+		StringBuilder b = new StringBuilder();
+		String sep = " ";
+		int index = 0;
+		for(String s : arguments)
+		{
+			s = index + 1 != arguments.size() ? s + sep : s;
+			b.append(s);
+			index++;
+		}
+		return b.toString();
 	}
 	
 	/**
