@@ -54,6 +54,7 @@ public class SelfCommandPrompt {
 	
 	/**
 	 * use this command to support wrappers like eclipses jar in jar loader
+	 * NOTE: doesn't support debug function will not launch in debug mode use your ide when this happens.
 	 */
 	public static void runwithCMD(String[] args, String appTitle, boolean onlyCompiled, boolean pause)
 	{
@@ -62,9 +63,12 @@ public class SelfCommandPrompt {
 	
 	/**
 	 * run your current program with command prompt and close your current program without one. Doesn't support wrappers unless you use {@link SelfCommandPrompt#getMainClass()}
+	 * NOTE: doesn't support debug function will not launch in debug mode use your ide when this happens. 
 	 */
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appTitle, boolean onlyCompiled, boolean pause) 
 	{
+		if(isDebugMode())
+			return;
         Console console = System.console();
         if(console == null)
         {
@@ -99,6 +103,14 @@ public class SelfCommandPrompt {
 			}
             System.exit(0);
         }
+	}
+	
+	/**
+	 * answer found from https://stackoverflow.com/questions/1109019/determine-if-a-java-application-is-in-debug-mode-in-eclipse/6865049#6865049
+	 */
+	public static boolean isDebugMode()
+	{
+		return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
 	}
 	
 	public static Class<?> getMainClass()

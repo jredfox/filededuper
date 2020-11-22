@@ -208,7 +208,7 @@ public class Commands {
 		{
 			for(Command c : Command.cmds.values())
 			{
-				System.out.println(c.id + " " + DeDuperUtil.toString(c.getArgs(), " OR "));
+				System.out.println(c.name + " " + DeDuperUtil.toString(c.getArgs(), " OR "));
 			}
 		}
 

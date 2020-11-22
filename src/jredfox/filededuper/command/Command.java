@@ -10,13 +10,15 @@ import jredfox.filededuper.util.DeDuperUtil;
 
 public abstract class Command<T>{
 	
-	public String id;
+	protected String id;//ids are lowercased enforced
+	public String name;
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	
 	public Command(String cmd)
 	{
-		this.id = cmd;
-		cmds.put(cmd, this);
+		this.id = cmd.toLowerCase();
+		this.name = cmd;
+		cmds.put(this.id, this);
 	}
 
 	public abstract String[] getArgs();
