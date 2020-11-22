@@ -1,55 +1,28 @@
 package jredfox.filededuper.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Array;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
-import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 import jredfox.filededuper.Main;
-import jredfox.filededuper.PointTimeEntry;
-import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.archive.Zip;
-import jredfox.filededuper.util.JarUtil.Consistencies;
 
 public class DeDuperUtil {
 	
@@ -87,17 +60,20 @@ public class DeDuperUtil {
 	
 	public static File newFile(String str)
 	{
-		return new File(str).getAbsoluteFile();
+		File file = new File(str);
+		return file.exists() ? file.getAbsoluteFile() : file;
 	}
 	
 	public static File newFile(String dir, String path)
 	{
-		return new File(dir, path).getAbsoluteFile();
+		File file = new File(dir, path);
+		return file.exists() ? file.getAbsoluteFile() : file;
 	}
 	
 	public static File newFile(File dir, String path)
 	{
-		return new File(dir, path).getAbsoluteFile();
+		File file = new File(dir, path);
+		return file.exists() ? file.getAbsoluteFile() : file;
 	}
 	
 	/**

@@ -28,7 +28,7 @@ public abstract class Command<T>{
 	public File nextFile(String msg)
 	{
 		this.print(msg);
-		return new File(this.next()).getAbsoluteFile();
+		return DeDuperUtil.newFile(this.next());
 	}
 	
 	public String next()
