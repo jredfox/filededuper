@@ -377,7 +377,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> isJarConsistent = new Command<File>("isJarConsistent")
+	public static Command<File> printJarInConsistencies = new Command<File>("printJarInConsistencies")
 	{
 		@Override
 		public File[] getParams(String... inputs)
@@ -411,7 +411,7 @@ public class Commands {
 						System.out.println("inconsistent:\t" + e.getName() + ", time:" + time +  " with:" + timestamp);
 					}
 				}
-				System.out.println(consistent + " ---> " + file);
+				System.out.println("jar was consistent:" + ("" + consistent).toUpperCase() + " ---> " + file);
 			}
 			catch(Exception e)
 			{

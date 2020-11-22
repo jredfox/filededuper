@@ -4,7 +4,6 @@ import java.io.File;
 
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.config.simple.MapConfig;
-import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {

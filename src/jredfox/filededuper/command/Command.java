@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import jredfox.filededuper.Main;
 import jredfox.filededuper.util.DeDuperUtil;
 
-public abstract class Command<T> {
+public abstract class Command<T>{
 	
 	public String id;
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
