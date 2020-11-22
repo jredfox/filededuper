@@ -36,7 +36,7 @@ public abstract class Command<T> {
 	
 	public String next(boolean removeQuotes) 
 	{
-		String next = getScanner().nextLine();
+		String next = getScanner().nextLine().trim();
 		return removeQuotes ? next.replace("\"", "") : next;
 	}
 	
@@ -88,10 +88,7 @@ public abstract class Command<T> {
 	{
 		String nextLine = getScanner().nextLine();
 		String[] args = DeDuperUtil.split(nextLine, ' ', '"', '"');
-		int index = 0;
-		for(String s : args)
-			args[index++] = s.replace("\"", "");
-		
+		fixArgs(args);
 		Command c = Command.get(args[0]);
 		if(c == null)
 		{
@@ -133,6 +130,13 @@ public abstract class Command<T> {
 			return actualArgs;
 		}
 		return args;
+	}
+
+	public static void fixArgs(String[] args) 
+	{
+		int index = 0;
+		for(String s : args)
+			args[index++] = s.trim().replace("\"", "");//trim before spacing so it preserves spaces
 	}
 
 }

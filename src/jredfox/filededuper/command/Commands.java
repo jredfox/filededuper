@@ -66,7 +66,8 @@ public class Commands {
 		{
 			if(this.hasScanner(inputs))
 			{
-				this.nextFile("input dir to gen a spreadsheet:");
+				File file = this.nextFile("input dir to gen a spreadsheet:");
+				return new File[]{file};
 			}
 			return new File[]{ DeDuperUtil.newFile(inputs[0])};
 		}
