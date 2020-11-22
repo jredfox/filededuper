@@ -61,9 +61,8 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * use this command to support wrappers like eclipses jar in jar loader
-	 * NOTE: doesn't support debug function will not launch in debug mode use your ide when this happens. if you find a better way please
-	 * make a github pull request or request an issue with basic text on how to solve the ide issue
+	 * reboot your application with a command prompt terminal. Note if you hard code your mainClass instead of using the above method it won't support all compilers like eclipse's jar in jar loader
+	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug
 	 */
 	public static void runwithCMD(String[] args, String appTitle, boolean onlyCompiled, boolean pause)
 	{
@@ -71,7 +70,7 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * run your current program with command prompt and close your current program without one. Doesn't support wrappers unless you use {@link SelfCommandPrompt#getMainClass()}
+	 * reboot your application with a command prompt terminal. Note if you hard code your mainClass instead of using the above method it won't support all compilers like eclipse's jar in jar loader
 	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug
 	 */
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appTitle, boolean onlyCompiled, boolean pause) 
