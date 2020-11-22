@@ -23,10 +23,10 @@ public class SelfCommandPrompt {
 		try
 		{
 			Class mainClass = Class.forName(args[1]);
-			String[] actualArgs = new String[args.length - 2];
-			System.arraycopy(args, 2, actualArgs, 0, actualArgs.length);
+			String[] programArgs = new String[args.length - 2];
+			System.arraycopy(args, 2, programArgs, 0, programArgs.length);
 			Method method = mainClass.getMethod("main", String[].class);
-			method.invoke(null, new Object[]{actualArgs});
+			method.invoke(null, new Object[]{programArgs});
 		}
 		catch(Throwable t)
 		{
