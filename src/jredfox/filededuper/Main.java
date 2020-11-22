@@ -19,7 +19,6 @@ public class Main {
 		loadConfigs();
 		if(args.length != 0)
 		{
-			Command.fixArgs(args);
 			Command.run(args);
 		}
 		else

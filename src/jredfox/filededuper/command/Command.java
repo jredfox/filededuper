@@ -98,6 +98,13 @@ public abstract class Command<T> {
 		return args;
 	}
 	
+	public static void fixArgs(String[] args) 
+	{
+		int index = 0;
+		for(String s : args)
+			args[index++] = s.trim().replace("\"", "");//trim before spacing so it preserves spaces
+	}
+	
 	/**
 	 * run a command starting with id and any command arguments that are required or optional can go next
 	 */
@@ -130,13 +137,6 @@ public abstract class Command<T> {
 			return actualArgs;
 		}
 		return args;
-	}
-
-	public static void fixArgs(String[] args) 
-	{
-		int index = 0;
-		for(String s : args)
-			args[index++] = s.trim().replace("\"", "");//trim before spacing so it preserves spaces
 	}
 
 }
