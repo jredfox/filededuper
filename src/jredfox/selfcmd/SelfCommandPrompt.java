@@ -88,6 +88,7 @@ public class SelfCommandPrompt {
             	String jvmArgs = getJVMArgs();
             	String os = System.getProperty("os.name").toLowerCase();
             	String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
+//            	System.out.println(command);
             	if(os.contains("windows"))
             	{
             		new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", command).start();

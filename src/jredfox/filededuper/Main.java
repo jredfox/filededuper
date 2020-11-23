@@ -4,11 +4,12 @@ import java.io.File;
 
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.8.0";
+	public static final String VERSION = "0.7.3";
 	public static final String name = "File de-duper " + VERSION;
 	
 	public static void main(String[] args)
