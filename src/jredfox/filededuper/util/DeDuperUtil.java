@@ -140,13 +140,10 @@ public class DeDuperUtil {
 	
 	protected static void getDirFiles(List<File> files, File dir, String[] exts, boolean blackList) 
 	{
-		if(blackList && exts[0].equals("*"))//this says to blacklist any file so don't do anything
-			return;
-		
 	    for (File file : dir.listFiles()) 
 	    {
 	    	String extension = getExtension(file);
-	    	boolean isType = blackList ? (!contains(exts, extension)) : (exts[0].equals("*") || contains(exts, extension));
+	    	boolean isType = blackList ? !isExtEqual(extension, exts) : isExtEqual(extension, exts);
 	        if (file.isFile() && isType)
 	        {
 	            files.add(file);
@@ -173,13 +170,14 @@ public class DeDuperUtil {
 		int index = name.lastIndexOf('.');
 		return index != -1 && !file.isDirectory() ? name.substring(index + 1) : "";
 	}
-
-	public static boolean contains(Object[] arr, Object obj)
+	
+	/**
+	 * no directory support use at your own risk
+	 */
+	public static String getExtension(String name) 
 	{
-		for(Object o : arr)
-			if(o.equals(obj))
-				return true;
-		return false;
+		int index = name.lastIndexOf('.');
+		return index != -1 ? name.substring(index + 1) : "";
 	}
 	
 	public static String getMD5(File f)
@@ -324,14 +322,20 @@ public class DeDuperUtil {
 	/**
 	 * input the filename.extension here with a list of extensions to return from
 	 */
-	public static boolean isExt(String name, String... exts) 
+	public static boolean isExt(String filename, String... exts) 
+	{
+		String orgExt = getExtension(filename);
+		return isExtEqual(orgExt, exts);
+	}
+
+	public static boolean isExtEqual(String orgExt, String[] exts)
 	{
 		if(exts[0].equals("*"))
 			return true;
-		name = name.toLowerCase();
+		orgExt = orgExt.toLowerCase();
 		for(String ext : exts)
 		{
-			if(name.contains(".") && name.endsWith(ext.toLowerCase()))
+			if(orgExt.equals(ext))
 				return true;
 		}
 		return false;

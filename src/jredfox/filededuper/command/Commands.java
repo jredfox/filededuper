@@ -187,7 +187,7 @@ public class Commands {
 			for(String[] line : compare.lines)
 			{
 				String md5 = line[1].toLowerCase();
-				if(!md5s.contains(md5) && (Main.compareExt[0].equals("*") || DeDuperUtil.isExt(line[0], Main.compareExt)) )
+				if(!md5s.contains(md5) && DeDuperUtil.isExt(line[0], Main.compareExt))
 				{
 					line[1] = DeDuperUtil.caseString(line[1], Main.lowercaseHash);
 					line[2] = DeDuperUtil.caseString(line[2], Main.lowercaseHash);

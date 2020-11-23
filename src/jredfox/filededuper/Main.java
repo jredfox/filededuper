@@ -8,7 +8,7 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.7.4";
+	public static final String VERSION = "0.8.0";
 	public static final String name = "File de-duper " + VERSION;
 	
 	public static void main(String[] args)
@@ -64,7 +64,7 @@ public class Main {
 		compileTimeOffset = jarCheck.get("compileTimeOffset", 30);//amount of minuets is allowed since the compile time before it's considered a mod
 		checkJarSigned = jarCheck.get("checkJarSigned", true);
 		consistentCheckJar = jarCheck.get("consistentCheckJar", false);
-		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf").toLowerCase().trim().split(",");
+		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf").toLowerCase().replace("\\.", "").split(",");
 		programDirs = getProgramDirs(jarCheck);
 		jarCheck.save();
 	}
