@@ -82,7 +82,7 @@ public class SelfCommandPrompt {
             {	
             	String str = getProgramArgs(args, " ");
             	String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
-            	boolean compiled = getExtension(getFileFromClass(mainClass)).equals("jar") || getMainClassName().endsWith("jarinjarloader.JarRsrcLoader");//work around as there is a bug currently in their jar in jar loader
+            	boolean compiled = isCompiled(mainClass);
             	if(!compiled && onlyCompiled)
             		return;
             	
@@ -112,27 +112,21 @@ public class SelfCommandPrompt {
 	
 	/**
 	 * checks if the jar is compiled based on the main class
+	 * @throws UnsupportedEncodingException 
 	 */
-	public static boolean isCompiled()
+	public static boolean isCompiled() throws UnsupportedEncodingException
 	{
 		return isCompiled(getMainClass());
 	}
 	
 	/**
 	 * checks per class if the jar is compiled
+	 * @throws UnsupportedEncodingException 
 	 */
-	public static boolean isCompiled(Class<?> mainClass)
+	public static boolean isCompiled(Class<?> mainClass) throws UnsupportedEncodingException
 	{
-		try
-		{
-			File file = getFileFromClass(mainClass);
-			return getExtension(file).equals("jar") || mainClass.getName().endsWith("jarinjarloader.JarRsrcLoader");
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		return false;
+		File file = getFileFromClass(mainClass);
+		return getExtension(file).equals("jar") || getMainClassName().endsWith("jarinjarloader.JarRsrcLoader");
 	}
 	
 	/**
