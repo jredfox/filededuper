@@ -13,7 +13,7 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-		SelfCommandPrompt.runwithCMD(args, name, true, true);
+		SelfCommandPrompt.runwithCMD(args, name, false, true);
 		loadConfigs();
 		System.out.println("Starting " + name);
 		if(args.length != 0)
