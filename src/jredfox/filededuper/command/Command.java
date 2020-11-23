@@ -22,7 +22,7 @@ public abstract class Command<T>{
 	}
 
 	public abstract String[] getArgs();
-	public abstract T[] getParams(String... cmdArgs);
+	public abstract T[] getParams(String... args);
 	public abstract void run(T... args);
 	
 	public File nextFile(String msg)
@@ -90,7 +90,7 @@ public abstract class Command<T>{
 	
 	public static Command<?> get(String id) 
 	{
-		return Commands.get(id);
+		return Commands.get(id.toLowerCase());
 	}
 
 	public static String[] nextCommand() 

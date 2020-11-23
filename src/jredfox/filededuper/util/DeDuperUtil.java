@@ -334,43 +334,48 @@ public class DeDuperUtil {
 	
 	public static void genMD5s(File dir, File file, Set<String> md5s, List<String> list)
 	{
-		boolean isJar = getExtension(file).equals("jar");
-		if(isJar)
-			genJarMD5s(dir, file, md5s, list);
-		else
-			genFileMD5s(dir, file, md5s, list);//if I really felt like it I could make plugins for each extension that other people create
-	}
-
-	private static void genFileMD5s(File dir, File file, Set<String> md5s, List<String> list) 
-	{
-		String name = file.getName();
 		String md5 = DeDuperUtil.getMD5(file);
 		if(md5s.contains(md5))
 			return;
-		String sha256 = DeDuperUtil.getSHA256(file);
-		long time = file.lastModified();
-		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
-		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + path);
+		genMD5s(dir, file, md5, list);
 		md5s.add(md5);
 	}
+	
+	public static void genDupeMD5s(File dir, File file, Set<String> md5s, List<String> list)
+	{
+		String md5 = DeDuperUtil.getMD5(file);
+		if(!md5s.contains(md5))
+		{
+			md5s.add(md5);
+			return;
+		}
+		genMD5s(dir, file, md5, list);
+	}
 
-	private static void genJarMD5s(File dir, File file, Set<String> md5s, List<String> list)
+	private static void genMD5s(File dir, File file, String md5, List<String> list) 
 	{
 		String name = file.getName();
-		String md5 = DeDuperUtil.getMD5(file);
-		if(md5s.contains(md5))
-			return;
 		String sha256 = DeDuperUtil.getSHA256(file);
 		long time = file.lastModified();
+		String plugin = getPlugin(DeDuperUtil.getExtension(file), file);
+		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
+		list.add(name + "," + md5 + "," + sha256 + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path);
+	}
+
+	private static String getPlugin(String ext, File file) 
+	{
+		return ext.equals("jar") ? genJarData(file) : "";
+	}
+
+	private static String genJarData(File file)
+	{
 		Zip jar = JarUtil.getZipFile(file);
 		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
 		long compileTime = JarUtil.getCompileTime(entries);
 		boolean modified = JarUtil.isJarModded(jar.file, entries, Main.checkJarSigned);
 		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(entries);
-		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
-		list.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistency + "," + path);
-		md5s.add(md5);
 		IOUtils.close(jar, true);
+		return compileTime + "," + modified + "," + consistency;
 	}
 
 	public static String caseString(String string, boolean lowerCase) 

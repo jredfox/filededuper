@@ -112,6 +112,46 @@ public class Commands {
 		}
 	};
 	
+	public static Command<File> genDupeMD5s = new Command<File>("genDupeMD5s")
+	{
+		@Override
+		public String[] getArgs() 
+		{
+			return new String[]{"File"};
+		}
+
+		@Override
+		public File[] getParams(String... args)
+		{
+			if(this.hasScanner(args))
+			{
+				return new File[]{this.nextFile("input file to gen dupes:")};
+			}
+			return new File[]{DeDuperUtil.newFile(args[0])};
+		}
+
+		@Override
+		public void run(File... args)
+		{
+			File dir = args[0];
+			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
+			if(!dir.exists() || files.isEmpty())
+			{
+				System.out.println("ERR file not found:" + dir);
+				return;
+			}
+			List<String> index = new ArrayList<>(files.size());
+			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path");
+			Set<String> md5s = new HashSet<>(files.size());
+			for(File file : files)
+			{
+				DeDuperUtil.genDupeMD5s(dir, file, md5s, index);
+			}
+			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-dupes.csv");
+			IOUtils.saveFileLines(index, outputFile, true);
+		}
+	};
+	
 	public static Command<File> compareMD5s = new Command<File>("compareMD5s")
 	{	
 		@Override
