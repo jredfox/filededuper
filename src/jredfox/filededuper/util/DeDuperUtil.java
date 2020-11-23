@@ -104,8 +104,9 @@ public class DeDuperUtil {
 	{
 		if(!dir.exists())
 			return new ArrayList<>(0);
-		List<String> list = new ArrayList<>();
-		for(File f : getDirFiles(dir))
+		List<File> files = getDirFiles(dir);
+		List<String> list = new ArrayList<>(files.size());
+		for(File f : files)
 		{
 			String md5 = getMD5(f);
 			if(!list.contains(md5))
