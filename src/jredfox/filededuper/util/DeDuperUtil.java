@@ -337,7 +337,7 @@ public class DeDuperUtil {
 		String md5 = DeDuperUtil.getMD5(file);
 		if(md5s.contains(md5))
 			return;
-		genMD5s(dir, file, md5, list);
+		list.add(genMD5s(dir, file, md5));
 		md5s.add(md5);
 	}
 	
@@ -349,22 +349,23 @@ public class DeDuperUtil {
 			md5s.add(md5);
 			return;
 		}
-		genMD5s(dir, file, md5, list);
+		list.add(genMD5s(dir, file, md5));
 	}
 
-	private static void genMD5s(File dir, File file, String md5, List<String> list) 
+	private static String genMD5s(File dir, File file, String md5) 
 	{
 		String name = file.getName();
 		String sha256 = DeDuperUtil.getSHA256(file);
 		long time = file.lastModified();
 		String plugin = getPlugin(DeDuperUtil.getExtension(file), file);
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
-		list.add(name + "," + md5 + "," + sha256 + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path);
+		return name + "," + md5 + "," + sha256 + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path;
 	}
 
+	private static String[] pluginExts = new String[]{"jar"};
 	private static String getPlugin(String ext, File file) 
 	{
-		return ext.equals("jar") ? genJarData(file) : "";
+		return Main.skipGenPluginData || !DeDuperUtil.endsWith(ext, pluginExts) ? "" : genJarData(file);
 	}
 
 	private static String genJarData(File file)

@@ -134,7 +134,7 @@ public class Commands {
 		public void run(File... args)
 		{
 			File dir = args[0];
-			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
+			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genDupesExt);
 			if(!dir.exists() || files.isEmpty())
 			{
 				System.out.println("ERR file not found:" + dir);

@@ -32,8 +32,10 @@ public class Main {
 
 	//file deduper config
 	public static String[] genExt;
+	public static String[] genDupesExt;
 	public static String[] compareExt;
 	public static boolean lowercaseHash;
+	public static boolean skipGenPluginData;
 	
 	//checkJar config
 	public static boolean archiveDir;
@@ -49,8 +51,10 @@ public class Main {
 		MapConfig mainCfg = new MapConfig(new File(getProgramDir(), "filededuper.cfg"));
 		mainCfg.load();
 		genExt = mainCfg.get("genMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
+		genDupesExt = mainCfg.get("genDupesExtension", "*").toLowerCase().replace("\\.", "").split(",");
 		compareExt = mainCfg.get("compareMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
 		lowercaseHash = mainCfg.get("lowercaseHash", false);
+		skipGenPluginData = mainCfg.get("skipGenPluginData", false);
 		mainCfg.save();
 		
 		MapConfig jarCheck = new MapConfig(new File(getProgramDir(), "checkJar.cfg"));
