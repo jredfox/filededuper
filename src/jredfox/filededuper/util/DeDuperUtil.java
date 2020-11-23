@@ -290,17 +290,6 @@ public class DeDuperUtil {
 		return null;
 	}
 	
-	public static boolean endsWith(String str, String[] exts)
-	{
-		String orgExt = str.toLowerCase();
-		for(String ext : exts)
-		{
-			if(orgExt.endsWith(ext.toLowerCase()))
-				return true;
-		}
-		return false;
-	}
-	
 	public static String getMD5(ZipFile zip, ZipEntry entry)
 	{
 		try
@@ -329,9 +318,25 @@ public class DeDuperUtil {
 	
 	public static boolean isProgramExt(String name)
 	{
-		return DeDuperUtil.endsWith(name, Main.programExts);
+		return DeDuperUtil.isExt(name, Main.programExts);
 	}
 	
+	/**
+	 * input the filename.extension here with a list of extensions to return from
+	 */
+	public static boolean isExt(String name, String... exts) 
+	{
+		if(exts[0].equals("*"))
+			return true;
+		name = name.toLowerCase();
+		for(String ext : exts)
+		{
+			if(name.contains(".") && name.endsWith(ext.toLowerCase()))
+				return true;
+		}
+		return false;
+	}
+
 	public static void genMD5s(File dir, File file, Set<String> md5s, List<String> list)
 	{
 		String md5 = DeDuperUtil.getMD5(file);
@@ -365,7 +370,17 @@ public class DeDuperUtil {
 	private static String[] pluginExts = new String[]{"jar"};
 	private static String getPlugin(String ext, File file) 
 	{
-		return Main.skipGenPluginData || !DeDuperUtil.endsWith(ext, pluginExts) ? "" : genJarData(file);
+		return Main.skipGenPluginData || !contains(ext, pluginExts) ? "" : genJarData(file);
+	}
+
+	public static <T extends Object> boolean contains(T obj, T[] exts)
+	{
+		for(T compare : exts)
+		{
+			if(obj.equals(compare))
+				return true;
+		}
+		return false;
 	}
 
 	private static String genJarData(File file)

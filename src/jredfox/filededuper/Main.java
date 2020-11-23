@@ -4,19 +4,18 @@ import java.io.File;
 
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.config.simple.MapConfig;
-import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.7.3";
+	public static final String VERSION = "0.7.4";
 	public static final String name = "File de-duper " + VERSION;
 	
 	public static void main(String[] args)
 	{
 		SelfCommandPrompt.runwithCMD(args, name, false, true);
-		System.out.println("Starting " + name);
 		loadConfigs();
+		System.out.println("Starting " + name);
 		if(args.length != 0)
 		{
 			Command.run(args);

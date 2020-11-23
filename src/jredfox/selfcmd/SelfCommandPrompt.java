@@ -81,7 +81,7 @@ public class SelfCommandPrompt {
             	String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
             	String jarPath = mainClass.getProtectionDomain().getCodeSource().getLocation().getPath();//get the path of the currently running jar
             	String filename = URLDecoder.decode(jarPath, "UTF-8").substring(1);
-            	boolean compiled = getExtension(new File(filename)).equals("jar");
+            	boolean compiled = getExtension(new File(filename)).equals("jar") || getMainClass().getName().equals("org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader");//work around as there is a bug currently in their jar in jar loader
             	if(!compiled && onlyCompiled)
             		return;
             	
