@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.2";
+	public static final String VERSION = "1.2.1";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -25,7 +25,7 @@ public class SelfCommandPrompt {
 		
 		try
 		{
-			Class mainClass = Class.forName(args[1]);
+			Class<?> mainClass = Class.forName(args[1]);
 			String[] programArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, programArgs, 0, programArgs.length);
 			Method method = mainClass.getMethod("main", String[].class);
@@ -110,6 +110,22 @@ public class SelfCommandPrompt {
 			}
             System.exit(0);
         }
+	}
+	
+	public static boolean isCompiled()
+	{
+		try
+		{
+			Class<?> mainClass = getMainClass();
+			String jarPath = mainClass.getProtectionDomain().getCodeSource().getLocation().getPath();//get the path of the currently running jar
+			String filename = URLDecoder.decode(jarPath, "UTF-8").substring(1);
+			return getExtension(new File(filename)).equals("jar") || mainClass.getName().endsWith("jarinjarloader.JarRsrcLoader");
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public static String getJVMArgs()
