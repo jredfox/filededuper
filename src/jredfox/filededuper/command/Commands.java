@@ -2,10 +2,7 @@ package jredfox.filededuper.command;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -43,7 +40,7 @@ public class Commands {
 			}
 			List<String> index = new ArrayList<>(files.size());
 			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path");
-			Set<String> md5s = new HashSet<>(files.size());
+			List<String> md5s = new ArrayList<>(files.size());
 			for(File file : files)
 			{
 				DeDuperUtil.genMD5s(dir, file, md5s, index);
@@ -84,7 +81,7 @@ public class Commands {
 			outArchive.mkdirs();
 			List<String> index = new ArrayList<>(files.size());
 			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency, path");
-			Set<String> md5s = new HashSet<>(files.size());
+			List<String> md5s = new ArrayList<>(files.size());
 			for(File file : files)
 			{
 				DeDuperUtil.genMD5s(dir, file, md5s, index);
@@ -142,7 +139,7 @@ public class Commands {
 			}
 			List<String> index = new ArrayList<>(files.size());
 			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path");
-			Set<String> md5s = new HashSet<>(files.size());
+			List<String> md5s = new ArrayList<>(files.size());
 			for(File file : files)
 			{
 				DeDuperUtil.genDupeMD5s(dir, file, md5s, index);
@@ -177,7 +174,7 @@ public class Commands {
 			compare.parse();
 			
 			//fetch the md5s from the origin
-			Set<String> md5s = new HashSet(origin.lines.size());
+			List<String> md5s = new ArrayList<>(origin.lines.size());
 			for(String[] line : origin.lines)
 			{
 				md5s.add(line[1].toLowerCase());

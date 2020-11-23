@@ -506,7 +506,7 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-			Set<String> md5s = new HashSet<>(entries.size());
+			List<String> md5s = new ArrayList<>(entries.size());
 			csv.add("#name, md5, sha256, date-modified, path");
 			for(ZipEntry entry : entries)
 			{
@@ -535,7 +535,7 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-			Set<String> md5s = new HashSet<>(entries.size());
+			List<String> md5s = new ArrayList<>(entries.size());
 			csv.add("#name, md5, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
 			long compileTime = JarUtil.getCompileTime(entries);
 			long minTime = JarUtil.getMinTime(compileTime);

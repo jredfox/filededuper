@@ -10,10 +10,8 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -30,7 +28,7 @@ public class DeDuperUtil {
 	
 	public static void move(List<File> files, File input, File outputDir, boolean sameDir)
 	{
-		Set<String> hashes = getHashes(outputDir);
+		List<String> hashes = getHashes(outputDir);
 		for(File f : files)
 		{
 			try
@@ -102,16 +100,23 @@ public class DeDuperUtil {
 		return fpath.substring(dir.getPath().indexOf(dir.getPath()) + dir.getPath().length() + 1, fpath.length());
 	}
 
-	public static Set<String> getHashes(File dir)
+	public static List<String> getHashes(File dir)
 	{
 		if(!dir.exists())
-			return new HashSet<>(0);
-		Set<String> list = new HashSet<>();
-		for(File f : getDirFiles(dir, "*"))
+			return new ArrayList<>(0);
+		List<String> list = new ArrayList<>();
+		for(File f : getDirFiles(dir))
 		{
-			list.add(getMD5(f));
+			String md5 = getMD5(f);
+			if(!list.contains(md5))
+				list.add(md5);
 		}
 		return list;
+	}
+	
+	public static List<File> getDirFiles(File dir)
+	{
+		return getDirFiles(dir, "*");
 	}
 	
 	/**
@@ -129,7 +134,7 @@ public class DeDuperUtil {
 	{
 		if(!dir.isDirectory())
 		{
-			List<File> li = new ArrayList(1);
+			List<File> li = new ArrayList<>(1);
 			li.add(dir);
 			return li;
 		}
@@ -341,7 +346,7 @@ public class DeDuperUtil {
 		return false;
 	}
 
-	public static void genMD5s(File dir, File file, Set<String> md5s, List<String> list)
+	public static void genMD5s(File dir, File file, List<String> md5s, List<String> list)
 	{
 		String md5 = DeDuperUtil.getMD5(file);
 		if(md5s.contains(md5))
@@ -350,7 +355,7 @@ public class DeDuperUtil {
 		md5s.add(md5);
 	}
 	
-	public static void genDupeMD5s(File dir, File file, Set<String> md5s, List<String> list)
+	public static void genDupeMD5s(File dir, File file, List<String> md5s, List<String> list)
 	{
 		String md5 = DeDuperUtil.getMD5(file);
 		if(!md5s.contains(md5))
@@ -424,7 +429,7 @@ public class DeDuperUtil {
 	{
 		if(str.isEmpty())
 			return new String[]{str};
-		List<String> list = new ArrayList();
+		List<String> list = new ArrayList<>();
 		boolean inside = false;
 		for(int i = 0; i < str.length(); i += 1)
 		{
