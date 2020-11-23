@@ -134,7 +134,7 @@ public abstract class Command<T>{
 			t.printStackTrace();
 			errored = true;
 		}
-		System.out.println("finished:" + c.id + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
+		System.out.println("finished:" + c.name + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
 	}
 
 	protected static String[] getCmdArgs(String[] args)
