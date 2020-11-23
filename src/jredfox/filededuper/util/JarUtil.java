@@ -20,7 +20,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
@@ -29,7 +28,6 @@ import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.archive.Zip;
 import jredfox.filededuper.config.csv.CSV;
-import jredfox.filededuper.util.JarUtil.Consistencies;
 
 public class JarUtil {
 	
