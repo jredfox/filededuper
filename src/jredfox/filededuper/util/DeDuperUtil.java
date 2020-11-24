@@ -330,6 +330,19 @@ public class DeDuperUtil {
 		return null;
 	}
 	
+	public static String getSHA1(ZipFile zip, ZipEntry entry)
+	{
+		try
+		{
+			return DeDuperUtil.getSHA1(new ByteArrayInputStream(JarUtil.extractInMemory(zip, entry)));
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static String getSHA256(ZipFile zip, ZipEntry entry)
 	{
 		try 

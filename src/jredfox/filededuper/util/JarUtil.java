@@ -505,7 +505,7 @@ public class JarUtil {
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> md5s = new HashSet<>(entries.size());
-			csv.add("#name, md5, sha256, date-modified, path");
+			csv.add("#name, md5, sha-1, sha256, date-modified, path");
 			for(ZipEntry entry : entries)
 			{
 				if(entry.isDirectory())
@@ -514,10 +514,11 @@ public class JarUtil {
 				String md5 = DeDuperUtil.getMD5(zip, entry);
 				if(md5s.contains(md5))
 					continue;
+				String sha1 = DeDuperUtil.getSHA1(zip, entry);
 				String sha256 = DeDuperUtil.getSHA256(zip, entry);
 				long time = entry.getTime();
 				String path = entry.getName();
-				csv.add(name + "," + md5 + "," + sha256 + "," + time + "," + path);
+				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + time + "," + path);
 				md5s.add(md5);
 			}
 		}
@@ -534,7 +535,7 @@ public class JarUtil {
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> md5s = new HashSet<>(entries.size());
-			csv.add("#name, md5, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
+			csv.add("#name, md5, sha-1, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
 			long compileTime = JarUtil.getCompileTime(entries);
 			long minTime = JarUtil.getMinTime(compileTime);
 			long maxTime = JarUtil.getMaxTime(compileTime);
@@ -555,11 +556,12 @@ public class JarUtil {
 					}
 					continue;
 				}
+				String sha1 = DeDuperUtil.getSHA1(zip, entry);
 				String sha256 = DeDuperUtil.getSHA256(zip, entry);
 				long time = entry.getTime();
 				Consistencies consistencies = getConsistency(entry, compileTime, time);
 				String path = entry.getName();
-				csv.add(name + "," + md5 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistencies + "," + path);
+				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistencies + "," + path);
 				md5s.add(md5);
 			}
 		}
