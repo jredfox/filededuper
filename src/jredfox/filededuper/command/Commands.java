@@ -168,7 +168,7 @@ public class Commands {
 		{
 			CSV origin = new CSV(files[0]);
 			CSV compare = new CSV(files[1]);
-			CSV output = new CSV(new File(origin.file.getParent(), DeDuperUtil.getTrueName(origin.file) + "-compared.csv"));
+			CSV output = new CSV(new File(origin.file.getParent(), DeDuperUtil.getTrueName(compare.file) + "-compared.csv"));
 			output.add("#name, md5, sha-256, date-modified, boolean modified(jar only), path");
 			origin.parse();
 			compare.parse();
