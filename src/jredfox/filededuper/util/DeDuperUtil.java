@@ -27,6 +27,9 @@ import jredfox.filededuper.archive.Zip;
 public class DeDuperUtil {
 	
 	public static final Scanner scanner = new Scanner(System.in);
+	public static final byte md5Size = 32;
+	public static final byte sha1Size = 40;
+	public static final byte sha256Size = 64;
 	
 	public static void move(List<File> files, File input, File outputDir, boolean sameDir)
 	{
