@@ -1,6 +1,9 @@
 package jredfox.filededuper;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.config.simple.MapConfig;

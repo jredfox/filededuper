@@ -381,7 +381,7 @@ public class JarUtil {
 		{
 			if(mf.getEntries().isEmpty())
 				return false;
-			List<String> names = new ArrayList(mf.getEntries().entrySet().size());
+			List<String> names = new ArrayList<>(mf.getEntries().entrySet().size());
 			for(Map.Entry<String, Attributes> pair : mf.getEntries().entrySet())
 			{
 				String name = pair.getKey();
@@ -393,7 +393,7 @@ public class JarUtil {
 						names.add(name);
 				}
 			}
-			List<String> actualNames = new ArrayList();
+			List<String> actualNames = new ArrayList<>();
 			for(ZipEntry entry : entries)
 			{
 				if(entry.getName().startsWith("META-INF/"))
@@ -504,7 +504,7 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-			List<String> md5s = new ArrayList<>(entries.size());
+			Set<String> md5s = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha256, date-modified, path");
 			for(ZipEntry entry : entries)
 			{
@@ -533,7 +533,7 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-			List<String> md5s = new ArrayList<>(entries.size());
+			Set<String> md5s = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
 			long compileTime = JarUtil.getCompileTime(entries);
 			long minTime = JarUtil.getMinTime(compileTime);
