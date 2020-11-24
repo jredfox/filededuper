@@ -16,6 +16,7 @@ import jredfox.filededuper.util.JarUtil;
 
 public class Commands {
 	
+	public static final String md5Header = "#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
 	public static Command<File> genMD5s = new Command<File>("genMD5s")
 	{
 		@Override
@@ -39,7 +40,7 @@ public class Commands {
 				return;
 			}
 			List<String> index = new ArrayList<>(files.size());
-			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path");
+			index.add(md5Header);
 			List<String> md5s = new ArrayList<>(files.size());
 			for(File file : files)
 			{
@@ -80,7 +81,7 @@ public class Commands {
 			File outArchive = new File(outDir, "archives");
 			outArchive.mkdirs();
 			List<String> index = new ArrayList<>(files.size());
-			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency, path");
+			index.add(md5Header);
 			List<String> md5s = new ArrayList<>(files.size());
 			for(File file : files)
 			{
@@ -138,7 +139,7 @@ public class Commands {
 				return;
 			}
 			List<String> index = new ArrayList<>(files.size());
-			index.add("#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path");
+			index.add(md5Header);
 			List<String> md5s = new ArrayList<>(files.size());
 			for(File file : files)
 			{
@@ -169,7 +170,7 @@ public class Commands {
 			CSV origin = new CSV(files[0]);
 			CSV compare = new CSV(files[1]);
 			CSV output = new CSV(new File(origin.file.getParent(), DeDuperUtil.getTrueName(compare.file) + "-compared.csv"));
-			output.add("#name, md5, sha-256, date-modified, boolean modified(jar only), path");
+			output.add(md5Header);
 			origin.parse();
 			compare.parse();
 			
