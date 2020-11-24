@@ -210,6 +210,19 @@ public class DeDuperUtil {
 		return null;
 	}
 	
+	public static String getSHA1(File f)
+	{
+		try
+		{
+			return getSHA1(new FileInputStream(f));
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static String getMD5(InputStream input) throws IOException
 	{
 		String hash = DigestUtils.md5Hex(input);
@@ -225,6 +238,15 @@ public class DeDuperUtil {
 	public static String getSHA256(InputStream input) throws IOException
 	{
 		String hash = DigestUtils.sha256Hex(input);
+		if(!Main.lowercaseHash)
+			hash = hash.toUpperCase();
+		input.close();
+		return hash;
+	}
+	
+	public static String getSHA1(InputStream input) throws IOException
+	{
+		String hash = DigestUtils.sha1Hex(input);
 		if(!Main.lowercaseHash)
 			hash = hash.toUpperCase();
 		input.close();
@@ -368,11 +390,12 @@ public class DeDuperUtil {
 	private static String genMD5s(File dir, File file, String md5) 
 	{
 		String name = file.getName();
+		String sha1 = DeDuperUtil.getSHA1(file);
 		String sha256 = DeDuperUtil.getSHA256(file);
 		long time = file.lastModified();
 		String plugin = getPlugin(DeDuperUtil.getExtension(file), file);
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
-		return name + "," + md5 + "," + sha256 + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path;
+		return name + "," + md5 + "," + sha1 + "," + sha256 + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path;
 	}
 
 	private static String[] pluginExts = new String[]{"jar"};

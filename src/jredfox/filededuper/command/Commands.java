@@ -18,7 +18,7 @@ import jredfox.filededuper.util.JarUtil;
 
 public class Commands {
 	
-	public static final String md5Header = "#name, md5, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
+	public static final String md5Header = "#name, md5, sha-1, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
 	public static Command<File> genMD5s = new Command<File>("genMD5s")
 	{
 		@Override
