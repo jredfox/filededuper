@@ -64,7 +64,7 @@ public class Main {
 		compileTimeOffset = jarCheck.get("compileTimeOffset", 30);//amount of minuets is allowed since the compile time before it's considered a mod
 		checkJarSigned = jarCheck.get("checkJarSigned", true);
 		consistentCheckJar = jarCheck.get("consistentCheckJar", false);
-		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf").toLowerCase().replace("\\.", "").split(",");
+		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf,js,java,py,kt").toLowerCase().replace("\\.", "").split(",");
 		programDirs = getProgramDirs(jarCheck);
 		jarCheck.save();
 	}
