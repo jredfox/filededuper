@@ -24,6 +24,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import jredfox.filededuper.Main;
+import jredfox.filededuper.Main.HashType;
 import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.archive.Zip;
@@ -222,9 +223,9 @@ public class JarUtil {
 				entriesOut.add(new ArchiveEntry(zip, entry, new ZipEntry((Main.archiveDir ? "added/" : "mod/") + entry.getName())));
 				continue;
 			}
-			String md5 = DeDuperUtil.getMD5(zip, entry);
-			String orgMd5 = DeDuperUtil.getMD5(orgZip, orgEntry);
-			if(!md5.equals(orgMd5))
+			String hash = DeDuperUtil.getCompareHash(zip, entry);
+			String orgHash = DeDuperUtil.getCompareHash(orgZip, orgEntry);
+			if(!hash.equals(orgHash))
 			{
 				entriesOut.add(new ArchiveEntry(zip, entry, new ZipEntry( (Main.archiveDir ? "modified/": "mod/") + entry.getName())));
 			}
@@ -504,22 +505,23 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-			Set<String> md5s = new HashSet<>(entries.size());
+			Set<String> hashes = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha-1, sha256, date-modified, path");
 			for(ZipEntry entry : entries)
 			{
 				if(entry.isDirectory())
 					continue;
 				String name = new File(entry.getName()).getName();
-				String md5 = DeDuperUtil.getMD5(zip, entry);
-				if(md5s.contains(md5))
+				String hash = DeDuperUtil.getCompareHash(zip, entry);
+				if(hashes.contains(hash))
 					continue;
-				String sha1 = DeDuperUtil.getSHA1(zip, entry);
-				String sha256 = DeDuperUtil.getSHA256(zip, entry);
+				String md5 = Main.compareHash == HashType.MD5 ? hash : DeDuperUtil.getMD5(zip, entry);
+				String sha1 = Main.compareHash == HashType.SHA1 ? hash : DeDuperUtil.getSHA1(zip, entry);
+				String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(zip, entry);
 				long time = entry.getTime();
 				String path = entry.getName();
 				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + time + "," + path);
-				md5s.add(md5);
+				hashes.add(hash);
 			}
 		}
 		catch (Exception e)
@@ -534,7 +536,7 @@ public class JarUtil {
 		{
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-			Set<String> md5s = new HashSet<>(entries.size());
+			Set<String> hashes = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha-1, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
 			long compileTime = JarUtil.getCompileTime(entries);
 			long minTime = JarUtil.getMinTime(compileTime);
@@ -546,23 +548,24 @@ public class JarUtil {
 					continue;
 				String name = new File(entry.getName()).getName();
 				boolean modified = isEntryModified(entry, compileTime, minTime, maxTime);
-				String md5 = DeDuperUtil.getMD5(zip, entry);
-				if(md5s.contains(md5))
+				String hash = DeDuperUtil.getCompareHash(zip, entry);
+				if(hashes.contains(hash))
 				{
 					if(modified)
 					{
-						String[] line = csv.getLine(md5, 1);
+						String[] line = csv.getLine(hash, Main.compareHash.ordinal() + 1);
 						line[5] = "true";//hotfix for duplicate entries having different timestamps
 					}
 					continue;
 				}
-				String sha1 = DeDuperUtil.getSHA1(zip, entry);
-				String sha256 = DeDuperUtil.getSHA256(zip, entry);
+				String md5 = Main.compareHash == HashType.MD5 ? hash : DeDuperUtil.getMD5(zip, entry);
+				String sha1 = Main.compareHash == HashType.SHA1 ? hash : DeDuperUtil.getSHA1(zip, entry);
+				String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(zip, entry);
 				long time = entry.getTime();
 				Consistencies consistencies = getConsistency(entry, compileTime, time);
 				String path = entry.getName();
 				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistencies + "," + path);
-				md5s.add(md5);
+				hashes.add(md5);
 			}
 		}
 		catch (Exception e)

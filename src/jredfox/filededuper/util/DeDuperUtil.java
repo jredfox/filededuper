@@ -323,6 +323,29 @@ public class DeDuperUtil {
 		return null;
 	}
 	
+	public static String getCompareHash(File file)
+	{
+		return Main.compareHash == HashType.MD5 ? DeDuperUtil.getMD5(file) : Main.compareHash == HashType.SHA1 ?  DeDuperUtil.getSHA1(file) : Main.compareHash == HashType.SHA256 ? DeDuperUtil.getSHA256(file) : null;
+	}
+	
+	public static String getCompareHash(InputStream in) throws IOException
+	{
+		return Main.compareHash == HashType.MD5 ? DeDuperUtil.getMD5(in) : Main.compareHash == HashType.SHA1 ?  DeDuperUtil.getSHA1(in) : Main.compareHash == HashType.SHA256 ? DeDuperUtil.getSHA256(in) : null;
+	}
+	
+	public static String getCompareHash(ZipFile zip, ZipEntry entry) 
+	{
+		try
+		{
+			return DeDuperUtil.getCompareHash(new ByteArrayInputStream(JarUtil.extractInMemory(zip, entry)));
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static String getMD5(ZipFile zip, ZipEntry entry)
 	{
 		try
@@ -407,11 +430,6 @@ public class DeDuperUtil {
 			return;
 		}
 		list.add(genHashes(dir, file, hash));
-	}
-
-	public static String getCompareHash(File file)
-	{
-		return Main.compareHash == HashType.MD5 ? DeDuperUtil.getMD5(file) : Main.compareHash == HashType.SHA1 ?  DeDuperUtil.getSHA1(file) : Main.compareHash == HashType.SHA256 ? DeDuperUtil.getSHA256(file) : null;
 	}
 
 	private static String genHashes(File dir, File file, String hash) 
