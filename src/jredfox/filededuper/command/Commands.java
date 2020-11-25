@@ -19,7 +19,7 @@ import jredfox.filededuper.util.JarUtil;
 public class Commands {
 	
 	public static final String hashHeader = "#name, md5, sha-1, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
-	public static Command<File> genMD5s = new Command<File>("genHashes")
+	public static Command<File> genHashes = new Command<File>("genHashes")
 	{
 		@Override
 		public File[] getParams(String... inputs) 
@@ -46,7 +46,7 @@ public class Commands {
 			Set<String> hashes = new HashSet<>(files.size());
 			for(File file : files)
 			{
-				DeDuperUtil.genMD5s(dir, file, hashes, index);
+				DeDuperUtil.genHashes(dir, file, hashes, index);
 			}
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + ".csv");
 			IOUtils.saveFileLines(index, outputFile, true);
@@ -59,7 +59,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genArchiveMD5s = new Command<File>("genArchiveHashes")
+	public static Command<File> genArchiveHashes = new Command<File>("genArchiveHashes")
 	{
 		@Override
 		public File[] getParams(String... inputs) 
@@ -87,9 +87,9 @@ public class Commands {
 			Set<String> hashes = new HashSet<>(files.size());
 			for(File file : files)
 			{
-				DeDuperUtil.genMD5s(dir, file, hashes, index);
-				String md5 = DeDuperUtil.getMD5(file);
-				CSV csv = new CSV(new File(outArchive, DeDuperUtil.getTrueName(file) + "-" + md5 + ".csv"));
+				DeDuperUtil.genHashes(dir, file, hashes, index);
+				String hash = DeDuperUtil.getCompareHash(file);
+				CSV csv = new CSV(new File(outArchive, DeDuperUtil.getTrueName(file) + "-" + hash + ".csv"));
 				boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
 				if(isJar)
 				{
@@ -112,7 +112,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genDupeMD5s = new Command<File>("genDupeHashes")
+	public static Command<File> genDupeHashes = new Command<File>("genDupeHashes")
 	{
 		@Override
 		public String[] getArgs() 
@@ -145,14 +145,14 @@ public class Commands {
 			Set<String> hashes = new HashSet<>(files.size());
 			for(File file : files)
 			{
-				DeDuperUtil.genDupeMD5s(dir, file, hashes, index);
+				DeDuperUtil.genDupeHashes(dir, file, hashes, index);
 			}
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-dupes.csv");
 			IOUtils.saveFileLines(index, outputFile, true);
 		}
 	};
 	
-	public static Command<File> compareMD5s = new Command<File>("compareHashes")
+	public static Command<File> compareHashes = new Command<File>("compareHashes")
 	{	
 		@Override
 		public File[] getParams(String... inputs)
@@ -176,7 +176,7 @@ public class Commands {
 			origin.parse();
 			compare.parse();
 			
-			//fetch the md5s from the origin
+			//fetch the hashes from the origin
 			int compareIndex = Main.compareHash.ordinal() + 1;
 			Set<String> hashes = new HashSet<>(origin.lines.size());
 			for(String[] line : origin.lines)

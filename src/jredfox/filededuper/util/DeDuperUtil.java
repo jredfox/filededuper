@@ -28,9 +28,6 @@ import jredfox.filededuper.archive.Zip;
 public class DeDuperUtil {
 	
 	public static final Scanner scanner = new Scanner(System.in);
-	public static final byte md5Size = 32;
-	public static final byte sha1Size = 40;
-	public static final byte sha256Size = 64;
 	
 	public static void move(List<File> files, File input, File outputDir, boolean sameDir)
 	{
@@ -39,13 +36,13 @@ public class DeDuperUtil {
 		{
 			try
 			{
-				String md5 = getMD5(f);
-				if(hashes.contains(md5))
+				String hash = DeDuperUtil.getCompareHash(f);
+				if(hashes.contains(hash))
 				{
-					System.out.println("skipping dupe file:" + md5 + ", " + f);
+					System.out.println("skipping dupe file:" + hash + ", " + f);
 					continue;
 				}
-				String hashName = getTrueName(f) + "-" + md5 + getExtensionFull(f);
+				String hashName = getTrueName(f) + "-" + hash + getExtensionFull(f);
 				File outputFile = sameDir ? (new File(outputDir,  hashName)) : new File(outputDir, getRealtivePath(input, f));
 				if(outputFile.exists())
 				{
@@ -53,7 +50,7 @@ public class DeDuperUtil {
 					System.out.println("avoiding overwriting file:" + outputFile);
 				}
 				copy(f, outputFile);
-				hashes.add(md5);
+				hashes.add(hash);
 			}
 			catch(Exception e)
 			{
@@ -113,7 +110,7 @@ public class DeDuperUtil {
 		List<File> files = getDirFiles(dir);
 		Set<String> hashes = new HashSet<>(files.size());
 		for(File f : files)
-			hashes.add(getMD5(f));
+			hashes.add(getCompareHash(f));
 		return hashes;
 	}
 	
@@ -392,16 +389,16 @@ public class DeDuperUtil {
 		return false;
 	}
 
-	public static void genMD5s(File dir, File file, Set<String> hashes, List<String> list)
+	public static void genHashes(File dir, File file, Set<String> hashes, List<String> list)
 	{
 		String hash = DeDuperUtil.getCompareHash(file);
 		if(hashes.contains(hash))
 			return;
-		list.add(genMD5s(dir, file, hash));
+		list.add(genHashes(dir, file, hash));
 		hashes.add(hash);
 	}
 	
-	public static void genDupeMD5s(File dir, File file, Set<String> hashes, List<String> list)
+	public static void genDupeHashes(File dir, File file, Set<String> hashes, List<String> list)
 	{
 		String hash = DeDuperUtil.getCompareHash(file);
 		if(!hashes.contains(hash))
@@ -409,7 +406,7 @@ public class DeDuperUtil {
 			hashes.add(hash);
 			return;
 		}
-		list.add(genMD5s(dir, file, hash));
+		list.add(genHashes(dir, file, hash));
 	}
 
 	public static String getCompareHash(File file)
@@ -417,7 +414,7 @@ public class DeDuperUtil {
 		return Main.compareHash == HashType.MD5 ? DeDuperUtil.getMD5(file) : Main.compareHash == HashType.SHA1 ?  DeDuperUtil.getSHA1(file) : Main.compareHash == HashType.SHA256 ? DeDuperUtil.getSHA256(file) : null;
 	}
 
-	private static String genMD5s(File dir, File file, String hash) 
+	private static String genHashes(File dir, File file, String hash) 
 	{
 		String name = file.getName();
 		//recycle the comparing hash so it doesn't generate it twice especially for the sha's hashes
