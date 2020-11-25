@@ -54,7 +54,8 @@ public class SelfCommandPrompt {
 	}
 
 	/**
-	 * supports all platforms no need to reboot, supports debugging and all ides
+	 * supports all platforms no need to reboot, supports debugging and all ides,
+	 * and supports shutdown hooks
 	 */
 	public static void runWithJavaCMD(String appTitle, boolean onlyCompiled)
 	{
@@ -85,15 +86,16 @@ public class SelfCommandPrompt {
         {
             try
             {	
-            	String str = getProgramArgs(args, " ");
-            	String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
             	boolean compiled = isCompiled(mainClass);
             	if(!compiled && onlyCompiled)
             		return;
             	
+            	String str = getProgramArgs(args, " ");
+            	String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
             	String jvmArgs = getJVMArgs();
             	String os = System.getProperty("os.name").toLowerCase();
             	String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
+            	
             	if(os.contains("windows"))
             	{
             		File bat = new File(System.getenv("APPDATA") + "/SelfCommandPrompt", appId + "-run.bat");
