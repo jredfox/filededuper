@@ -187,6 +187,14 @@ public class DeDuperUtil {
 		return index != -1 ? name.substring(index + 1) : "";
 	}
 	
+	public static void validateHash(String hash) 
+	{
+		if(hash.length() != Main.compareHash.size)
+		{
+			throw new RuntimeException("invalid hash size for: " + hash + " expected:" + Main.compareHash.size + " on hashtype:" + Main.compareHash);
+		}
+	}
+	
 	public static String getMD5(File f)
 	{
 		try

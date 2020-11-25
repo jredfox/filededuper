@@ -19,7 +19,7 @@ import jredfox.filededuper.util.JarUtil;
 public class Commands {
 	
 	public static final String md5Header = "#name, md5, sha-1, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
-	public static Command<File> genMD5s = new Command<File>("genMD5s")
+	public static Command<File> genMD5s = new Command<File>("genHashes")
 	{
 		@Override
 		public File[] getParams(String... inputs) 
@@ -59,7 +59,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genArchiveMD5s = new Command<File>("genArchiveMD5s")
+	public static Command<File> genArchiveMD5s = new Command<File>("genArchiveHashes")
 	{
 		@Override
 		public File[] getParams(String... inputs) 
@@ -112,7 +112,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genDupeMD5s = new Command<File>("genDupeMD5s")
+	public static Command<File> genDupeMD5s = new Command<File>("genDupeHashes")
 	{
 		@Override
 		public String[] getArgs() 
@@ -152,7 +152,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> compareMD5s = new Command<File>("compareMD5s")
+	public static Command<File> compareMD5s = new Command<File>("compareHashes")
 	{	
 		@Override
 		public File[] getParams(String... inputs)
@@ -177,22 +177,27 @@ public class Commands {
 			compare.parse();
 			
 			//fetch the md5s from the origin
-			Set<String> md5s = new HashSet<>(origin.lines.size());
+			int compareIndex = Main.compareHash.ordinal() + 1;
+			Set<String> hashes = new HashSet<>(origin.lines.size());
 			for(String[] line : origin.lines)
 			{
-				md5s.add(line[1].toLowerCase());
+				String hash = line[compareIndex].toLowerCase();
+				DeDuperUtil.validateHash(hash);
+				hashes.add(hash);
 			}
 			
 			//inject any new entries
 			for(String[] line : compare.lines)
 			{
-				String md5 = line[1].toLowerCase();
-				if(!md5s.contains(md5) && DeDuperUtil.isExt(line[0], Main.compareExt))
+				String hash = line[compareIndex].toLowerCase();
+				DeDuperUtil.validateHash(hash);
+				if(!hashes.contains(hash) && DeDuperUtil.isExt(line[0], Main.compareExt))
 				{
 					line[1] = DeDuperUtil.caseString(line[1], Main.lowercaseHash);
 					line[2] = DeDuperUtil.caseString(line[2], Main.lowercaseHash);
+					line[3] = DeDuperUtil.caseString(line[3], Main.lowercaseHash);
 					output.lines.add(line);
-					md5s.add(md5);
+					hashes.add(hash);
 				}
 			}
 			

@@ -11,7 +11,7 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.8.1";
+	public static final String VERSION = "0.9.0";
 	public static final String name = "File de-duper " + VERSION;
 	
 	public static void main(String[] args)
@@ -37,6 +37,7 @@ public class Main {
 	public static String[] genExt;
 	public static String[] genDupesExt;
 	public static String[] compareExt;
+	public static HashType compareHash;
 	public static boolean lowercaseHash;
 	public static boolean skipGenPluginData;
 	
@@ -58,6 +59,7 @@ public class Main {
 		compareExt = mainCfg.get("compareMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
 		lowercaseHash = mainCfg.get("lowercaseHash", false);
 		skipGenPluginData = mainCfg.get("skipGenPluginData", false);
+		compareHash = HashType.getByName(mainCfg.get("compareHash", "MD5").toLowerCase().replace("-", ""));//options are MD5, SHA1, SHA256
 		mainCfg.save();
 		
 		MapConfig jarCheck = new MapConfig(new File(getProgramDir(), "checkJar.cfg"));
@@ -70,6 +72,31 @@ public class Main {
 		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf,js,java,py,kt").toLowerCase().replace("\\.", "").split(",");
 		programDirs = getProgramDirs(jarCheck);
 		jarCheck.save();
+	}
+	
+	public static enum HashType
+	{
+		MD5(32),
+		SHA1(40),
+		SHA256(64);
+		
+		public int size;
+		HashType(int l)
+		{
+			this.size = l;
+		}
+		
+		public static HashType getByName(String name)
+		{
+			for(HashType t : HashType.values())
+			{
+				if(t.toString().toLowerCase().equals(name))
+				{
+					return t;
+				}
+			}
+			return null;
+		}
 	}
 	
 	private static String[] getProgramDirs(MapConfig jarCheck) 
