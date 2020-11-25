@@ -554,7 +554,7 @@ public class JarUtil {
 					if(modified)
 					{
 						String[] line = csv.getLine(hash, Main.compareHash.ordinal() + 1);
-						line[5] = "true";//hotfix for duplicate entries having different timestamps
+						line[6] = "true";//hotfix for duplicate entries having different timestamps
 					}
 					continue;
 				}
