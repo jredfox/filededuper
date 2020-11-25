@@ -8,9 +8,13 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import jredfox.filededuper.Main;
 import jredfox.filededuper.util.IOUtils;
@@ -110,6 +114,26 @@ public class SelfCommandPrompt {
             		//fire the batch file
             		pb.start();
             		System.exit(0);
+            	}
+            	else if(os.contains("mac"))
+            	{
+            		File sh = new File(getProgramDir() + "/SelfCommandPrompt", appId + "-run.sh");
+            		List<String> list = new ArrayList(1);
+            		list.add("#!/bin/bash");
+//            		list.add("new ~/Desktop");
+            		list.add("open -b com.apple.terminal $trun_cmd");
+            		list.add("$ settitle " + appName);
+            		list.add(command);
+            		IOUtils.saveFileLines(list, sh, true);
+            		
+            		//java api specific
+            		sh.setExecutable(true);
+            		sh.setReadable(true);
+            		sh.setWritable(true);
+            		
+            		//osx specific
+            		Set<PosixFilePermission> perm = PosixFilePermissions.fromString("rwxrwxrwx");
+            		Files.setPosixFilePermissions(sh.toPath(), perm);
             	}
             	else
             	{
