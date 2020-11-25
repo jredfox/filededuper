@@ -3,19 +3,24 @@ package jredfox.selfcmd;
 import java.io.Console;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.ProcessBuilder.Redirect;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import jredfox.filededuper.Main;
+import jredfox.filededuper.util.IOUtils;
 /**
  * @author jredfox. Credits to Chocohead#7137 for helping
  * this class is a wrapper for your program. It fires command prompt and stops it from quitting without user input
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.2.1";
+	public static final String VERSION = "1.2.2";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -61,9 +66,9 @@ public class SelfCommandPrompt {
 	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
 	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
 	 */
-	public static void runwithCMD(String[] args, String appTitle, boolean onlyCompiled, boolean pause)
+	public static void runwithCMD(String[] args, String appName, String appId, boolean onlyCompiled, boolean pause)
 	{
-		runwithCMD(getMainClass(), args, appTitle, onlyCompiled, pause);
+		runwithCMD(getMainClass(), args, appName, appId, onlyCompiled, pause);
 	}
 	
 	/**
@@ -71,9 +76,9 @@ public class SelfCommandPrompt {
 	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
 	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
 	 */
-	public static void runwithCMD(Class<?> mainClass, String[] args, String appTitle, boolean onlyCompiled, boolean pause) 
+	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
-		if(isDebugMode())
+		if(isDebugMode() || getMainClassName().equals(SelfCommandPrompt.class.getName()))
 			return;
         Console console = System.console();
         if(console == null)
@@ -91,22 +96,28 @@ public class SelfCommandPrompt {
             	String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
             	if(os.contains("windows"))
             	{
-            		new ProcessBuilder("cmd", "/c", "start", "\"" + appTitle + "\"", "cmd", "/c", command).start();
+            		File bat = new File(System.getenv("APPDATA") + "/SelfCommandPrompt", appId + "-run.bat");
+            		bat.getParentFile().mkdirs();
+            		List<String> list = new ArrayList(1);
+            		list.add("@echo off");
+            		list.add("start" + " \"" + appName + "\" " + command);
+            		IOUtils.saveFileLines(list, bat, true);
+            		ProcessBuilder pb = new ProcessBuilder(bat.getAbsolutePath());
+            		//inherit IO and main directory
+            		pb.directory(getProgramDir());
+            		//fire the batch file
+            		pb.start();
+            		System.exit(0);
             	}
-            	else if(os.contains("mac"))
+            	else
             	{
-            		new ProcessBuilder("/bin/bash", "-c", command).start();
-            	}
-            	else if(os.contains("linux"))
-            	{
-            		new ProcessBuilder("xfce4-terminal", "--title=" + appTitle, "--hold", "-x", command).start();
+            		SelfCommandPrompt.runWithJavaCMD(appName, onlyCompiled);//other os's seem to break or don't have the start command
             	}
 			}
             catch (Exception e)
             {
 				e.printStackTrace();
 			}
-            System.exit(0);
         }
 	}
 	
@@ -211,6 +222,6 @@ public class SelfCommandPrompt {
 	
 	public static File getProgramDir()
 	{
-		return new File(System.getProperty("user.dir"));
+		return new File(System.getProperty("user.dir")).getAbsoluteFile();
 	}
 }
