@@ -2,8 +2,10 @@ package jredfox.filededuper.command;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -141,8 +143,8 @@ public class Commands {
 				return;
 			}
 			List<String> index = new ArrayList<>(files.size());
-			index.add(hashHeader);
-			Set<String> hashes = new HashSet<>(files.size());
+			index.add(hashHeader + ", duplicated with");
+			Map<String, String> hashes = new HashMap<>(files.size());
 			for(File file : files)
 			{
 				DeDuperUtil.genDupeHashes(dir, file, hashes, index);

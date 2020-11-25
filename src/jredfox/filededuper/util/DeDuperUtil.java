@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -421,15 +422,15 @@ public class DeDuperUtil {
 		hashes.add(hash);
 	}
 	
-	public static void genDupeHashes(File dir, File file, Set<String> hashes, List<String> list)
+	public static void genDupeHashes(File dir, File file, Map<String, String> hashes, List<String> list)
 	{
 		String hash = DeDuperUtil.getCompareHash(file);
-		if(!hashes.contains(hash))
+		if(!hashes.containsKey(hash))
 		{
-			hashes.add(hash);
+			hashes.put(hash, file.getPath());
 			return;
 		}
-		list.add(genHashes(dir, file, hash));
+		list.add(genHashes(dir, file, hash) + "," + hashes.get(hash));
 	}
 
 	private static String genHashes(File dir, File file, String hash) 

@@ -12,8 +12,8 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.9.0";
-	public static final String name = "File de-duper " + VERSION;
+	public static final String VERSION = "0.9.3";
+	public static final String name = "File De-Duper " + VERSION;
 	
 	public static void main(String[] args)
 	{

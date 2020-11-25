@@ -1,30 +1,23 @@
 package jredfox.selfcmd;
 
-import java.io.Console;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.ProcessBuilder.Redirect;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.nio.file.Files;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
-import jredfox.filededuper.Main;
-import jredfox.filededuper.util.IOUtils;
+import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.DeDuperUtil;
 /**
  * @author jredfox. Credits to Chocohead#7137 for helping
  * this class is a wrapper for your program. It fires command prompt and stops it from quitting without user input
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.2.2";
+	public static final String VERSION = "1.3.0";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -83,75 +76,59 @@ public class SelfCommandPrompt {
 	 */
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
-		if(isDebugMode() || getMainClassName().equals(SelfCommandPrompt.class.getName()))
+        boolean compiled = isCompiled(mainClass);
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
+		{
 			return;
-        Console console = System.console();
-        if(console == null)
-        {
-            try
-            {	
-            	boolean compiled = isCompiled(mainClass);
-            	if(!compiled && onlyCompiled)
-            		return;
-            	
-            	String str = getProgramArgs(args, " ");
-            	String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
-            	String jvmArgs = getJVMArgs();
-            	String os = System.getProperty("os.name").toLowerCase();
-            	String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
-            	
-            	if(os.contains("windows"))
-            	{
-            		File bat = new File(System.getenv("APPDATA") + "/SelfCommandPrompt", appId + "-run.bat");
-            		bat.getParentFile().mkdirs();
-            		List<String> list = new ArrayList(1);
-            		list.add("@echo off");
-            		list.add("start" + " \"" + appName + "\" " + command);
-            		IOUtils.saveFileLines(list, bat, true);
-            		ProcessBuilder pb = new ProcessBuilder(bat.getAbsolutePath());
-            		//inherit IO and main directory
-            		pb.directory(getProgramDir());
-            		//fire the batch file
-            		pb.start();
-            		System.exit(0);
-            	}
-            	else if(os.contains("mac"))
-            	{
-            		File sh = new File(getProgramDir() + "/SelfCommandPrompt", appId + "-run.sh");
-            		List<String> list = new ArrayList(1);
-            		list.add("#!/bin/bash");
-//            		list.add("new ~/Desktop");
-            		list.add("open -b com.apple.terminal $trun_cmd");
-            		list.add("$ settitle " + appName);
-            		list.add(command);
-            		IOUtils.saveFileLines(list, sh, true);
-            		
-            		//java api specific
-            		sh.setExecutable(true);
-            		sh.setReadable(true);
-            		sh.setWritable(true);
-            		
-            		//osx specific
-            		Set<PosixFilePermission> perm = PosixFilePermissions.fromString("rwxrwxrwx");
-            		Files.setPosixFilePermissions(sh.toPath(), perm);
-            	}
-            	else
-            	{
-            		SelfCommandPrompt.runWithJavaCMD(appName, onlyCompiled);//other os's seem to break or don't have the start command
-            	}
-			}
-            catch (Exception e)
-            {
-				e.printStackTrace();
-			}
-        }
+		}
+		rebootWithTerminal(mainClass, args, appName, appId, onlyCompiled, pause);
 	}
 	
+	/**
+	 * this method is a directly calls commands to reboot your app with a command prompt terminal. 
+	 * do not call this directly without if statements it will recursively reboot infinitely
+	 */
+	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause)
+	{
+        try
+        {
+            String str = getProgramArgs(args, " ");
+            String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
+            String jvmArgs = getJVMArgs();
+            String os = System.getProperty("os.name").toLowerCase();
+            String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
+            if(os.contains("windows"))
+            {
+            	Runtime.getRuntime().exec("cmd /c start" + " \"" + appName + "\" " + command);
+            }
+            else if(os.contains("mac"))
+            {
+            	Runtime.getRuntime().exec("/bin/bash -c " + command);//TODO: make the command work
+            }
+            else if(os.contains("linux"))
+            {
+            	//TODO: generate sh files for linux because they have too many kernals then execute those files
+            }
+            else
+            {
+            	SelfCommandPrompt.runWithJavaCMD(appName, onlyCompiled);//for unsupported os's use the java console
+            	return;//do not exit the application so return from the method
+            }
+            Runtime.getRuntime().gc();
+            System.exit(0);
+        }
+        catch (Exception e)
+        {
+        	e.printStackTrace();
+			SelfCommandPrompt.runWithJavaCMD(appName, onlyCompiled);//for unsupported os's use the java console
+		}
+	}
+
 	/**
 	 * checks if the jar is compiled based on the main class
 	 * @throws UnsupportedEncodingException 
 	 */
-	public static boolean isCompiled() throws UnsupportedEncodingException
+	public static boolean isCompiled()
 	{
 		return isCompiled(getMainClass());
 	}
@@ -160,10 +137,18 @@ public class SelfCommandPrompt {
 	 * checks per class if the jar is compiled
 	 * @throws UnsupportedEncodingException 
 	 */
-	public static boolean isCompiled(Class<?> mainClass) throws UnsupportedEncodingException
+	public static boolean isCompiled(Class<?> mainClass)
 	{
-		File file = getFileFromClass(mainClass);
-		return getExtension(file).equals("jar") || getMainClassName().endsWith("jarinjarloader.JarRsrcLoader");
+		try 
+		{
+			File file = getFileFromClass(mainClass);
+			return getExtension(file).equals("jar") || getMainClassName().endsWith("jarinjarloader.JarRsrcLoader");
+		} 
+		catch (UnsupportedEncodingException e) 
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	/**
