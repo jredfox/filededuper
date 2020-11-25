@@ -22,6 +22,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import com.google.common.io.Files;
 
 import jredfox.filededuper.Main;
+import jredfox.filededuper.Main.HashType;
 import jredfox.filededuper.archive.Zip;
 
 public class DeDuperUtil {
@@ -391,31 +392,38 @@ public class DeDuperUtil {
 		return false;
 	}
 
-	public static void genMD5s(File dir, File file, Set<String> md5s, List<String> list)
+	public static void genMD5s(File dir, File file, Set<String> hashes, List<String> list)
 	{
-		String md5 = DeDuperUtil.getMD5(file);
-		if(md5s.contains(md5))
+		String hash = DeDuperUtil.getCompareHash(file);
+		if(hashes.contains(hash))
 			return;
-		list.add(genMD5s(dir, file, md5));
-		md5s.add(md5);
+		list.add(genMD5s(dir, file, hash));
+		hashes.add(hash);
 	}
 	
-	public static void genDupeMD5s(File dir, File file, Set<String> md5s, List<String> list)
+	public static void genDupeMD5s(File dir, File file, Set<String> hashes, List<String> list)
 	{
-		String md5 = DeDuperUtil.getMD5(file);
-		if(!md5s.contains(md5))
+		String hash = DeDuperUtil.getCompareHash(file);
+		if(!hashes.contains(hash))
 		{
-			md5s.add(md5);
+			hashes.add(hash);
 			return;
 		}
-		list.add(genMD5s(dir, file, md5));
+		list.add(genMD5s(dir, file, hash));
 	}
 
-	private static String genMD5s(File dir, File file, String md5) 
+	public static String getCompareHash(File file)
+	{
+		return Main.compareHash == HashType.MD5 ? DeDuperUtil.getMD5(file) : Main.compareHash == HashType.SHA1 ?  DeDuperUtil.getSHA1(file) : Main.compareHash == HashType.SHA256 ? DeDuperUtil.getSHA256(file) : null;
+	}
+
+	private static String genMD5s(File dir, File file, String hash) 
 	{
 		String name = file.getName();
-		String sha1 = DeDuperUtil.getSHA1(file);
-		String sha256 = DeDuperUtil.getSHA256(file);
+		//recycle the comparing hash so it doesn't generate it twice especially for the sha's hashes
+		String md5 = Main.compareHash == HashType.MD5 ? hash : DeDuperUtil.getMD5(file);
+		String sha1 = Main.compareHash == HashType.SHA1 ? hash : DeDuperUtil.getSHA1(file);
+		String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(file);
 		long time = file.lastModified();
 		String plugin = getPlugin(DeDuperUtil.getExtension(file), file);
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
