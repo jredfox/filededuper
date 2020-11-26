@@ -17,6 +17,7 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
+//		SelfCommandPrompt.runWithJavaCMD("A fucking dev test", false);
 		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
 		loadConfigs();
 		System.out.println("Starting " + name);

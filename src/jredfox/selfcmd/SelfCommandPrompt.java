@@ -9,8 +9,7 @@ import java.net.URLDecoder;
 import java.util.List;
 import java.util.Scanner;
 
-import jredfox.filededuper.config.simple.MapConfig;
-import jredfox.filededuper.util.DeDuperUtil;
+import jredfox.selfcmd.jconsole.JConsole;
 /**
  * @author jredfox. Credits to Chocohead#7137 for helping
  * this class is a wrapper for your program. It fires command prompt and stops it from quitting without user input
@@ -54,9 +53,22 @@ public class SelfCommandPrompt {
 	 * supports all platforms no need to reboot, supports debugging and all ides,
 	 * and supports shutdown hooks
 	 */
-	public static void runWithJavaCMD(String appTitle, boolean onlyCompiled)
+	public static void runWithJavaCMD(String appName, boolean onlyCompiled)
 	{
-		//TODO:
+		JConsole console = new JConsole(appName, true)
+				{
+					@Override
+					public boolean isJavaCommand(String[] command) 
+					{
+						return false;
+					}
+					
+					@Override
+					public void shutdown() 
+					{
+						
+					}
+				};
 	}
 	
 	/**
