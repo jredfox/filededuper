@@ -30,6 +30,9 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.text.Document;
 
+/**
+ * @author micah_laster, jredfox
+ */
 public abstract class JConsole
 {
 	
