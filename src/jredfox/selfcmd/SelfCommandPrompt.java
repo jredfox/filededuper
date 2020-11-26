@@ -135,6 +135,9 @@ public class SelfCommandPrompt {
             	IOUtils.saveFileLines(li, launchSh, true);
             	IOUtils.makeExe(launchSh);
             	Runtime.getRuntime().exec(launchSh.getAbsolutePath());
+//            	ProcessBuilder pb = new ProcessBuilder(launchSh.getAbsolutePath());
+//            	pb.inheritIO();
+//            	pb.start();
             }
             else if(os.contains("linux"))
             {
