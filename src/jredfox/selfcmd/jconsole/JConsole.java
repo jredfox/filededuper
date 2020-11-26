@@ -156,12 +156,14 @@ public abstract class JConsole
 				{
 					if(shutdown())
 					{
+						System.gc();
 						System.exit(0);
 					}
 				}
 				catch(Throwable t)
 				{
 					t.printStackTrace();
+					System.gc();
 					System.exit(-1);
 				}
 			}
