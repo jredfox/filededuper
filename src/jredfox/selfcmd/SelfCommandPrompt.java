@@ -52,8 +52,7 @@ public class SelfCommandPrompt {
 	}
 
 	/**
-	 * supports all platforms no need to reboot, supports debugging and all ides,
-	 * and supports shutdown hooks
+	 * supports all platforms no need to reboot, supports debugging and all ides, and supports shutdown hooks
 	 */
 	public static JConsole startJConsole(String appName, boolean onlyCompiled)
 	{
@@ -65,10 +64,7 @@ public class SelfCommandPrompt {
 		JConsole console = new JConsole(appName)
 		{
 			@Override
-			public boolean isJavaCommand(String[] command)
-			{
-				return true;//always return true we do not support os commands in JConsole
-			}
+			public boolean isJavaCommand(String[] command){return true;}//always return true we do not support os commands in JConsole
 
 			@Override
 			public void shutdown() {}
