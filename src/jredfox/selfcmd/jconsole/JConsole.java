@@ -178,25 +178,47 @@ public abstract class JConsole
 		ScrollPane.setOpaque(false);
 		ScrollPane.getViewport().setOpaque(false);
 		ScrollPane.setBorder(null);
-		
 		input.setOpaque(false);
-		input.setCaretColor(textColor());//color of output caret
-		input.setForeground(textColor());//color of output text
-		input.setFont(textFont());//font and font size of output
 		input.setBorder(null);
 		
-		console.setCaretColor(this.textColor());//color of input text caret
-		console.setForeground(this.textColor());//color of input text
-		console.setFont(this.textFont());//font and font size of input
-		frame.getContentPane().setBackground(this.backgroundColor());//the background color
+		this.setBackgroundColor(this.backgroundColor);
+		this.setFont(this.textFont);
+		this.setTextColor(this.textColor);
 		
 		frame.add(ScrollPane, BorderLayout.CENTER);
 		frame.add(input, BorderLayout.SOUTH);
 		
-		frame.setSize(this.width(), this.height());//the window size is here
+		this.resize(this.width(), this.height());
 		frame.setLocationRelativeTo(null);
 		
 		input.requestFocusInWindow();
+	}
+	
+	public void resize(int w, int h)
+	{
+		frame.setSize(w, h);//the window size is here
+	}
+
+	public void setTextColor(Color c)
+	{
+		this.textColor = c;
+		input.setCaretColor(textColor());//color of output caret
+		input.setForeground(textColor());//color of output text
+		console.setCaretColor(this.textColor());//color of input text caret
+		console.setForeground(this.textColor());//color of input text
+	}
+	
+	public void setBackgroundColor(Color c)
+	{
+		this.backgroundColor = c;
+		frame.getContentPane().setBackground(this.backgroundColor());
+	}
+	
+	public void setFont(Font font)
+	{
+		this.textFont = font;
+		input.setFont(textFont());//font and font size of output
+		console.setFont(this.textFont());//font and font size of input
 	}
 	
 	public void setIcon(Image img)
