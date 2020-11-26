@@ -6,9 +6,11 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.jconsole.JConsole;
 /**
  * @author jredfox. Credits to Chocohead#7137 for helping
@@ -16,7 +18,7 @@ import jredfox.selfcmd.jconsole.JConsole;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.3.0";
+	public static final String VERSION = "1.3.1";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -93,7 +95,8 @@ public class SelfCommandPrompt {
 	 */
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
-		if(!isCompiled(mainClass) && onlyCompiled || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
+		boolean compiled = isCompiled(mainClass);
+		if(!compiled && onlyCompiled || /*System.console() != null && compiled ||*/ isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
 		{
 			return;
 		}
@@ -119,7 +122,24 @@ public class SelfCommandPrompt {
             }
             else if(os.contains("mac"))
             {
-            	Runtime.getRuntime().exec("/bin/bash -c " + command);//TODO: make the command work
+            	//TODO: test if it launches, figurure out @echo off command for mac equivalent
+            	File javacmds = new File(System.getProperty("user.dir"), "javacmds.sh");
+            	List<String> cmds = new ArrayList<>();
+            	cmds.add("#!/bin/bash");
+            	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
+            	cmds.add(command);
+            	System.out.println("attempting to save file:" + javacmds.getAbsolutePath());
+            	IOUtils.saveFileLines(cmds, javacmds, true);
+            	IOUtils.makeExe(javacmds);
+            	
+            	File launchSh = new File(System.getProperty("user.dir"), "run.sh");
+            	List<String> li = new ArrayList<>();
+            	li.add("#!/bin/bash");
+            	li.add("osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\"\"");
+            	System.out.println("attempting to save File:" + launchSh.getAbsolutePath());
+            	IOUtils.saveFileLines(li, launchSh, true);
+            	IOUtils.makeExe(launchSh);
+            	Runtime.getRuntime().exec(launchSh.getAbsolutePath());
             }
             else if(os.contains("linux"))
             {
@@ -134,9 +154,10 @@ public class SelfCommandPrompt {
             System.exit(0);
         }
         catch (Exception e)
-        {
-        	e.printStackTrace();
+        {	
 			SelfCommandPrompt.startJConsole(appName, onlyCompiled);//for unsupported os's use the java console
+			System.out.println("JCONSOLE STARTING:");
+        	e.printStackTrace();
 		}
 	}
 
@@ -249,6 +270,6 @@ public class SelfCommandPrompt {
 	
 	public static File getProgramDir()
 	{
-		return new File(System.getProperty("user.dir")).getAbsoluteFile();
+		return new File(System.getProperty("user.dir"));
 	}
 }

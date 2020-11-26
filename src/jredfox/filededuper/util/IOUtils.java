@@ -68,7 +68,7 @@ public class IOUtils {
 	/**
 	 * Overwrites entire file default behavior no per line modification removal/addition
 	 */
-	public static void saveFileLines(List<String> list,File f,boolean utf8)
+	public static void saveFileLines(List<String> list, File f, boolean utf8)
 	{
 		BufferedWriter writer = null;
 		try
@@ -84,7 +84,7 @@ public class IOUtils {
 			
 			for(String s : list)
 			{
-				writer.write(s + "\r\n");
+				writer.write(s + System.lineSeparator());
 			}
 		}
 		catch(Exception e)
@@ -107,6 +107,13 @@ public class IOUtils {
 		}
 	}
 	
+	public static void makeExe(File f)
+	{
+		f.setReadable(true);
+		f.setWritable(true);
+		f.setExecutable(true);
+	}
+
 	/**
 	 * Equivalent to Files.readAllLines() but, works way faster
 	 */
