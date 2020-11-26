@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -73,7 +72,7 @@ public abstract class JConsole
 		frame = new JFrame();
 		console = new JTextArea();
 		input = new JTextField();
-		doc = console.getDocument();
+		doc = console.getDocument();//TODO:unused????
 		ScrollPane = new JScrollPane(console);
 		printStream = new PrintStream(new Output(console));
 		System.setOut(printStream);//moves the text that comes from system.out. to my stream
@@ -128,6 +127,7 @@ public abstract class JConsole
 					{
 						runConsoleCommand(command);
 					}
+					input.setText("");
 				}
 			}
 		};

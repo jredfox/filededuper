@@ -91,7 +91,7 @@ public class SelfCommandPrompt {
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || /*System.console() != null && compiled ||*/ isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
 		{
 			return;
 		}
@@ -150,9 +150,9 @@ public class SelfCommandPrompt {
         }
         catch (Exception e)
         {	
-			SelfCommandPrompt.startJConsole(appName, onlyCompiled);//for unsupported os's use the java console
-			System.out.println("JCONSOLE STARTING:");
+			SelfCommandPrompt.startJConsole(appName, onlyCompiled);//use JConsole as a backup in case they are on a very old os version
         	e.printStackTrace();
+			System.out.println("JCONSOLE STARTING:");
 		}
 	}
 
