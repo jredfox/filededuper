@@ -154,8 +154,10 @@ public abstract class JConsole
 			{
 				try
 				{
-					shutdown();
-					System.exit(0);
+					if(shutdown())
+					{
+						System.exit(0);
+					}
 				}
 				catch(Throwable t)
 				{
@@ -275,6 +277,9 @@ public abstract class JConsole
     }
     
 	public abstract boolean isJavaCommand(String[] command);
-    public abstract void shutdown();
+	/***
+	 * return whether or not to cancel the shutdown
+	 */
+    public abstract boolean shutdown();
    
 }
