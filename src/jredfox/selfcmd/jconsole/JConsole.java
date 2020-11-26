@@ -46,6 +46,11 @@ public abstract class JConsole
 	
 	//jredfox edits
 	public boolean osCmds;
+	public Color backgroundColor = new Color(12, 12, 12);
+	public Font textFont = new Font("Consolas", Font.PLAIN, 16);
+	public Color textColor = new Color(204, 204, 204);
+	public int width = 990;
+	public int height = 525;
 	
 	public JConsole()
 	{
@@ -110,10 +115,10 @@ public abstract class JConsole
 			}
 		};
 		
-		frame.setDropTarget(new DropTarget(frame, dtl));
-		frame.setDropTarget(new DropTarget(console, dtl));
-		frame.setDropTarget(new DropTarget(input, dtl));
-		frame.setDropTarget(new DropTarget(ScrollPane, dtl));
+		this.frame.setDropTarget(new DropTarget(this.frame, dtl));
+		this.frame.setDropTarget(new DropTarget(this.console, dtl));
+		this.frame.setDropTarget(new DropTarget(this.input, dtl));
+		this.frame.setDropTarget(new DropTarget(this.ScrollPane, dtl));
 		
 		KeyListener l = new KeyAdapter() {
 			@Override
@@ -175,24 +180,23 @@ public abstract class JConsole
 		ScrollPane.setBorder(null);
 		
 		input.setOpaque(false);
-		input.setCaretColor(Color.WHITE);
-		input.setForeground(Color.WHITE);
-		input.setFont(new Font("Consolas", Font.PLAIN, 16));
+		input.setCaretColor(textColor());//color of output caret
+		input.setForeground(textColor());//color of output text
+		input.setFont(textFont());//font and font size of output
 		input.setBorder(null);
 		
-		console.setCaretColor(Color.WHITE);
-		console.setForeground(Color.WHITE);
-		console.setFont(new Font("Consolas", Font.PLAIN, 16));
-		frame.getContentPane().setBackground(Color.BLACK);
+		console.setCaretColor(this.textColor());//color of input text caret
+		console.setForeground(this.textColor());//color of input text
+		console.setFont(this.textFont());//font and font size of input
+		frame.getContentPane().setBackground(this.backgroundColor());//the background color
 		
 		frame.add(ScrollPane, BorderLayout.CENTER);
 		frame.add(input, BorderLayout.SOUTH);
 		
-		frame.setSize(990, 525);
+		frame.setSize(this.width(), this.height());//the window size is here
 		frame.setLocationRelativeTo(null);
 		
 		input.requestFocusInWindow();
-		this.setEnabled(false);
 	}
 	
 	public void setIcon(Image img)
@@ -283,5 +287,11 @@ public abstract class JConsole
 	 * return whether or not to shutdown
 	 */
     public abstract boolean shutdown();
+    
+    public Color backgroundColor(){return this.backgroundColor;}
+    public Font textFont(){return this.textFont;}
+    public Color textColor(){return this.textColor;}
+    public int width(){return this.width;}
+    public int height(){return this.height;}
    
 }
