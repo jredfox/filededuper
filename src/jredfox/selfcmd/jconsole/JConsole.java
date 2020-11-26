@@ -49,8 +49,8 @@ public abstract class JConsole
 	public Color backgroundColor = new Color(12, 12, 12);
 	public Font textFont = new Font("Consolas", Font.PLAIN, 16);
 	public Color textColor = new Color(204, 204, 204);
-	public int width = 990;
-	public int height = 525;
+	public int width = 990 + 125;//990
+	public int height = 645;//525
 	
 	public JConsole()
 	{
