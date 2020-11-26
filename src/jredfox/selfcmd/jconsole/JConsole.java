@@ -3,6 +3,7 @@ package jredfox.selfcmd.jconsole;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -48,7 +50,12 @@ public abstract class JConsole
 	
 	public JConsole()
 	{
-		this("JConsole", false);
+		this("JConsole");
+	}
+	
+	public JConsole(String appName) 
+	{
+		this(appName, false);
 	}
 	
 	public JConsole(String appName, boolean allowOsCmds) 
@@ -145,9 +152,16 @@ public abstract class JConsole
 			@Override
 			public void windowClosing(WindowEvent e) 
 			{
-				//make program not end until it is done processing
-				shutdown();
-				System.exit(0);
+				try
+				{
+					shutdown();
+					System.exit(0);
+				}
+				catch(Throwable t)
+				{
+					t.printStackTrace();
+					System.exit(-1);
+				}
 			}
 		});
 		
@@ -174,7 +188,33 @@ public abstract class JConsole
 		frame.setLocationRelativeTo(null);
 		
 		input.requestFocusInWindow();
-		frame.setVisible(true);
+		this.setEnabled(false);
+	}
+	
+	public void setIcon(Image img)
+	{
+		this.frame.setIconImage(img);
+	}
+	
+	public void start()
+	{
+		this.setEnabled(true);
+	}
+	
+	public void hide()
+	{
+		this.frame.setVisible(false);
+	}
+	
+	public void unhide()
+	{
+		this.frame.setVisible(true);
+	}
+	
+	public void setEnabled(boolean enabled)
+	{
+		this.frame.setEnabled(enabled);
+		this.frame.setVisible(enabled);
 	}
 	
     public boolean hasOsCommands()
