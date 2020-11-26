@@ -2,15 +2,16 @@
 is your hardrive zips within zips dupes within dupes? Then this program is for you. De-dupe your directory now.
 
 Done commands:
-- genMD5s
-- genArchiveMD5s
-- compareMD5s
+- genHashes
+- genArchiveHashes
+- genDupeHashes
+- compareHashes
 - currentMs
 - setTimeStamp
 - setTimeStampArchive
 - getTimeStamp
 - checkJar
-- isJarConsistent
+- printJarInConsistencies
 - printJarConsistencies
 - help
 - getCompileTime
