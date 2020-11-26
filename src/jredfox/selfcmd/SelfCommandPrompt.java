@@ -53,8 +53,13 @@ public class SelfCommandPrompt {
 	 * supports all platforms no need to reboot, supports debugging and all ides,
 	 * and supports shutdown hooks
 	 */
-	public static void runWithJavaCMD(String appName, boolean onlyCompiled)
+	public static void startJConsole(String appName, boolean onlyCompiled)
 	{
+		if(onlyCompiled && !isCompiled(getMainClass()))
+		{
+			return;
+		}
+		
 		JConsole console = new JConsole(appName, true)
 				{
 					@Override
@@ -122,7 +127,7 @@ public class SelfCommandPrompt {
             }
             else
             {
-            	SelfCommandPrompt.runWithJavaCMD(appName, onlyCompiled);//for unsupported os's use the java console
+            	SelfCommandPrompt.startJConsole(appName, onlyCompiled);//for unsupported os's use the java console
             	return;//do not exit the application so return from the method
             }
             Runtime.getRuntime().gc();
@@ -131,7 +136,7 @@ public class SelfCommandPrompt {
         catch (Exception e)
         {
         	e.printStackTrace();
-			SelfCommandPrompt.runWithJavaCMD(appName, onlyCompiled);//for unsupported os's use the java console
+			SelfCommandPrompt.startJConsole(appName, onlyCompiled);//for unsupported os's use the java console
 		}
 	}
 
