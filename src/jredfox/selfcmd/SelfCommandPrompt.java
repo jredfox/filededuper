@@ -67,7 +67,7 @@ public class SelfCommandPrompt {
 			public boolean isJavaCommand(String[] command){return true;}//always return true we do not support os commands in JConsole
 
 			@Override
-			public void shutdown() {}
+			public boolean shutdown() {return true;}
 		};
 		console.setEnabled(true);
 		return console;

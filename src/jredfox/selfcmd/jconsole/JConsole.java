@@ -78,7 +78,7 @@ public abstract class JConsole
 		printStream = new PrintStream(new Output(console));
 		System.setOut(printStream);//moves the text that comes from system.out. to my stream
 		System.setErr(printStream);//moves the text that comes from system.err. to my stream
-		System.setIn(in);//TODO: make input stream
+		//System.setIn(in);//TODO: make input stream
 		
 		frame.addWindowFocusListener(new WindowFocusListener() {
 			@Override
@@ -278,7 +278,7 @@ public abstract class JConsole
     
 	public abstract boolean isJavaCommand(String[] command);
 	/***
-	 * return whether or not to cancel the shutdown
+	 * return whether or not to shutdown
 	 */
     public abstract boolean shutdown();
    
