@@ -34,8 +34,7 @@ import javax.swing.text.Document;
 /**
  * @author micah_laster, jredfox
  */
-public abstract class JConsole
-{
+public abstract class JConsole {
 	
 	public JFrame frame;
 	public JTextArea console;
@@ -202,8 +201,8 @@ public abstract class JConsole
 	public void setTextColor(Color c)
 	{
 		this.textColor = c;
-		input.setCaretColor(textColor());//color of output caret
-		input.setForeground(textColor());//color of output text
+		input.setCaretColor(this.textColor());//color of output caret
+		input.setForeground(this.textColor());//color of output text
 		console.setCaretColor(this.textColor());//color of input text caret
 		console.setForeground(this.textColor());//color of input text
 	}
