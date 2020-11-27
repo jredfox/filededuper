@@ -1,5 +1,6 @@
 package jredfox.selfcmd;
 
+import java.io.Console;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
@@ -21,7 +22,7 @@ import jredfox.selfcmd.thread.ShutdownThread;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.3.1";
+	public static final String VERSION = "1.4.0";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -157,7 +158,8 @@ public class SelfCommandPrompt {
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
-            	Runtime.getRuntime().exec("xdg-open " + javacmds.getAbsolutePath());//TODO: test, setTitle, echooff
+            	Runtime.getRuntime().exec(javacmds.getAbsolutePath());
+//            	Runtime.getRuntime().exec("xdg-open " + javacmds.getAbsolutePath());//TODO:
             }
             else
             {

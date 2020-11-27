@@ -10,12 +10,11 @@ import jredfox.selfcmd.thread.ShutdownThread;
 
 public class Main {
 	
-	public static final String VERSION = "0.10.0";
+	public static final String VERSION = "0.10.1";
 	public static final String name = "File De-Duper " + VERSION;
 	
 	public static void main(String[] args)
 	{
-//		SelfCommandPrompt.startJConsole(name, false);
 		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
 		loadConfigs();
 		System.out.println("Starting " + name);
@@ -53,7 +52,6 @@ public class Main {
 	public static void loadConfigs() 
 	{
 		MapConfig mainCfg = new MapConfig(new File(getProgramDir(), "filededuper.cfg"));
-		System.out.println(mainCfg.file.getAbsolutePath());
 		mainCfg.load();
 		genExt = mainCfg.get("genMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
 		genDupesExt = mainCfg.get("genDupesExtension", "*").toLowerCase().replace("\\.", "").split(",");
