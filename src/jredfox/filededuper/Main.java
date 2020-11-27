@@ -5,6 +5,7 @@ import java.io.File;
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.config.simple.MapConfig;
 import jredfox.selfcmd.SelfCommandPrompt;
+import jredfox.selfcmd.thread.ShutdownThread;
 
 public class Main {
 	
@@ -13,6 +14,7 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
+//		SelfCommandPrompt.startJConsole(name, false);
 		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
 		loadConfigs();
 		System.out.println("Starting " + name);
