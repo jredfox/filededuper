@@ -53,6 +53,7 @@ public class Main {
 	public static void loadConfigs() 
 	{
 		MapConfig mainCfg = new MapConfig(new File(getProgramDir(), "filededuper.cfg"));
+		System.out.println(mainCfg.file.getAbsolutePath());
 		mainCfg.load();
 		genExt = mainCfg.get("genMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
 		genDupesExt = mainCfg.get("genDupesExtension", "*").toLowerCase().replace("\\.", "").split(",");

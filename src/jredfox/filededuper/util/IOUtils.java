@@ -107,7 +107,7 @@ public class IOUtils {
 		}
 	}
 	
-	public static void makeExe(File f)
+	public static void makeExe(File f) throws IOException
 	{
 		f.setReadable(true);
 		f.setWritable(true);

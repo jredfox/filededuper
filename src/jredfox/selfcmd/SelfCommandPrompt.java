@@ -6,6 +6,8 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -20,7 +22,6 @@ import jredfox.selfcmd.thread.ShutdownThread;
 public class SelfCommandPrompt {
 	
 	public static final String VERSION = "1.3.1";
-	private static final boolean macDebug = false;
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -94,7 +95,7 @@ public class SelfCommandPrompt {
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || compiled && System.console() != null && !macDebug || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
 		{
 			return;
 		}
@@ -123,34 +124,28 @@ public class SelfCommandPrompt {
             String jvmArgs = getJVMArgs();
             String os = System.getProperty("os.name").toLowerCase();
             String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
-            if(os.contains("windows") && !macDebug)
+            if(os.contains("windows"))
             {
             	Runtime.getRuntime().exec("cmd /c start" + " \"" + appName + "\" " + command);
             }
-            else if(os.contains("mac") || macDebug)
+            else if(os.contains("mac"))
             {
-            	//TODO: test if it launches, figurure out @echo off command for mac equivalent
-            	File javacmds = new File(System.getProperty("user.dir"), "javacmds.sh");
+            	File javacmds = new File(getProgramDir(), "javacmds.sh");
             	List<String> cmds = new ArrayList<>();
             	cmds.add("#!/bin/bash");
-            	cmds.add("set +v");//@Echo off?????
+            	cmds.add("set +v");
             	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
             	cmds.add(command);
-            	System.out.println("attempting to save file:" + javacmds.getAbsolutePath());
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
             	
-            	File launchSh = new File(System.getProperty("user.dir"), "run.sh");
+            	File launchSh = new File(getProgramDir(), "run.sh");
             	List<String> li = new ArrayList<>();
             	li.add("#!/bin/bash");
-            	li.add("osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\"\"");
-            	System.out.println("attempting to save File:" + launchSh.getAbsolutePath());
+            	li.add("osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"");
             	IOUtils.saveFileLines(li, launchSh, true);
             	IOUtils.makeExe(launchSh);
-            	Runtime.getRuntime().exec(launchSh.getAbsolutePath());//TODO: test, echo off
-//            	ProcessBuilder pb = new ProcessBuilder(launchSh.getAbsolutePath());
-//            	pb.inheritIO();
-//            	pb.start();
+            	Runtime.getRuntime().exec("/bin/bash -c " + launchSh.getAbsolutePath());
             }
             else if(os.contains("linux"))
             {

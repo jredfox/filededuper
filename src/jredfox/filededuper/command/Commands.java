@@ -21,6 +21,30 @@ import jredfox.filededuper.util.JarUtil;
 public class Commands {
 	
 	public static final String hashHeader = "#name, md5, sha-1, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
+	public static Command<File> currentDir = new Command<File>("currentDir")
+	{
+		@Override
+		public String[] displayArgs()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public File[] parse(String... args) 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void run(File... args) 
+		{
+			System.out.println(Main.getProgramDir().getAbsolutePath());
+		}
+		
+	};
+	
 	public static Command<File> genHashes = new Command<File>("genHashes", "genSpreadsheet")
 	{
 		@Override
