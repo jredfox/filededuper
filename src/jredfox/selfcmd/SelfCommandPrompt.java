@@ -127,7 +127,7 @@ public class SelfCommandPrompt {
             String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
             if(os.contains("windows"))
             {
-            	Runtime.getRuntime().exec("cmd /c start" + " \"" + appName + "\" " + command);
+            	Runtime.getRuntime().exec("cmd /c start" + " \"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
             }
             else if(os.contains("mac"))
             {
