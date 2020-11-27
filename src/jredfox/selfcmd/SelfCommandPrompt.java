@@ -158,8 +158,8 @@ public class SelfCommandPrompt {
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
-            	Runtime.getRuntime().exec(javacmds.getAbsolutePath());
-//            	Runtime.getRuntime().exec("xdg-open " + javacmds.getAbsolutePath());//TODO:
+            	Runtime.getRuntime().exec(new String[]{getLinuxTerminal(), "--title=" + appName, "--hold", "-x", javacmds.getAbsolutePath()});
+//            	Runtime.getRuntime().exec("xdg-open " + javacmds.getAbsolutePath());
             }
             else
             {
@@ -175,6 +175,66 @@ public class SelfCommandPrompt {
         	e.printStackTrace();
 			System.out.println("JCONSOLE STARTING:");
 		}
+	}
+	
+	private static String[] otherTerms = new String[]
+	{
+		"cmd",//windows primary terminal
+		"powershell",//windows other terminal(bugs out)
+		"bin/bash"//mac osx
+	};
+	
+	private static String[] linux_terms = new String[]
+	{
+			"/usr/bin/gcm-calibrate",
+			"/usr/bin/gnome-terminal",
+			"/usr/bin/mosh-client",
+			"/usr/bin/mosh-server",
+			"/usr/bin/mrxvt",           
+			"/usr/bin/mrxvt-full",        
+			"/usr/bin/roxterm",          
+			"/usr/bin/rxvt-unicode",        
+			"/usr/bin/urxvt",             
+			"/usr/bin/urxvtd",
+			"/usr/bin/vinagre",
+			"/usr/bin/x-terminal-emulator",
+			"/usr/bin/xfce4-terminal",   
+			"/usr/bin/xterm",
+			//alts start here
+			"/usr/bin/Eterm",
+			"/usr/bin/gnome-terminal.wrapper",
+			"/usr/bin/koi8rxterm",
+			"/usr/bin/konsole",
+			"/usr/bin/lxterm",
+			"/usr/bin/mlterm",
+			"/usr/bin/mrxvt-full",
+			"/usr/bin/roxterm",
+			"/usr/bin/rxvt-xpm",
+			"/usr/bin/rxvt-xterm",
+			"/usr/bin/urxvt",
+			"/usr/bin/uxterm",
+			"/usr/bin/xfce4-terminal.wrapper",
+			"/usr/bin/xterm",
+			"/usr/bin/xvt"
+	};
+	
+	/**
+	 * attempts to get the default linux terminal on the os
+	 */
+	//TODO: make it so it tries to find the default terminal for the distributions lsb_release -a
+	public static String getLinuxTerminal()
+	{
+		for(String s : linux_terms)
+		{
+			try
+			{
+				Runtime.getRuntime().exec(s + " uname -r");
+				return s;
+			}
+			catch(Throwable t) {}
+		}
+		System.out.println("unable to find linux terminal report this as a bug to https://github.com/jredfox/SelfCommandPrompt/issues");
+		return null;
 	}
 
 	/**

@@ -10,11 +10,13 @@ import jredfox.selfcmd.thread.ShutdownThread;
 
 public class Main {
 	
-	public static final String VERSION = "0.10.1";
+	public static final String VERSION = "0.10.2";
 	public static final String name = "File De-Duper " + VERSION;
 	
 	public static void main(String[] args)
 	{
+		long ms = System.currentTimeMillis();
+		System.out.println(SelfCommandPrompt.getLinuxTerminal() + " in:" + (System.currentTimeMillis() - ms) );
 		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
 		loadConfigs();
 		System.out.println("Starting " + name);
