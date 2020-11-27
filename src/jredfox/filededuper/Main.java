@@ -1,18 +1,10 @@
 package jredfox.filededuper;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.swing.ImageIcon;
 
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.config.simple.MapConfig;
-import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
-import jredfox.selfcmd.jconsole.JConsole;
 
 public class Main {
 	
@@ -21,8 +13,7 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-		SelfCommandPrompt.startJConsole(name, false);
-//		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
+		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
 		loadConfigs();
 		System.out.println("Starting " + name);
 		if(args.length != 0)

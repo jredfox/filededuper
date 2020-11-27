@@ -52,6 +52,7 @@ public class SelfCommandPrompt {
 	}
 
 	/**
+	 * NOTE: is WIP and doesn't take input currently use shell / batch files for unsupported oses in the mean time to run the jar
 	 * supports all platforms no need to reboot, supports debugging and all ides, and supports shutdown hooks
 	 */
 	public static JConsole startJConsole(String appName, boolean onlyCompiled)
