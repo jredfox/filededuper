@@ -22,7 +22,7 @@ import jredfox.selfcmd.thread.ShutdownThread;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.4.0";
+	public static final String VERSION = "1.4.1";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -34,6 +34,7 @@ public class SelfCommandPrompt {
 		try
 		{
 			Class<?> mainClass = Class.forName(args[1]);
+			setUserDir(getFileFromClass(mainClass).getParentFile());//fix the user directory for double click trust the command default behavior otherwise
 			String[] programArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, programArgs, 0, programArgs.length);
 			Method method = mainClass.getMethod("main", String[].class);
@@ -53,6 +54,11 @@ public class SelfCommandPrompt {
 			old.close();
 			scanner.close();
 		}
+	}
+	
+	public static void setUserDir(File file)
+	{
+		System.setProperty("user.dir", file.getAbsolutePath());
 	}
 
 	/**
@@ -131,6 +137,7 @@ public class SelfCommandPrompt {
             }
             else if(os.contains("mac"))
             {
+            	setUserDir(getFileFromClass(mainClass).getParentFile());//mac seems to screw up files with user.dir but, only on double click
             	File javacmds = new File(getProgramDir(), "javacmds.sh");
             	List<String> cmds = new ArrayList<>();
             	cmds.add("#!/bin/bash");

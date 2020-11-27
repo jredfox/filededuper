@@ -15,8 +15,6 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-		long ms = System.currentTimeMillis();
-		System.out.println(SelfCommandPrompt.getLinuxTerminal() + " in:" + (System.currentTimeMillis() - ms) );
 		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
 		loadConfigs();
 		System.out.println("Starting " + name);
