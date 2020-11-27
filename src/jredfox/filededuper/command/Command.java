@@ -124,16 +124,21 @@ public abstract class Command<T>{
 
 	public static String[] nextCommand() 
 	{
-		String nextLine = getScanner().nextLine();
-		String[] args = DeDuperUtil.split(nextLine, ' ', '"', '"');
-		fixArgs(args);
-		Command<?> c = Command.get(args[0]);
-		if(c == null)
+		Command<?> c = null;
+		do
 		{
-			System.out.println("Invalid command \"" + args[0] + "\". Input new command or try using \"help\":");
-			return nextCommand();
+			String nextLine = getScanner().nextLine();
+			String[] args = DeDuperUtil.split(nextLine, ' ', '"', '"');
+			fixArgs(args);
+			c = Command.get(args[0]);
+			if(c == null)
+				System.out.println("Invalid command \"" + args[0] + "\". Input new command or try using \"help\":");
+			else
+				return args;
 		}
-		return args;
+		while(c == null);
+		
+		return null;
 	}
 	
 	public static void fixArgs(String[] args) 
