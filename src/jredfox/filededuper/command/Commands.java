@@ -24,7 +24,7 @@ public class Commands {
 	public static Command<File> genHashes = new Command<File>("genHashes", "genSpreadsheet")
 	{
 		@Override
-		public File[] getParams(String... inputs) 
+		public File[] parse(String... inputs) 
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -55,7 +55,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs()
+		public String[] displayArgs()
 		{
 			return new String[]{"Dir/File"};
 		}
@@ -64,7 +64,7 @@ public class Commands {
 	public static Command<File> genArchiveHashes = new Command<File>("genArchiveHashes")
 	{
 		@Override
-		public File[] getParams(String... inputs) 
+		public File[] parse(String... inputs) 
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -108,7 +108,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{"Dir/File"};
 		}
@@ -117,13 +117,13 @@ public class Commands {
 	public static Command<File> genDupeHashes = new Command<File>("genDupeHashes")
 	{
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{"File"};
 		}
 
 		@Override
-		public File[] getParams(String... args)
+		public File[] parse(String... args)
 		{
 			if(this.hasScanner(args))
 			{
@@ -157,7 +157,7 @@ public class Commands {
 	public static Command<File> compareHashes = new Command<File>("compareHashes", "compareSpreadSheets")
 	{	
 		@Override
-		public File[] getParams(String... inputs)
+		public File[] parse(String... inputs)
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -215,7 +215,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{"csv & origin csv"};
 		}
@@ -224,7 +224,7 @@ public class Commands {
 	public static Command<File> deDupe = new Command<File>("deDupe")
 	{
 		@Override
-		public File[] getParams(String... inputs) {
+		public File[] parse(String... inputs) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -235,7 +235,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs() {
+		public String[] displayArgs() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -244,7 +244,7 @@ public class Commands {
 	public static Command<Object> help = new Command<Object>("help")
 	{
 		@Override
-		public Object[] getParams(String... inputs) 
+		public Object[] parse(String... inputs) 
 		{
 			return null;
 		}
@@ -255,12 +255,12 @@ public class Commands {
 		{
 			for(Command c : Command.cmds.values())
 			{
-				System.out.println(c.name + " " + DeDuperUtil.toString(c.getArgs(), " OR "));
+				System.out.println(c.name + " " + DeDuperUtil.toString(c.displayArgs(), " OR "));
 			}
 		}
 
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{""};
 		}
@@ -269,7 +269,7 @@ public class Commands {
 	public static Command<File> checkJar = new Command<File>("checkJar")
 	{
 		@Override
-		public File[] getParams(String... inputs)
+		public File[] parse(String... inputs)
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -305,7 +305,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{"Jar", "Archive-File & Archive-File"};
 		}
@@ -317,7 +317,7 @@ public class Commands {
 	public static Command<File> getTimeStamp = new Command<File>("getTimeStamp")
 	{
 		@Override
-		public File[] getParams(String... inputs) 
+		public File[] parse(String... inputs) 
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -335,7 +335,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{"File"};
 		}
@@ -347,7 +347,7 @@ public class Commands {
 	public static Command<Object> setTimeStamp = new Command<Object>("setTimeStamp")
 	{
 		@Override
-		public Object[] getParams(String... inputs) 
+		public Object[] parse(String... inputs) 
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -368,7 +368,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{"File"};
 		}
@@ -380,7 +380,7 @@ public class Commands {
 	public static Command<Object> setTimeStampArchive = new Command<Object>("setTimeStampArchive")
 	{
 		@Override
-		public Object[] getParams(String... inputs) 
+		public Object[] parse(String... inputs) 
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -418,7 +418,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs()
+		public String[] displayArgs()
 		{
 			return new String[]{"Archive-File"};
 		}
@@ -427,7 +427,7 @@ public class Commands {
 	public static Command<File> printJarInConsistencies = new Command<File>("printJarInConsistencies")
 	{
 		@Override
-		public File[] getParams(String... inputs)
+		public File[] parse(String... inputs)
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -467,7 +467,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{"Jar"};
 		}
@@ -476,7 +476,7 @@ public class Commands {
 	public static Command<File> printJarConsistencies = new Command<File>("printJarConsistencies")
 	{
 		@Override
-		public File[] getParams(String... inputs)
+		public File[] parse(String... inputs)
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -519,7 +519,7 @@ public class Commands {
 		}
 
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{"Jar"};
 		}
@@ -528,13 +528,13 @@ public class Commands {
 	public static Command<File> getCompileTime = new Command<File>("getCompileTime")
 	{
 		@Override
-		public String[] getArgs()
+		public String[] displayArgs()
 		{
 			return new String[]{"Jar"};
 		}
 
 		@Override
-		public File[] getParams(String... inputs) 
+		public File[] parse(String... inputs) 
 		{
 			if(this.hasScanner(inputs))
 			{
@@ -554,13 +554,13 @@ public class Commands {
 	public static Command<Object> currentMs = new Command<Object>("currentMs")
 	{
 		@Override
-		public String[] getArgs() 
+		public String[] displayArgs() 
 		{
 			return new String[]{""};
 		}
 
 		@Override
-		public Object[] getParams(String... cmdArgs) 
+		public Object[] parse(String... cmdArgs) 
 		{
 			return null;
 		}
