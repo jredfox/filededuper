@@ -20,6 +20,7 @@ import jredfox.selfcmd.thread.ShutdownThread;
 public class SelfCommandPrompt {
 	
 	public static final String VERSION = "1.3.1";
+	private static final boolean macDebug = false;
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -93,7 +94,7 @@ public class SelfCommandPrompt {
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
+		if(!compiled && onlyCompiled || compiled && System.console() != null && !macDebug || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
 		{
 			return;
 		}
@@ -122,11 +123,11 @@ public class SelfCommandPrompt {
             String jvmArgs = getJVMArgs();
             String os = System.getProperty("os.name").toLowerCase();
             String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
-            if(os.contains("windows"))
+            if(os.contains("windows") && !macDebug)
             {
             	Runtime.getRuntime().exec("cmd /c start" + " \"" + appName + "\" " + command);
             }
-            else if(os.contains("mac"))
+            else if(os.contains("mac") || macDebug)
             {
             	//TODO: test if it launches, figurure out @echo off command for mac equivalent
             	File javacmds = new File(System.getProperty("user.dir"), "javacmds.sh");

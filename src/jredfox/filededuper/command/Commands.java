@@ -21,7 +21,7 @@ import jredfox.filededuper.util.JarUtil;
 public class Commands {
 	
 	public static final String hashHeader = "#name, md5, sha-1, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
-	public static Command<File> genHashes = new Command<File>("genHashes")
+	public static Command<File> genHashes = new Command<File>("genHashes", "genSpreadsheet")
 	{
 		@Override
 		public File[] getParams(String... inputs) 
@@ -154,7 +154,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> compareHashes = new Command<File>("compareHashes")
+	public static Command<File> compareHashes = new Command<File>("compareHashes", "compareSpreadSheets")
 	{	
 		@Override
 		public File[] getParams(String... inputs)
@@ -575,10 +575,6 @@ public class Commands {
 	/**
 	 * get a command based on it's id
 	 */
-	@SuppressWarnings("unchecked")
-	protected static <T extends Object> Command<T> get(String id)
-	{
-		return (Command<T>) Command.cmds.get(id);
-	}
+	protected static void load(){}
 	
 }

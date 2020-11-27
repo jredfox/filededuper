@@ -3,13 +3,14 @@ package jredfox.filededuper;
 import java.io.File;
 
 import jredfox.filededuper.command.Command;
+import jredfox.filededuper.command.Commands;
 import jredfox.filededuper.config.simple.MapConfig;
 import jredfox.selfcmd.SelfCommandPrompt;
 import jredfox.selfcmd.thread.ShutdownThread;
 
 public class Main {
 	
-	public static final String VERSION = "0.9.4";
+	public static final String VERSION = "0.10.0";
 	public static final String name = "File De-Duper " + VERSION;
 	
 	public static void main(String[] args)

@@ -1,29 +1,45 @@
 package jredfox.filededuper.command;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-import jredfox.filededuper.Main;
 import jredfox.filededuper.util.DeDuperUtil;
 
 public abstract class Command<T>{
 	
-	protected String id;//ids are lowercased enforced
+	public String id;//ids are lowercased enforced
+	public List<String> aliases;
 	public String name;
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	
-	public Command(String cmd)
+	public Command(String... ids)
 	{
+		String cmd = ids[0];
 		this.id = cmd.toLowerCase();
 		this.name = cmd;
+		this.aliases = new ArrayList<>(ids.length);
+		for(int i=1; i < ids.length; i++)
+			this.aliases.add(ids[i].toLowerCase());
 		cmds.put(this.id, this);
 	}
 
 	public abstract String[] getArgs();
 	public abstract T[] getParams(String... args);
 	public abstract void run(T... args);
+	
+	public boolean isCommand(String compareId)
+	{
+		return this.id.equals(compareId) || this.aliases.contains(compareId);
+	}
+	
+	public boolean isAliases(String compareId)
+	{
+		return this.aliases.contains(compareId);
+	}
 	
 	public File nextFile(String msg)
 	{
@@ -79,7 +95,7 @@ public abstract class Command<T>{
 	@Override
 	public boolean equals(Object other)
 	{
-		return this.id.equals( ((Command)other).id );
+		return this.id.equals( ((Command<?>)other).id );
 	}
 	
 	@Override
@@ -90,7 +106,20 @@ public abstract class Command<T>{
 	
 	public static Command<?> get(String id) 
 	{
-		return Commands.get(id.toLowerCase());
+		id = id.toLowerCase();
+		Commands.load();
+		Command<?> fetched = cmds.get(id);//the hashing algorithm will make it faster
+		return fetched != null ? fetched : getByAliases(id);
+	}
+
+	public static Command<?> getByAliases(String id)
+	{
+		for(Command<?> c : cmds.values())
+		{
+			if(c.isAliases(id))
+				return c;
+		}
+		return null;
 	}
 
 	public static String[] nextCommand() 
@@ -98,7 +127,7 @@ public abstract class Command<T>{
 		String nextLine = getScanner().nextLine();
 		String[] args = DeDuperUtil.split(nextLine, ' ', '"', '"');
 		fixArgs(args);
-		Command c = Command.get(args[0]);
+		Command<?> c = Command.get(args[0]);
 		if(c == null)
 		{
 			System.out.println("Invalid command \"" + args[0] + "\". Input new command or try using \"help\":");
