@@ -271,13 +271,14 @@ public class Commands {
 			return null;
 		}
 
-		@SuppressWarnings("rawtypes")
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public void run(ParamList<Object> params) 
 		{
 			for(Command c : Command.cmds.values())
 			{
-				System.out.println(c.name + " " + DeDuperUtil.toString(c.displayArgs(), " OR "));
+				String aliases = DeDuperUtil.toString(c.aliases, ", ");
+				System.out.println(c.name + (aliases.isEmpty() ? "" : (", " + aliases)) + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), " OR ") + ")");
 			}
 		}
 

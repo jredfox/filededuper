@@ -10,7 +10,7 @@ import jredfox.selfcmd.thread.ShutdownThread;
 
 public class Main {
 	
-	public static final String VERSION = "0.11.0";
+	public static final String VERSION = "0.11.1";
 	public static final String name = "File De-Duper " + VERSION;
 	
 	public static void main(String[] args)

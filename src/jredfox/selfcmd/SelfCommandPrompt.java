@@ -165,7 +165,7 @@ public class SelfCommandPrompt {
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
-            	Runtime.getRuntime().exec(new String[]{getLinuxTerminal(), "--title=" + appName, "--hold", "-x", javacmds.getAbsolutePath()});
+            	Runtime.getRuntime().exec(new String[]{ getLinuxTerminal(), "--title=" + appName, "--hold", "-x", javacmds.getAbsolutePath()});
 //            	Runtime.getRuntime().exec("xdg-open " + javacmds.getAbsolutePath());
             }
             else
