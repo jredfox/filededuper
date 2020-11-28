@@ -34,7 +34,6 @@ public class SelfCommandPrompt {
 		try
 		{
 			Class<?> mainClass = Class.forName(args[1]);
-			setUserDir(getFileFromClass(mainClass).getParentFile());//fix the user directory for double click trust the command default behavior otherwise
 			String[] programArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, programArgs, 0, programArgs.length);
 			Method method = mainClass.getMethod("main", String[].class);
@@ -56,6 +55,18 @@ public class SelfCommandPrompt {
 		}
 	}
 	
+	public static void syncUserDirWithJar()
+	{
+		try 
+		{
+			setUserDir(getFileFromClass(getMainClass()).getParentFile());
+		}
+		catch (UnsupportedEncodingException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	public static void setUserDir(File file)
 	{
 		System.setProperty("user.dir", file.getAbsolutePath());
@@ -65,13 +76,8 @@ public class SelfCommandPrompt {
 	 * NOTE: is WIP and doesn't take input currently use shell / batch files for unsupported oses in the mean time to run the jar
 	 * supports all platforms no need to reboot, supports debugging and all ides, and supports shutdown hooks
 	 */
-	public static JConsole startJConsole(String appName, boolean onlyCompiled)
-	{
-		if(onlyCompiled && !isCompiled(getMainClass()))
-		{
-			return null;
-		}
-		
+	public static JConsole startJConsole(String appName)
+	{	
 		JConsole console = new JConsole(appName)
 		{
 			@Override
@@ -106,7 +112,7 @@ public class SelfCommandPrompt {
 		{
 			return;
 		}
-		rebootWithTerminal(mainClass, args, appName, appId, onlyCompiled, pause);
+		rebootWithTerminal(mainClass, args, appName, appId, pause);
 	}
 	
 	/**
@@ -122,11 +128,10 @@ public class SelfCommandPrompt {
 	 * this method is a directly calls commands to reboot your app with a command prompt terminal. 
 	 * do not call this directly without if statements it will recursively reboot infinitely
 	 */
-	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause)
+	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean pause)
 	{
         try
         {
-        	setUserDir(getFileFromClass(mainClass).getParentFile());//mac seems to screw up files with user.dir but, only on double click
             String str = getProgramArgs(args, " ");
             String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
             String jvmArgs = getJVMArgs();
@@ -143,6 +148,7 @@ public class SelfCommandPrompt {
             	cmds.add("#!/bin/bash");
             	cmds.add("set +v");
             	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
+            	cmds.add("cd " + getProgramDir().getAbsolutePath());
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
@@ -170,7 +176,7 @@ public class SelfCommandPrompt {
             }
             else
             {
-            	SelfCommandPrompt.startJConsole(appName, onlyCompiled);//for unsupported os's use the java console
+            	SelfCommandPrompt.startJConsole(appName);//for unsupported os's use the java console
             	return;//do not exit the application so return from the method
             }
             Runtime.getRuntime().gc();
@@ -178,7 +184,7 @@ public class SelfCommandPrompt {
         }
         catch (Exception e)
         {	
-			SelfCommandPrompt.startJConsole(appName, onlyCompiled);//use JConsole as a backup in case they are on a very old os version
+			SelfCommandPrompt.startJConsole(appName);//use JConsole as a backup in case they are on a very old os version
         	e.printStackTrace();
 			System.out.println("JCONSOLE STARTING:");
 		}
