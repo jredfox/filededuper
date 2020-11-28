@@ -148,7 +148,7 @@ public class SelfCommandPrompt {
             	cmds.add("#!/bin/bash");
             	cmds.add("set +v");
             	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
-            	cmds.add("cd " + getProgramDir().getAbsolutePath());
+            	cmds.add("cd " + getProgramDir().getAbsolutePath());//enforce same directory with mac's redirects you never know where you are
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
