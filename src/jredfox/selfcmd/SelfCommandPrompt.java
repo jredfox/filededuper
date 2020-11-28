@@ -126,6 +126,7 @@ public class SelfCommandPrompt {
 	{
         try
         {
+        	setUserDir(getFileFromClass(mainClass).getParentFile());//mac seems to screw up files with user.dir but, only on double click
             String str = getProgramArgs(args, " ");
             String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
             String jvmArgs = getJVMArgs();
@@ -137,7 +138,6 @@ public class SelfCommandPrompt {
             }
             else if(os.contains("mac"))
             {
-            	setUserDir(getFileFromClass(mainClass).getParentFile());//mac seems to screw up files with user.dir but, only on double click
             	File javacmds = new File(getProgramDir(), "javacmds.sh");
             	List<String> cmds = new ArrayList<>();
             	cmds.add("#!/bin/bash");
