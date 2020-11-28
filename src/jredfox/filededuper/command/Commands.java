@@ -21,24 +21,22 @@ import jredfox.filededuper.util.JarUtil;
 public class Commands {
 	
 	public static final String hashHeader = "#name, md5, sha-1, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
-	public static Command<File> currentDir = new Command<File>("currentDir")
+	public static Command<Object> currentDir = new Command<Object>("currentDir")
 	{
 		@Override
 		public String[] displayArgs()
 		{
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public File[] parse(String... args) 
 		{
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		public void run(File... args) 
+		public void run(ParamList<Object> args) 
 		{
 			System.out.println(Main.getProgramDir().getAbsolutePath());
 		}
@@ -58,9 +56,9 @@ public class Commands {
 		}
 		
 		@Override
-		public void run(File... args) 
+		public void run(ParamList<File> params) 
 		{
-			File dir = args[0];
+			File dir = params.get(0);
 			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
 			if(!dir.exists() || files.isEmpty())
 			{
@@ -99,9 +97,9 @@ public class Commands {
 		}
 
 		@Override
-		public void run(File... args)
+		public void run(ParamList<File> params)
 		{
-			File dir = args[0];
+			File dir = params.get(0);
 			List<File> files = DeDuperUtil.getDirFiles(dir, "jar", "zip");
 			if(!dir.exists() || files.isEmpty())
 				return;
@@ -157,9 +155,9 @@ public class Commands {
 		}
 
 		@Override
-		public void run(File... args)
+		public void run(ParamList<File> params)
 		{
-			File dir = args[0];
+			File dir = params.get(0);
 			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genDupesExt);
 			if(!dir.exists() || files.isEmpty())
 			{
@@ -193,10 +191,10 @@ public class Commands {
 		}
 		
 		@Override
-		public void run(File... files) 
+		public void run(ParamList<File> params) 
 		{
-			CSV origin = new CSV(files[0]);
-			CSV compare = new CSV(files[1]);
+			CSV origin = new CSV(params.get(0));
+			CSV compare = new CSV(params.get(1));
 			CSV output = new CSV(new File(origin.file.getParent(), DeDuperUtil.getTrueName(compare.file) + "-compared.csv"));
 			output.add(hashHeader);
 			origin.parse();
@@ -254,7 +252,7 @@ public class Commands {
 		}
 
 		@Override
-		public void run(File... agrs) {
+		public void run(ParamList<File> params) {
 			// TODO Auto-generated method stub
 		}
 
@@ -275,7 +273,7 @@ public class Commands {
 
 		@SuppressWarnings("rawtypes")
 		@Override
-		public void run(Object... args) 
+		public void run(ParamList<Object> params) 
 		{
 			for(Command c : Command.cmds.values())
 			{
@@ -307,18 +305,21 @@ public class Commands {
 		}
 
 		@Override
-		public void run(File... args)
+		public void run(ParamList<File> params)
 		{
 			try
 			{
-				if(args[0].equals(args[1]))
+				File jar = params.get(0);
+				File orgJar = params.get(1);
+				
+				if(jar.equals(orgJar))
 				{
-					if(JarUtil.dumpJarMod(args[0]))
+					if(JarUtil.dumpJarMod(jar))
 						System.out.println("Dumped jarMod");
 				}
 				else
 				{
-					if(JarUtil.dumpJarMod(args[0], args[1]))
+					if(JarUtil.dumpJarMod(jar, orgJar))
 						System.out.println("Dumped jarMod");
 				}
 			}
@@ -352,9 +353,9 @@ public class Commands {
 		}
 
 		@Override
-		public void run(File... args) 
+		public void run(ParamList<File> params) 
 		{
-			File file = (File) args[0];
+			File file = params.get(0);
 			System.out.println(file.exists() ? ("" + file.lastModified()) : ("INVALID FILE" + file));
 		}
 
@@ -384,10 +385,10 @@ public class Commands {
 		}
 
 		@Override
-		public void run(Object... args) 
+		public void run(ParamList<Object> params) 
 		{
-			File file = (File) args[0];
-			long timestamp = (long) args[1];
+			File file = params.get(0);
+			long timestamp = params.get(1);
 			file.setLastModified(timestamp);
 		}
 
@@ -417,13 +418,13 @@ public class Commands {
 		}
 
 		@Override
-		public void run(Object... args) 
+		public void run(ParamList<Object> params) 
 		{
 			try
 			{
-				File file = (File) args[0];
+				File file = params.get(0);
 				ZipFile zip = new ZipFile(file);
-				long timestamp = (long) (Long) args[1];
+				long timestamp = params.get(1);
 				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 				for(ZipEntry e : entries)
 				{
@@ -462,11 +463,11 @@ public class Commands {
 		}
 
 		@Override
-		public void run(File... args) 
+		public void run(ParamList<File> params) 
 		{
 			try
 			{
-				File file = args[0];
+				File file = params.get(0);
 				ZipFile zip = new ZipFile(file);
 				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 				long timestamp = JarUtil.getCompileTime(entries);
@@ -511,11 +512,11 @@ public class Commands {
 		}
 
 		@Override
-		public void run(File... args) 
+		public void run(ParamList<File> params) 
 		{
 			try
 			{
-				File file = args[0];
+				File file = params.get(0);
 				ZipFile zip = new ZipFile(file);
 				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 				long timestamp = JarUtil.getCompileTime(entries);
@@ -569,9 +570,10 @@ public class Commands {
 		}
 
 		@Override
-		public void run(File... args) 
+		public void run(ParamList<File> params) 
 		{
-			System.out.println("compileTime:" + JarUtil.getCompileTime(args[0]));
+			File file =  params.get(0);
+			System.out.println("compileTime:" + JarUtil.getCompileTime(file));
 		}
 	};
 	
@@ -590,7 +592,7 @@ public class Commands {
 		}
 
 		@Override
-		public void run(Object... args) 
+		public void run(ParamList<Object> params) 
 		{
 			System.out.println("currentMs:" + System.currentTimeMillis());
 		}

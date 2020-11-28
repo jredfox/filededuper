@@ -29,7 +29,7 @@ public abstract class Command<T>{
 
 	public abstract String[] displayArgs();
 	public abstract T[] parse(String... args);
-	public abstract void run(T... args);
+	public abstract void run(ParamList<T> args);
 	
 	public boolean isCommand(String compareId)
 	{
@@ -158,7 +158,7 @@ public abstract class Command<T>{
 		long ms = System.currentTimeMillis();
 		try
 		{
-			Object[] params = c.parse(getCmdArgs(args));
+			ParamList<?> params = new ParamList(c.parse(getCmdArgs(args)));
 			ms = System.currentTimeMillis();//try to make the time be before the running of the command if the exeption occurs during parsing the command it will display older ms
 			c.run(params);
 			System.gc();//clean memory
