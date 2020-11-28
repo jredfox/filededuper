@@ -12,18 +12,23 @@ import jredfox.filededuper.util.DeDuperUtil;
 public abstract class Command<T>{
 	
 	public String id;//ids are lowercased enforced
-	public List<String> aliases;
 	public String name;
+	public List<String> ids;
+	public List<String> names;
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	
 	public Command(String... ids)
 	{
-		String cmd = ids[0];
-		this.id = cmd.toLowerCase();
-		this.name = cmd;
-		this.aliases = new ArrayList<>(ids.length);
-		for(int i=1; i < ids.length; i++)
-			this.aliases.add(ids[i].toLowerCase());
+		String base = ids[0];
+		this.id = base.toLowerCase();
+		this.name = ids[0];
+		this.ids = new ArrayList<>(ids.length);
+		this.names = new ArrayList<>(ids.length);
+		for(String cmd : ids)
+		{
+			this.ids.add(cmd.toLowerCase());
+			this.names.add(cmd);
+		}
 		cmds.put(this.id, this);
 	}
 
@@ -33,12 +38,12 @@ public abstract class Command<T>{
 	
 	public boolean isCommand(String compareId)
 	{
-		return this.id.equals(compareId) || this.aliases.contains(compareId);
+		return this.ids.contains(compareId);
 	}
 	
 	public boolean isAliases(String compareId)
 	{
-		return this.aliases.contains(compareId);
+		return this.ids.indexOf(compareId) > 0;
 	}
 	
 	public File nextFile(String msg)

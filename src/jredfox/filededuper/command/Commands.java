@@ -277,8 +277,8 @@ public class Commands {
 		{
 			for(Command c : Command.cmds.values())
 			{
-				String aliases = DeDuperUtil.toString(c.aliases, ", ");
-				System.out.println(c.name + (aliases.isEmpty() ? "" : (", " + aliases)) + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), " OR ") + ")");
+				String names = DeDuperUtil.toString(c.names, ", ");
+				System.out.println(names + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), " OR ") + ")");
 			}
 		}
 
