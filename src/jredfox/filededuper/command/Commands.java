@@ -83,7 +83,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genArchiveHashes = new Command<File>("genArchiveHashes")
+	public static Command<File> genArchiveHashes = new Command<File>("genArchiveHashes", "genArchiveSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -132,7 +132,7 @@ public class Commands {
 		@Override
 		public String[] displayArgs() 
 		{
-			return new String[]{"Dir/File"};
+			return new String[]{"Archive-File"};
 		}
 	};
 	
