@@ -1,5 +1,7 @@
 package jredfox.selfcmd.util;
 
+import java.io.File;
+
 import jredfox.selfcmd.thread.ShutdownThread;
 
 public class OSUtil {
@@ -82,6 +84,19 @@ public class OSUtil {
 	public static String getExeAndClose(String os)
 	{
 		return os.contains("windows") ? "/c" : os.contains("mac") ?  "-c" : os.contains("linux") ? "-x" : null;
+	}
+	
+	public static File getAppData()
+	{
+		if(osSimpleName.contains("windows"))
+		{
+			return new File(System.getenv("APPDATA"));
+		}
+	    //in either case, we would start in the user's home directory
+	    String path = System.getProperty("user.home");
+	    if(osSimpleName.contains("mac"))
+	    	path += "/Library/Application Support";
+	    return new File(path);
 	}
 	
 	/**

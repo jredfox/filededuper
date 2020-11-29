@@ -264,19 +264,18 @@ public abstract class JConsole {
 			String term = OSUtil.getTerminal();
 			String close = OSUtil.getExeAndClose(OSUtil.osSimpleName);
 			String termcmd = term == null ?  "" : term + " " + close + " ";
-			System.out.println(termcmd + command);
 			Process p = Runtime.getRuntime().exec(termcmd + command);//TODO: wait until the process is done
-			p.wait();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line = "";
-			while ((line = reader.readLine()) != null) 
+			while ((line = reader.readLine()) != null) //TODO: improve it so it's a live stream feed until the program ends
 			{
 				System.out.println(line);
 			}
 			if(p.exitValue() != 0)
 			{
-				System.out.println("invalid command for:\"" + command + "\"");
+				System.out.println("invalid command:\"" + command + "\"");
 			}
+			reader.close();
 		}
 		catch(Throwable e)
 		{

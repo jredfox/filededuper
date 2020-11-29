@@ -6,7 +6,9 @@ import jredfox.filededuper.command.Command;
 import jredfox.filededuper.command.Commands;
 import jredfox.filededuper.config.simple.MapConfig;
 import jredfox.selfcmd.SelfCommandPrompt;
+import jredfox.selfcmd.jconsole.JConsole;
 import jredfox.selfcmd.thread.ShutdownThread;
+import jredfox.selfcmd.util.OSUtil;
 
 public class Main {
 	
@@ -15,9 +17,8 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-		SelfCommandPrompt.startJConsole(name);
-//		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
-//    	System.out.println("terminal:" + SelfCommandPrompt.getLinuxTerminal() + "," + System.getProperty("os.name") + "," + System.getProperty("os.version") + "," + System.getProperty("os.arch"));
+		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
+		System.out.println("main:" + OSUtil.getAppData().getAbsolutePath() + "," + OSUtil.getAppData());
 		loadConfigs();
 		System.out.println("Starting " + name);
 		if(args.length != 0)

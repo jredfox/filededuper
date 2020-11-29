@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.jconsole.JConsole;
+import jredfox.selfcmd.util.OSUtil;
 /**
  * @author jredfox. Credits to Chocohead#7137 for helping
  * this class is a wrapper for your program. It fires command prompt and stops it from quitting without user input
@@ -57,10 +58,10 @@ public class SelfCommandPrompt {
 	 */
 	public static JConsole startJConsole(String appName)
 	{	
-		JConsole console = new JConsole(appName, true)
+		JConsole console = new JConsole(appName)
 		{
 			@Override
-			public boolean isJavaCommand(String[] command){return false;}//always return true we do not support os commands in JConsole
+			public boolean isJavaCommand(String[] command){return true;}//always return true we do not support os commands in JConsole
 
 			@Override
 			public boolean shutdown(){return true;}
@@ -109,11 +110,12 @@ public class SelfCommandPrompt {
             String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
             if(os.contains("windows"))
             {
-            	Runtime.getRuntime().exec("cmd /c start" + " \"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
+            	Runtime.getRuntime().exec("cmd /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
             }
-            else if(os.contains("mac"))
+            else if(os.contains("mac") || os.contains("linux"))
             {
-            	File javacmds = new File(getProgramDir(), "javacmds.sh");
+            	File javacmds = new File(OSUtil.getAppData(), "SelfCommandPrompt/shellsripts/" + appId + ".sh");
+            	System.out.println(javacmds.getAbsolutePath());
             	List<String> cmds = new ArrayList<>();
             	cmds.add("#!/bin/bash");
             	cmds.add("set +v");
@@ -122,14 +124,7 @@ public class SelfCommandPrompt {
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
-            	
-            	File launchSh = new File(getProgramDir(), "run.sh");
-            	List<String> li = new ArrayList<>();
-            	li.add("#!/bin/bash");
-            	li.add("osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"");
-            	IOUtils.saveFileLines(li, launchSh, true);
-            	IOUtils.makeExe(launchSh);
-            	Runtime.getRuntime().exec("/bin/bash -c " + launchSh.getAbsolutePath());
+            	Runtime.getRuntime().exec("/bin/bash -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"");
             }
             else
             {
