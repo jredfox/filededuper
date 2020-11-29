@@ -88,7 +88,7 @@ public class SelfCommandPrompt {
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || /*compiled && System.console() != null ||*/ isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
 		{
 			return;
 		}
@@ -124,22 +124,7 @@ public class SelfCommandPrompt {
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
-            	if(os.contains("mac"))
-            	{
-            		Runtime.getRuntime().exec("/bin/bash -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"");
-            	}
-            	else
-            	{
-            		String linux_test1 = OSUtil.getTerminal() + " --title=\"" + appName + "\" --hold -x " + command;
-            		String linux_test2 = OSUtil.getTerminal() + " --title=" + appName + " --hold -x " + command;
-            		String linux_test3 = OSUtil.getTerminal() + " -x " + javacmds.getAbsolutePath();
-            		String linux_test4 = OSUtil.getTerminal() + " -x " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"";
-            		String linux_test5 = OSUtil.getTerminal() + " osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"";
-            		
-            		String linux_command = linux_test1;
-            		System.out.println(linux_command);
-            		Runtime.getRuntime().exec(linux_command);
-            	}
+            	Runtime.getRuntime().exec("/bin/bash -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"");
             }
             else
             {
