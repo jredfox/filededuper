@@ -18,15 +18,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.SyncFailedException;
-import java.lang.ProcessBuilder.Redirect;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,10 +31,6 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.text.Document;
 
-import com.google.common.base.Strings;
-
-import jredfox.common.reflect.ReflectionHandler;
-import jredfox.selfcmd.SelfCommandPrompt;
 import jredfox.selfcmd.util.OSUtil;
 
 /**
@@ -62,8 +51,8 @@ public abstract class JConsole {
 	public Color backgroundColor = new Color(12, 12, 12);
 	public Font textFont = new Font("Consolas", Font.PLAIN, 16);
 	public Color textColor = new Color(204, 204, 204);
-	public int width = 1115;//990
-	public int height = 645;//525
+	public int width = 990;//990
+	public int height = 550;//525
 	
 	public JConsole()
 	{
@@ -141,13 +130,10 @@ public abstract class JConsole {
 				{
 					String command = input.getText();
 					boolean isJava = isJavaCommand(JConsole.split(command,' ', '"', '"'));
-					if(!isJava && hasOsCommands())
+					boolean virtual = !isJava && runVirtualCmd(command);//don't fire clear command if the java program has done something with it
+					boolean hasRun = isJava || virtual;
+					if(!hasRun && hasOsCommands())
 					{
-				    	if(command.trim().equals("clear"))
-				    	{
-				    		console.setText("");
-				    		return;
-				    	}
 						runConsoleCommand(command);
 					}
 					input.setText("");
@@ -269,6 +255,16 @@ public abstract class JConsole {
     {
     	return this.osCmds;
     }
+    
+	public boolean runVirtualCmd(String command)
+	{
+    	if(command.trim().equals("clear"))
+    	{
+    		console.setText("");
+    		return true;
+    	}
+    	return false;
+	}
 	
     public void runConsoleCommand(String command)
     {
