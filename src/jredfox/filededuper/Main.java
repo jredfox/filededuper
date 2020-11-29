@@ -15,7 +15,9 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
+		SelfCommandPrompt.startJConsole(name);
+//		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
+//    	System.out.println("terminal:" + SelfCommandPrompt.getLinuxTerminal() + "," + System.getProperty("os.name") + "," + System.getProperty("os.version") + "," + System.getProperty("os.arch"));
 		loadConfigs();
 		System.out.println("Starting " + name);
 		if(args.length != 0)

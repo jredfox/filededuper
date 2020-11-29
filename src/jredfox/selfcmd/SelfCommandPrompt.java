@@ -1,21 +1,17 @@
 package jredfox.selfcmd;
 
-import java.io.Console;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.jconsole.JConsole;
-import jredfox.selfcmd.thread.ShutdownThread;
 /**
  * @author jredfox. Credits to Chocohead#7137 for helping
  * this class is a wrapper for your program. It fires command prompt and stops it from quitting without user input
@@ -54,23 +50,6 @@ public class SelfCommandPrompt {
 			scanner.close();
 		}
 	}
-	
-	public static void syncUserDirWithJar()
-	{
-		try 
-		{
-			setUserDir(getFileFromClass(getMainClass()).getParentFile());
-		}
-		catch (UnsupportedEncodingException e) 
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	public static void setUserDir(File file)
-	{
-		System.setProperty("user.dir", file.getAbsolutePath());
-	}
 
 	/**
 	 * NOTE: is WIP and doesn't take input currently use shell / batch files for unsupported oses in the mean time to run the jar
@@ -78,10 +57,10 @@ public class SelfCommandPrompt {
 	 */
 	public static JConsole startJConsole(String appName)
 	{	
-		JConsole console = new JConsole(appName)
+		JConsole console = new JConsole(appName, true)
 		{
 			@Override
-			public boolean isJavaCommand(String[] command){return true;}//always return true we do not support os commands in JConsole
+			public boolean isJavaCommand(String[] command){return false;}//always return true we do not support os commands in JConsole
 
 			@Override
 			public boolean shutdown(){return true;}
@@ -108,20 +87,11 @@ public class SelfCommandPrompt {
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
+		if(!compiled && onlyCompiled || /*compiled && System.console() != null ||*/ isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
 		{
 			return;
 		}
 		rebootWithTerminal(mainClass, args, appName, appId, pause);
-	}
-	
-	/**
-	 * NOTE: this isn't a shutdown event to prevent shutdown only a hook into the shutdown events. 
-	 * That would be app specific this is jvm program (non app) specific which works for both
-	 */
-	public static void addShutdownThread(ShutdownThread sht)
-	{
-		throw new RuntimeException("Unsupported Check back in a future version!");
 	}
 	
 	/**
@@ -132,7 +102,7 @@ public class SelfCommandPrompt {
 	{
         try
         {
-            String str = getProgramArgs(args, " ");
+        	String str = getProgramArgs(args, " ");
             String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
             String jvmArgs = getJVMArgs();
             String os = System.getProperty("os.name").toLowerCase();
@@ -161,19 +131,6 @@ public class SelfCommandPrompt {
             	IOUtils.makeExe(launchSh);
             	Runtime.getRuntime().exec("/bin/bash -c " + launchSh.getAbsolutePath());
             }
-            else if(os.contains("linux"))
-            {
-            	File javacmds = new File(System.getProperty("user.dir"), "javacmds.sh");
-            	List<String> cmds = new ArrayList<>();
-            	cmds.add("#!/bin/sh");
-            	cmds.add("set +v");
-            	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
-            	cmds.add(command);
-            	IOUtils.saveFileLines(cmds, javacmds, true);
-            	IOUtils.makeExe(javacmds);
-            	Runtime.getRuntime().exec(new String[]{ getLinuxTerminal(), "--title=" + appName, "--hold", "-x", javacmds.getAbsolutePath()});
-//            	Runtime.getRuntime().exec("xdg-open " + javacmds.getAbsolutePath());
-            }
             else
             {
             	SelfCommandPrompt.startJConsole(appName);//for unsupported os's use the java console
@@ -188,66 +145,6 @@ public class SelfCommandPrompt {
         	e.printStackTrace();
 			System.out.println("JCONSOLE STARTING:");
 		}
-	}
-	
-	private static String[] otherTerms = new String[]
-	{
-		"cmd",//windows primary terminal
-		"powershell",//windows other terminal(bugs out)
-		"bin/bash"//mac osx
-	};
-	
-	private static String[] linux_terms = new String[]
-	{
-			"/usr/bin/gcm-calibrate",
-			"/usr/bin/gnome-terminal",
-			"/usr/bin/mosh-client",
-			"/usr/bin/mosh-server",
-			"/usr/bin/mrxvt",           
-			"/usr/bin/mrxvt-full",        
-			"/usr/bin/roxterm",          
-			"/usr/bin/rxvt-unicode",        
-			"/usr/bin/urxvt",             
-			"/usr/bin/urxvtd",
-			"/usr/bin/vinagre",
-			"/usr/bin/x-terminal-emulator",
-			"/usr/bin/xfce4-terminal",   
-			"/usr/bin/xterm",
-			//alts start here
-			"/usr/bin/Eterm",
-			"/usr/bin/gnome-terminal.wrapper",
-			"/usr/bin/koi8rxterm",
-			"/usr/bin/konsole",
-			"/usr/bin/lxterm",
-			"/usr/bin/mlterm",
-			"/usr/bin/mrxvt-full",
-			"/usr/bin/roxterm",
-			"/usr/bin/rxvt-xpm",
-			"/usr/bin/rxvt-xterm",
-			"/usr/bin/urxvt",
-			"/usr/bin/uxterm",
-			"/usr/bin/xfce4-terminal.wrapper",
-			"/usr/bin/xterm",
-			"/usr/bin/xvt"
-	};
-	
-	/**
-	 * attempts to get the default linux terminal on the os
-	 */
-	//TODO: make it so it tries to find the default terminal for the distributions lsb_release -a
-	public static String getLinuxTerminal()
-	{
-		for(String s : linux_terms)
-		{
-			try
-			{
-				Runtime.getRuntime().exec(s + " uname -r");
-				return s;
-			}
-			catch(Throwable t) {}
-		}
-		System.out.println("unable to find linux terminal report this as a bug to https://github.com/jredfox/SelfCommandPrompt/issues");
-		return null;
 	}
 
 	/**
@@ -345,6 +242,23 @@ public class SelfCommandPrompt {
 			index++;
 		}
 		return b.toString();
+	}
+	
+	public static void syncUserDirWithJar()
+	{
+		try 
+		{
+			setUserDir(getFileFromClass(getMainClass()).getParentFile());
+		}
+		catch (UnsupportedEncodingException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public static void setUserDir(File file)
+	{
+		System.setProperty("user.dir", file.getAbsolutePath());
 	}
 	
 	/**
