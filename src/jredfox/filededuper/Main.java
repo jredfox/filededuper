@@ -13,14 +13,14 @@ import jredfox.selfcmd.util.OSUtil;
 public class Main {
 	
 	public static final String VERSION = "0.11.5";
-	public static final String name = "File De-Duper " + VERSION;
+	public static final String appName = "File De-Duper " + VERSION;
+	public static final String appId = "file-de-duper";
 	
 	public static void main(String[] args)
 	{
-		SelfCommandPrompt.runwithCMD(args, name, "file-de-duper", false, true);
-		System.out.println("main:" + OSUtil.getAppData().getAbsolutePath() + "," + OSUtil.getAppData());
+		SelfCommandPrompt.runwithCMD(args, appName, "file-de-duper", false, true);
 		loadConfigs();
-		System.out.println("Starting " + name);
+		System.out.println("Starting " + appName);
 		if(args.length != 0)
 		{
 			Command.run(args);

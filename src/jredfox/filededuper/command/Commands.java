@@ -17,6 +17,7 @@ import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.filededuper.util.JarUtil;
+import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Commands {
 	
@@ -575,6 +576,27 @@ public class Commands {
 		public void run(ParamList<Object> params) 
 		{
 			System.out.println("currentMs:" + System.currentTimeMillis());
+		}
+	};
+	
+	public static Command<Object> reboot = new Command<Object>("reboot", "restart")
+	{
+		@Override
+		public String[] displayArgs() 
+		{
+			return new String[0];
+		}
+
+		@Override
+		public Object[] parse(String... args) 
+		{
+			return null;
+		}
+
+		@Override
+		public void run(ParamList<Object> args) 
+		{
+			SelfCommandPrompt.rebootWithTerminal(Main.class, new String[0], Main.appName, Main.appId, true);//do not pass in the original program args to prevent infinite reboot loop
 		}
 	};
 	
