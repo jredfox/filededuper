@@ -13,11 +13,13 @@ public class Output extends OutputStream {
     }
      
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b) throws IOException 
+    {
         // redirects data to the text area
         textArea.append(String.valueOf((char)b));
         // scrolls the text area to the end of data
         textArea.setCaretPosition(textArea.getDocument().getLength());
-        textArea.update(textArea.getGraphics());
+        if(b == '\n')
+        	textArea.update(textArea.getGraphics());
     }
 }

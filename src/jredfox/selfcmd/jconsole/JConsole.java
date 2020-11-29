@@ -18,9 +18,15 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.SyncFailedException;
 import java.lang.ProcessBuilder.Redirect;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +40,7 @@ import javax.swing.text.Document;
 
 import com.google.common.base.Strings;
 
+import jredfox.common.reflect.ReflectionHandler;
 import jredfox.selfcmd.SelfCommandPrompt;
 import jredfox.selfcmd.util.OSUtil;
 
@@ -86,8 +93,8 @@ public abstract class JConsole {
 		doc = console.getDocument();//TODO:unused????
 		ScrollPane = new JScrollPane(console);
 		printStream = new PrintStream(new Output(console));
-		System.setOut(printStream);//moves the text that comes from system.out. to my stream
-		System.setErr(printStream);//moves the text that comes from system.err. to my stream
+		System.setOut(this.printStream);
+		System.setErr(this.printStream);
 		//System.setIn(in);//TODO: make input stream
 		
 		frame.addWindowFocusListener(new WindowFocusListener() {
@@ -136,6 +143,11 @@ public abstract class JConsole {
 					boolean isJava = isJavaCommand(JConsole.split(command,' ', '"', '"'));
 					if(!isJava && hasOsCommands())
 					{
+				    	if(command.trim().equals("clear"))
+				    	{
+				    		console.setText("");
+				    		return;
+				    	}
 						runConsoleCommand(command);
 					}
 					input.setText("");
@@ -199,7 +211,7 @@ public abstract class JConsole {
 		
 		input.requestFocusInWindow();
 	}
-	
+
 	public void resize(int w, int h)
 	{
 		frame.setSize(w, h);//the window size is here
@@ -258,29 +270,29 @@ public abstract class JConsole {
     	return this.osCmds;
     }
 	
-	public void runConsoleCommand(String command)
-	{
-		try
-		{
-			System.setOut(this.printStream);//moves the text that comes from system.out. to my stream
-			System.setErr(this.printStream);//moves the text that comes from system.err. to my stream
-			System.out.println("testing 123....");
-			
-			String term = OSUtil.getTerminal();
-			String close = OSUtil.getExeAndClose(OSUtil.osSimpleName);
-			ProcessBuilder pb = new ProcessBuilder(new String[]{term, close, command});//TODO: wait until the process is done
-			pb.inheritIO();
-			Process process = pb.start();
-			if(process.waitFor() != 0)
-			{
-				System.out.println("Invalid command for:\"" + command + "\"");
-			}
-		}
-		catch(Throwable e)
-		{
-			e.printStackTrace();
-		}
-	}
+    public void runConsoleCommand(String command)
+    {
+        try
+        {
+            String term = OSUtil.getTerminal();
+            String close = OSUtil.getExeAndClose(OSUtil.osSimpleName);
+            ProcessBuilder pb = new ProcessBuilder(new String[]{term, close, command});//TODO: wait until the process is done
+            pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
+            pb.redirectError(ProcessBuilder.Redirect.PIPE);
+            Process process = pb.start();
+            BufferedReader br_log = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader br_err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            String line1;
+            while (((line1 = br_log.readLine()) != null) || ((line1 = br_err.readLine()) != null)) 
+            {
+            	System.out.println(line1);
+            }
+        }
+        catch(Throwable e)
+        {
+            e.printStackTrace();
+        }
+    }
 	
 
     /**
