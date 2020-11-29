@@ -19,7 +19,7 @@ import jredfox.selfcmd.util.OSUtil;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.4.1";
+	public static final String VERSION = "1.5.0";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -92,7 +92,7 @@ public class SelfCommandPrompt {
 		{
 			return;
 		}
-		rebootWithTerminal(mainClass, args, appName, appId, pause);
+		rebootWithTerminal(mainClass, args, appName, appId, pause);//TODO: uncomment the debug here
 	}
 	
 	/**
@@ -124,7 +124,22 @@ public class SelfCommandPrompt {
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, javacmds, true);
             	IOUtils.makeExe(javacmds);
-            	Runtime.getRuntime().exec("/bin/bash -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"");
+            	if(os.contains("mac"))
+            	{
+            		Runtime.getRuntime().exec("/bin/bash -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"");
+            	}
+            	else
+            	{
+            		String linux_test1 = OSUtil.getTerminal() + " --title=\"" + appName + "\" --hold -x " + command;
+            		String linux_test2 = OSUtil.getTerminal() + " --title=" + appName + " --hold -x " + command;
+            		String linux_test3 = OSUtil.getTerminal() + " -x " + javacmds.getAbsolutePath();
+            		String linux_test4 = OSUtil.getTerminal() + " -x " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"";
+            		String linux_test5 = OSUtil.getTerminal() + " osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + javacmds.getAbsolutePath() + "\\\"\"";
+            		
+            		String linux_command = linux_test1;
+            		System.out.println(linux_command);
+            		Runtime.getRuntime().exec(linux_command);
+            	}
             }
             else
             {

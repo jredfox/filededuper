@@ -92,7 +92,6 @@ public class OSUtil {
 		{
 			return new File(System.getenv("APPDATA"));
 		}
-	    //in either case, we would start in the user's home directory
 	    String path = System.getProperty("user.home");
 	    if(osSimpleName.contains("mac"))
 	    	path += "/Library/Application Support";
