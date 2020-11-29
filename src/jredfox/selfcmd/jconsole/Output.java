@@ -18,5 +18,6 @@ public class Output extends OutputStream {
         textArea.append(String.valueOf((char)b));
         // scrolls the text area to the end of data
         textArea.setCaretPosition(textArea.getDocument().getLength());
+        textArea.update(textArea.getGraphics());
     }
 }

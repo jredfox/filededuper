@@ -18,6 +18,8 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
+//		System.out.println("a");
+		if(debug()) return;
 		SelfCommandPrompt.runwithCMD(args, appName, "file-de-duper", false, true);
 		loadConfigs();
 		System.out.println("Starting " + appName);
@@ -33,6 +35,26 @@ public class Main {
 			}
 			while(true);
 		}
+	}
+
+	public static boolean debug()
+	{
+		JConsole console = new JConsole("virtual command prompt", true)
+		{
+			@Override
+			public boolean isJavaCommand(String[] command) 
+			{
+				return false;
+			}
+
+			@Override
+			public boolean shutdown()
+			{
+				return true;
+			}
+		};
+		console.setEnabled(true);
+		return true;
 	}
 
 	//file deduper config

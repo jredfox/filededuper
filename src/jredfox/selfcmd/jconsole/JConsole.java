@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -261,21 +262,19 @@ public abstract class JConsole {
 	{
 		try
 		{
+			System.setOut(this.printStream);//moves the text that comes from system.out. to my stream
+			System.setErr(this.printStream);//moves the text that comes from system.err. to my stream
+			System.out.println("testing 123....");
+			
 			String term = OSUtil.getTerminal();
 			String close = OSUtil.getExeAndClose(OSUtil.osSimpleName);
-			String termcmd = term == null ?  "" : term + " " + close + " ";
-			Process p = Runtime.getRuntime().exec(termcmd + command);//TODO: wait until the process is done
-			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String line = "";
-			while ((line = reader.readLine()) != null) //TODO: improve it so it's a live stream feed until the program ends
+			ProcessBuilder pb = new ProcessBuilder(new String[]{term, close, command});//TODO: wait until the process is done
+			pb.inheritIO();
+			Process process = pb.start();
+			if(process.waitFor() != 0)
 			{
-				System.out.println(line);
+				System.out.println("Invalid command for:\"" + command + "\"");
 			}
-			if(p.exitValue() != 0)
-			{
-				System.out.println("invalid command:\"" + command + "\"");
-			}
-			reader.close();
 		}
 		catch(Throwable e)
 		{
