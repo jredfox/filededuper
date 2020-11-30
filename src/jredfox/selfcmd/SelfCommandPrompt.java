@@ -239,6 +239,9 @@ public class SelfCommandPrompt {
 		return b.toString();
 	}
 	
+	/**
+	 * incompatible with eclipse's jar in jar loader. Use this to enforce your program's directory is synced with your jar after calling runWithCMD
+	 */
 	public static void syncUserDirWithJar()
 	{
 		try 
