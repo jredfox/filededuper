@@ -16,7 +16,6 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipFile;
 
 public class IOUtils {
 	
@@ -199,7 +198,7 @@ public class IOUtils {
 	
 	public static BufferedReader getReader(String input)
 	{
-		return new BufferedReader(new InputStreamReader(DeDuperUtil.class.getClassLoader().getResourceAsStream(input)));
+		return new BufferedReader(new InputStreamReader(IOUtils.class.getClassLoader().getResourceAsStream(input)));
 	}
 
 

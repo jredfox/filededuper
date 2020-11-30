@@ -192,12 +192,18 @@ public abstract class Command<T>{
 		return this.id.hashCode();
 	}
 
+	/**
+	 * parse a command print results
+	 */
 	public static void run(String[] args)
 	{
 		Command<?> command = Command.fromArgs(args);
 		run(command);
 	}
 	
+	/**
+	 * run a command print results
+	 */
 	public static void run(Command<?> command)
 	{
 		long ms = System.currentTimeMillis();
