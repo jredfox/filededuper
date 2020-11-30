@@ -164,7 +164,7 @@ public class SelfCommandPrompt {
     	String terminal = cfg.get("terminal", "").trim();
     	if(terminal.isEmpty())
     	{
-    		terminal = OSUtil.getTerminal();//since this is such a heavy process don't use it unless it's not in the config
+    		terminal = OSUtil.getTerminal();//since it's a heavy process cache it to the config
     		cfg.set("terminal", terminal);
     	}
     	linux_terminal = terminal;
