@@ -164,7 +164,7 @@ public abstract class Command<T>{
 		try
 		{
 			ParamList<?> params = new ParamList(c.parse(getCmdArgs(args)));
-			ms = System.currentTimeMillis();//try to make the time be before the running of the command if the exeption occurs during parsing the command it will display older ms
+			ms = System.currentTimeMillis();//try to make the time be before the running of the command if the exception occurs during parsing the command it will display older ms
 			c.run(params);
 			System.gc();//clean memory
 		}
