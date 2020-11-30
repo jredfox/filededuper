@@ -273,8 +273,6 @@ public abstract class JConsole {
             String term = OSUtil.getTerminal();
             String close = OSUtil.getExeAndClose(OSUtil.osSimpleName);
             ProcessBuilder pb = new ProcessBuilder(new String[]{term, close, command});//TODO: wait until the process is done
-            pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
-            pb.redirectError(ProcessBuilder.Redirect.PIPE);
             Process process = pb.start();
             BufferedReader br_log = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader br_err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
