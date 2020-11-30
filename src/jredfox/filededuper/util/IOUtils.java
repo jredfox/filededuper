@@ -70,6 +70,7 @@ public class IOUtils {
 	 */
 	public static void saveFileLines(List<String> list, File f, boolean utf8)
 	{
+		makeParentDirs(f);
 		BufferedWriter writer = null;
 		try
 		{
@@ -107,6 +108,13 @@ public class IOUtils {
 		}
 	}
 	
+	public static void makeParentDirs(File f)
+	{
+		File parent = f.getParentFile();
+		if(!parent.exists())
+			parent.mkdirs();
+	}
+
 	public static void makeExe(File f) throws IOException
 	{
 		f.setReadable(true);

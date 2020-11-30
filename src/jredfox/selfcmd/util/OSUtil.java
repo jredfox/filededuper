@@ -73,6 +73,7 @@ public class OSUtil {
 			} 
 			catch (Throwable e) {}
 		}
+		System.err.println("Unable to find Os terminal for:" + System.getProperty("os.name") + " report to https://github.com/jredfox/SelfCommandPrompt/issues");
 		return null;
 	}
 

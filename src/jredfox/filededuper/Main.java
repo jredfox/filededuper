@@ -12,7 +12,7 @@ import jredfox.selfcmd.util.OSUtil;
 
 public class Main {
 	
-	public static final String VERSION = "0.11.7";
+	public static final String VERSION = "0.12.0";
 	public static final String appName = "File De-Duper " + VERSION;
 	public static final String appId = "file-de-duper";
 	
@@ -23,13 +23,13 @@ public class Main {
 		System.out.println("Starting " + appName);
 		if(args.length != 0)
 		{
-			Command.run(args);
+			Command.fromArgs(args).run();
 		}
 		else
 		{
 			do
 			{
-				Command.run(Command.nextCommand());
+				Command.nextValidCommand().run();
 			}
 			while(true);
 		}
