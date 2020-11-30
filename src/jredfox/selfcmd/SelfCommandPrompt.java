@@ -137,10 +137,8 @@ public class SelfCommandPrompt {
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, sh, true);
             	IOUtils.makeExe(sh);
-            	MapConfig cfg = new MapConfig(new File(OSUtil.getAppData(), "SelfCommandPrompt/console/SelfCommandPrompt.cfg"));
-            	String terminal = OSUtil.getTerminal();
-            	terminal = cfg.get("terminal", terminal);
-            	Runtime.getRuntime().exec(terminal + " -x " + sh.getAbsolutePath());//use the x flag to enforce it in the new window
+            	loadLinuxConfig();
+            	Runtime.getRuntime().exec(linux_terminal + " -x " + sh.getAbsolutePath());//use the x flag to enforce it in the new window
             }
             else
             {
@@ -156,6 +154,21 @@ public class SelfCommandPrompt {
         	e.printStackTrace();
 			System.out.println("JCONSOLE STARTING:");
 		}
+	}
+
+	private static String linux_terminal = null;
+	private static void loadLinuxConfig() 
+	{
+    	MapConfig cfg = new MapConfig(new File(OSUtil.getAppData(), "SelfCommandPrompt/console/SelfCommandPrompt.cfg"));
+    	cfg.load();
+    	String terminal = cfg.get("terminal", "").trim();
+    	if(terminal.isEmpty())
+    	{
+    		terminal = OSUtil.getTerminal();//since this is such a heavy process don't use it unless it's not in the config
+    		cfg.set("terminal", terminal);
+    	}
+    	linux_terminal = terminal;
+    	cfg.save();
 	}
 
 	/**
