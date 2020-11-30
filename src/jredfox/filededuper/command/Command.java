@@ -1,6 +1,7 @@
 package jredfox.filededuper.command;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,21 @@ public abstract class Command<T>{
 		}
 		this.register();
 	}
+	
+	protected void register() 
+	{
+		cmds.put(this.id, this);
+	}
+	
+	public boolean isCommand(String compareId)
+	{
+		return this.ids.contains(compareId);
+	}
+	
+	public boolean isAliases(String compareId)
+	{
+		return this.ids.indexOf(compareId) > 0;
+	}
 
 	public abstract String[] displayArgs();
 	public abstract T[] parse(String... args);
@@ -48,14 +64,67 @@ public abstract class Command<T>{
 		this.params = new ParamList(this.parse(args));
 	}
 	
-	public boolean isCommand(String compareId)
+	public static Scanner getScanner()
 	{
-		return this.ids.contains(compareId);
+		return DeDuperUtil.scanner;
 	}
 	
-	public boolean isAliases(String compareId)
+	public boolean hasScanner(String... inputs)
 	{
-		return this.ids.indexOf(compareId) > 0;
+		return inputs.length == 0;
+	}
+	
+	public String next()
+	{
+		return getScanner().nextLine().trim().replace("\"", "");
+	}
+	
+	public String next(String msg)
+	{
+		this.print(msg);
+		return this.next();
+	}
+	
+	public Long nextLong(String msg)
+	{
+		this.print(msg);
+		return Long.parseLong(this.next());
+	}
+	
+	public Integer nextInt(String msg)
+	{
+		this.print(msg);
+		return Integer.parseInt(this.next());
+	}
+	
+	public Short nextShort(String msg)
+	{
+		this.print(msg);
+		return Short.parseShort(this.next());
+	}
+	
+	public Byte nextByte(String msg)
+	{
+		this.print(msg);
+		return Byte.parseByte(this.next());
+	}
+	
+	public Double nextDouble(String msg)
+	{
+		this.print(msg);
+		return Double.parseDouble(this.next());
+	}
+	
+	public Float nextFloat(String msg)
+	{
+		this.print(msg);
+		return Float.parseFloat(this.next());
+	}
+	
+	public BigDecimal nextBigDecimal(String msg)
+	{
+		this.print(msg);
+		return new BigDecimal(this.next());
 	}
 	
 	public File nextFile(String msg)
@@ -64,48 +133,28 @@ public abstract class Command<T>{
 		return DeDuperUtil.newFile(this.next());
 	}
 	
-	public String next()
-	{
-		return this.nextRaw(true);
-	}
-	
-	public String next(String msg)
-	{
-		this.print(msg);
-		return this.nextRaw(true);
-	}
-	
-	public String nextRaw(boolean removeQuotes) 
-	{
-		String next = getScanner().nextLine().trim();
-		return removeQuotes ? next.replace("\"", "") : next;
-	}
-	
-	public boolean hasScanner(String... inputs)
-	{
-		return inputs.length == 0;
-	}
-	
-	public static Scanner getScanner()
-	{
-		return DeDuperUtil.scanner;
-	}
-
-	public Long nextLong(String msg)
-	{
-		this.print(msg);
-		return Long.parseLong(this.next());
-	}
-	
 	public void print(String msg) 
 	{
 		if(!msg.isEmpty())
 			System.out.println(msg);
 	}
 	
-	protected void register() 
+	@Override
+	public String toString()
 	{
-		cmds.put(this.id, this);
+		return this.id;
+	}
+	
+	@Override
+	public boolean equals(Object other)
+	{
+		return this.id.equals( ((Command<?>)other).id );
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.id.hashCode();
 	}
 	
 	public static Command<?> get(String id) 
@@ -172,24 +221,6 @@ public abstract class Command<T>{
 			return actualArgs;
 		}
 		return args;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return this.id;
-	}
-	
-	@Override
-	public boolean equals(Object other)
-	{
-		return this.id.equals( ((Command<?>)other).id );
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return this.id.hashCode();
 	}
 
 	/**
