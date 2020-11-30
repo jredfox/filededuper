@@ -23,13 +23,13 @@ public class Main {
 		System.out.println("Starting " + appName);
 		if(args.length != 0)
 		{
-			Command.fromArgs(args).run();
+			Command.run(args);
 		}
 		else
 		{
 			do
 			{
-				Command.nextValidCommand().run();
+				Command.run(Command.nextValidCommand());
 			}
 			while(true);
 		}

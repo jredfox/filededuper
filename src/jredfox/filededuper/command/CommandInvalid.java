@@ -1,6 +1,6 @@
 package jredfox.filededuper.command;
 
-public class CommandInvalid extends Command<Object>{
+public final class CommandInvalid extends Command<Object>{
 	
 	public CommandInvalid(String... args)
 	{
@@ -23,7 +23,7 @@ public class CommandInvalid extends Command<Object>{
 	@Override
 	public void run(ParamList<Object> args) 
 	{
-		System.out.println("Invalid command \"" + this.id + "\". Input new command or try using \"help\":");
+		System.out.println("Invalid command \"" + id + "\". Input new command or try using \"help\":");
 	}
 	
 	@Override

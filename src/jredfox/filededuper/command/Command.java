@@ -16,7 +16,7 @@ public abstract class Command<T>{
 	public List<String> ids;
 	public List<String> names;
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
-	public ParamList<T> params; 
+	public ParamList<T> params;
 	
 	public Command(String... ids)
 	{
@@ -132,7 +132,7 @@ public abstract class Command<T>{
 		Command<?> command = nextCommand();
 		while(command instanceof CommandInvalid)
 		{
-			System.out.println("Invalid command \"" + command.id + "\". Input new command or try using \"help\":");
+			command.run();
 			command = nextCommand();
 		}
 		return command;
@@ -190,6 +190,28 @@ public abstract class Command<T>{
 	public int hashCode()
 	{
 		return this.id.hashCode();
+	}
+
+	public static void run(String[] args)
+	{
+		Command<?> command = Command.fromArgs(args);
+		run(command);
+	}
+	
+	public static void run(Command<?> command)
+	{
+		long ms = System.currentTimeMillis();
+		boolean errored = false;
+		try
+		{
+			command.run();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			errored = true;
+		}
+		System.out.println("finished:" + command.name + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
 	}
 
 }
