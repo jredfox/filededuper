@@ -25,6 +25,7 @@ public class SelfCommandPrompt {
 	
 	public static final String VERSION = "2.0.0";
 	public static final String INVALID = "\"'`,";
+	public static final File selfcmd = new File(OSUtil.getAppData(), "SelfCommandPrompt");
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -72,6 +73,7 @@ public class SelfCommandPrompt {
 			public boolean shutdown(){return true;}
 		};
 		console.setEnabled(true);
+		System.out.println("JCONSOLE isn't working yet. Please check back in a future version ;)");
 		return console;
 	}
 	
@@ -97,29 +99,36 @@ public class SelfCommandPrompt {
 		{
 			return;
 		}
-		rebootWithTerminal(mainClass, args, appName, appId, pause);
+        
+		syncConfig(appId);
+        if(hasJConsole())
+        {
+        	startJConsole(appName);
+        	return;
+        }
+		rebootWithTerminal(mainClass, args, appName, appId, false, pause);
 	}
 
 	/**
-	 * this method is a directly calls commands to reboot your app with a command prompt terminal. 
-	 * do not call this directly without if statements it will recursively reboot infinitely
+	 * do not call this directly without checks or it will just keep rebooting.
+	 * Make sure that the config is synced before calling this directly.
+	 * Will reboot the program even it's just with JConsole
 	 */
-	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean pause)
+	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean sync, boolean pause)
 	{
     	if(DeDuperUtil.containsAny(appId, INVALID))
-    		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + "\"'`,");
+    		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + INVALID);
         try
         {
             String libs = System.getProperty("java.class.path");
             if(DeDuperUtil.containsAny(libs, INVALID))
-            	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + "\"'`,");
-           
-            File appdata = new File(OSUtil.getAppData(), "SelfCommandPrompt/" + appId);
-            loadAppConfig(appdata);//TODO differentiate JConsole reboot and JConsole boot
+            	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + INVALID);
+            
+            if(sync)
+            	syncConfig(appId);
             
             if(hasJConsole())
             {
-            	if(System.console() != null) {
                 ExeBuilder builder = new ExeBuilder();
                 builder.addCommand(terminal);
                 builder.addCommand(OSUtil.getExeAndClose());
@@ -131,12 +140,7 @@ public class SelfCommandPrompt {
             	builder.addCommand(programArgs(args));
             	String command = builder.toString();
         		Runtime.getRuntime().exec(command);
-        		exit();
-            	}
-            	else
-            	{
-            		startJConsole(appName);
-            	}
+        		shutdown();
             }
             else
             {
@@ -150,8 +154,8 @@ public class SelfCommandPrompt {
             	builder.addCommand(mainClass.getName());
             	builder.addCommand(programArgs(args));
             	String command = builder.toString();
-            	runInNewTerminal(appdata, appName, appId, command);
-            	exit();
+            	runInNewTerminal(appName, appId, appId, command);
+            	shutdown();
             }
         }
         catch (Exception e)
@@ -161,7 +165,11 @@ public class SelfCommandPrompt {
 		}
 	}
 	
-	public static void runInNewTerminal(File appdata, String appName, String shName, String command) throws IOException
+	/**
+	 * runs a command in a new terminal window.
+	 * the sh name is the file name you want the shell script stored. The appId is to locate your folder
+	 */
+	public static void runInNewTerminal(String appName, String appId, String shName, String command) throws IOException
 	{
         if(OSUtil.isWindows())
         {
@@ -169,7 +177,7 @@ public class SelfCommandPrompt {
         }
         else if(OSUtil.isMac())
         {
-        	File sh = new File(appdata, shName + ".sh");
+        	File sh = new File(getAppdata(appId), shName + ".sh");
         	List<String> cmds = new ArrayList<>();
         	cmds.add("#!/bin/bash");
         	cmds.add("set +v");
@@ -191,9 +199,9 @@ public class SelfCommandPrompt {
 	/**
 	 * configurable per app
 	 */
-	private static void loadAppConfig(File appdata) 
+	public static void syncConfig(String appId) 
 	{
-    	MapConfig cfg = new MapConfig(new File(appdata, "console.cfg"));
+    	MapConfig cfg = new MapConfig(new File(getAppdata(appId), "console.cfg"));
     	cfg.load();
     	
     	//load the terminal string
@@ -209,12 +217,20 @@ public class SelfCommandPrompt {
     	cfg.save();
 	}
 	
+	/**
+	 * returns the appdata contained in %appdata%/SelfCommandPrompt/appId
+	 */
+	private static File getAppdata(String appId)
+	{
+		return new File(selfcmd, appId);
+	}
+	
 	public static boolean hasJConsole() 
 	{
 		return useJConsole || OSUtil.isUnsupported();
 	}
-	
-	public static void exit()
+
+	public static void shutdown()
 	{
 		System.gc();
 		System.exit(0);

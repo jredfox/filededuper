@@ -596,7 +596,7 @@ public class Commands {
 		@Override
 		public void run(ParamList<Object> args) 
 		{
-			SelfCommandPrompt.rebootWithTerminal(Main.class, new String[0], Main.appName, Main.appId, true);//do not pass in the original program args to prevent infinite reboot loop
+			SelfCommandPrompt.rebootWithTerminal(Main.class, new String[0], Main.appName, Main.appId, true, true);
 		}
 	};
 	
