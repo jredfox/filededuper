@@ -107,16 +107,26 @@ public class SelfCommandPrompt {
     		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + "\"'`,");
         try
         {   
+            String libs = System.getProperty("java.class.path");
+            if(DeDuperUtil.containsAny(libs, INVALID))
+            	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + "\"'`,");
+            
             File appdata = new File(OSUtil.getAppData(), "SelfCommandPrompt/" + appId);
             loadAppConfig(appdata);
-            if(useJConsole || OSUtil.isUnsupported())
+            if(useJConsole)
+            {
+            	if(System.console() != null)
+            	{
+            		//TODO: reboot program with jframe and close the original process Commands#reboot breaks this
+            	}
+            	startJConsole(appName);
+            	return;
+            }
+            else if(OSUtil.isUnsupported())
             {
             	startJConsole(appName);
             	return;
             }
-            String libs = System.getProperty("java.class.path");
-            if(DeDuperUtil.containsAny(libs, INVALID))
-            	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + "\"'`,");
         	ExeBuilder builder = new ExeBuilder();
         	builder.addCommand("java");
         	builder.addCommand(getJVMArgs());
@@ -127,7 +137,6 @@ public class SelfCommandPrompt {
         	builder.addCommand(mainClass.getName());
         	builder.addCommand(programArgs(args));
         	String command = builder.toString();
-            System.out.println(terminal + " -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + command + "\\\"\"");
             if(OSUtil.isWindows())
             {
             	Runtime.getRuntime().exec(terminal + " /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
