@@ -20,7 +20,7 @@ import jredfox.selfcmd.util.OSUtil;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.6.0";
+	public static final String VERSION = "1.6.1";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -104,18 +104,30 @@ public class SelfCommandPrompt {
 	{
         try
         {
+//        	if(appId.containsAny("\"'`,"))
+//        		throw new RuntimeException("appId contains illegal parsing chars");//TODO:
+        	
+        	//TODO: wrap any spaces in quotes in the arguments
+        	
         	String str = getProgramArgs(args, " ");
             String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
             String jvmArgs = getJVMArgs();
-            String os = System.getProperty("os.name").toLowerCase();
             String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
-            if(os.contains("windows"))
+            File appdata = new File(OSUtil.getAppData(), "SelfCommandPrompt/" + appId);
+            loadAppConfig(appdata);
+            
+            if(useJConsole || OSUtil.isUnsupported())
             {
-            	Runtime.getRuntime().exec("cmd /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
+            	startJConsole(appName);
+            	return;
             }
-            else if(os.contains("mac"))
+            if(OSUtil.isWindows())
             {
-            	File sh = new File(OSUtil.getAppData(), "SelfCommandPrompt/console/shellscripts/" + appId + ".sh");
+            	Runtime.getRuntime().exec(terminal + " /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
+            }
+            else if(OSUtil.isMac())
+            {
+            	File sh = new File(appdata, appId + ".sh");
             	List<String> cmds = new ArrayList<>();
             	cmds.add("#!/bin/bash");
             	cmds.add("set +v");
@@ -124,28 +136,21 @@ public class SelfCommandPrompt {
             	cmds.add(command);
             	IOUtils.saveFileLines(cmds, sh, true);
             	IOUtils.makeExe(sh);
-            	Runtime.getRuntime().exec("/bin/bash -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
+            	Runtime.getRuntime().exec(terminal + " -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
             }
-            else if(os.contains("linux"))
+            else if(OSUtil.isLinux())
             {
-            	File sh = new File(OSUtil.getAppData(), "SelfCommandPrompt/console/shellscripts/" + appId + ".sh");
-            	List<String> cmds = new ArrayList<>();
-            	cmds.add("#!/bin/bash");
-            	cmds.add("set +v");
-            	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
-            	cmds.add("cd " + getProgramDir().getAbsolutePath());
-            	cmds.add(command);
-            	IOUtils.saveFileLines(cmds, sh, true);
-            	IOUtils.makeExe(sh);
-            	loadLinuxConfig();
-            	Runtime.getRuntime().exec(linux_terminal + " -x " + sh.getAbsolutePath());//use the x flag to enforce it in the new window
-//            	loadLinuxConfig();
-//            	Runtime.getRuntime().exec(linux_terminal + " -x " + "--title=" + "\"" + appName + "\" " + command);//use the x flag to enforce it in the new window
-            }
-            else
-            {
-            	SelfCommandPrompt.startJConsole(appName);//for unsupported os's use the java console
-            	return;//do not exit the application so return from the method
+//            	File sh = new File(appdata, appId + ".sh");
+//            	List<String> cmds = new ArrayList<>();
+//            	cmds.add("#!/bin/bash");
+//            	cmds.add("set +v");
+//            	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
+//            	cmds.add("cd " + getProgramDir().getAbsolutePath());
+//            	cmds.add(command);
+//            	IOUtils.saveFileLines(cmds, sh, true);
+//            	IOUtils.makeExe(sh);
+//            	Runtime.getRuntime().exec(terminal + " -x " + sh.getAbsolutePath());//use the x flag to enforce it in the new window
+            	Runtime.getRuntime().exec(terminal + " -x " + "--title=" + "\"" + appName + "\" " + command);//use the x flag to enforce it in the new window
             }
             Runtime.getRuntime().gc();
             System.exit(0);
@@ -154,22 +159,29 @@ public class SelfCommandPrompt {
         {	
 			SelfCommandPrompt.startJConsole(appName);//use JConsole as a backup in case they are on a very old os version
         	e.printStackTrace();
-			System.out.println("JCONSOLE STARTING:");
 		}
 	}
 
-	private static String linux_terminal = null;
-	private static void loadLinuxConfig() 
+	private static String terminal = null;
+	private static boolean useJConsole;
+	/**
+	 * configurable per app
+	 */
+	private static void loadAppConfig(File appdata) 
 	{
-    	MapConfig cfg = new MapConfig(new File(OSUtil.getAppData(), "SelfCommandPrompt/console/SelfCommandPrompt.cfg"));
+    	MapConfig cfg = new MapConfig(new File(appdata, "SelfCommandPrompt.cfg"));
     	cfg.load();
-    	String terminal = cfg.get("terminal", "").trim();
-    	if(terminal.isEmpty())
+    	
+    	//load the terminal string
+    	String cfgTerm = cfg.get("terminal", "").trim();
+    	if(cfgTerm.isEmpty())
     	{
-    		terminal = OSUtil.getTerminal();//since it's a heavy process cache it to the config
-    		cfg.set("terminal", terminal);
+    		cfgTerm = OSUtil.getTerminal();//since it's a heavy process cache it to the config
+    		cfg.set("terminal", cfgTerm);
     	}
-    	linux_terminal = terminal;
+    	terminal = cfgTerm;
+    	
+    	useJConsole= cfg.get("useJConsole", false);//if user prefers JConsole over natives
     	cfg.save();
 	}
 
