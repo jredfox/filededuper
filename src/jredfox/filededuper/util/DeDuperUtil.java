@@ -574,4 +574,20 @@ public class DeDuperUtil {
 		return init.equals("current") ? System.currentTimeMillis() : Long.parseLong(init);
 	}
 
+	public static boolean containsAny(String string, String invalid) 
+	{
+		if(string.isEmpty())
+			return invalid.isEmpty();
+		
+		for(int i=0; i < string.length(); i++)
+		{
+			String s = string.substring(i, i + 1);
+			if(invalid.contains(s))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

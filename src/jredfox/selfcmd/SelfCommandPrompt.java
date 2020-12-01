@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.jconsole.JConsole;
 import jredfox.selfcmd.util.OSUtil;
@@ -102,11 +103,10 @@ public class SelfCommandPrompt {
 	 */
 	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean pause)
 	{
+    	if(DeDuperUtil.containsAny(appId, "\"'`,"))
+    		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + "\"'`,");
         try
         {
-//        	if(appId.containsAny("\"'`,"))
-//        		throw new RuntimeException("appId contains illegal parsing chars");//TODO:
-        	
         	//TODO: wrap any spaces in quotes in the arguments
         	
         	String str = getProgramArgs(args, " ");
