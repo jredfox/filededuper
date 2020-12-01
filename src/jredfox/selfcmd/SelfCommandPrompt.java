@@ -1,16 +1,19 @@
 package jredfox.selfcmd;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import jredfox.filededuper.config.simple.MapConfig;
 import jredfox.filededuper.util.DeDuperUtil;
+import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.cmd.ExeBuilder;
 import jredfox.selfcmd.jconsole.JConsole;
 import jredfox.selfcmd.util.OSUtil;
@@ -89,14 +92,29 @@ public class SelfCommandPrompt {
 	 */
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
+        File appdata = new File(OSUtil.getAppData(), "SelfCommandPrompt/" + appId);
+        loadAppConfig(appdata);
+        
 		boolean compiled = isCompiled(mainClass);
 		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
 		{
 			return;
 		}
+		
+		if(hasJConsole())
+		{
+			startJConsole(appName);
+			return;
+		}
+		
 		rebootWithTerminal(mainClass, args, appName, appId, pause);
 	}
 	
+	private static boolean hasJConsole() 
+	{
+		return useJConsole || OSUtil.isUnsupported();
+	}
+
 	/**
 	 * this method is a directly calls commands to reboot your app with a command prompt terminal. 
 	 * do not call this directly without if statements it will recursively reboot infinitely
@@ -106,51 +124,44 @@ public class SelfCommandPrompt {
     	if(DeDuperUtil.containsAny(appId, INVALID))
     		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + "\"'`,");
         try
-        {   
+        {
             String libs = System.getProperty("java.class.path");
             if(DeDuperUtil.containsAny(libs, INVALID))
             	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + "\"'`,");
-            
+           
             File appdata = new File(OSUtil.getAppData(), "SelfCommandPrompt/" + appId);
-            loadAppConfig(appdata);
-            if(useJConsole)
+            loadAppConfig(appdata);//TODO make it so it doesn't parse twice per launch
+            
+            if(hasJConsole())
             {
-            	if(System.console() != null)
-            	{
-            		//TODO: reboot program with jframe and close the original process Commands#reboot breaks this
-            	}
-            	startJConsole(appName);
-            	return;
+                ExeBuilder builder = new ExeBuilder();
+                builder.addCommand(terminal);
+                builder.addCommand(OSUtil.getExeAndClose());
+            	builder.addCommand("java");
+            	builder.addCommand(getJVMArgs());
+            	builder.addCommand("-cp");
+            	builder.addCommand("\"" + libs + "\"");
+            	builder.addCommand(mainClass.getName());
+            	builder.addCommand(programArgs(args));
+            	String command = builder.toString();
+        		Runtime.getRuntime().exec(command);
+        		exit();
             }
-            else if(OSUtil.isUnsupported())
+            else
             {
-            	startJConsole(appName);
-            	return;
+                ExeBuilder builder = new ExeBuilder();
+            	builder.addCommand("java");
+            	builder.addCommand(getJVMArgs());
+            	builder.addCommand("-cp");
+            	builder.addCommand("\"" + libs + "\"");
+            	builder.addCommand(SelfCommandPrompt.class.getName());
+            	builder.addCommand(String.valueOf(pause));
+            	builder.addCommand(mainClass.getName());
+            	builder.addCommand(programArgs(args));
+            	String command = builder.toString();
+            	runInNewTerminal(appdata, appName, appId, command);
+            	exit();
             }
-        	ExeBuilder builder = new ExeBuilder();
-        	builder.addCommand("java");
-        	builder.addCommand(getJVMArgs());
-        	builder.addCommand("-cp");
-        	builder.addCommand("\"" + libs + "\"");
-        	builder.addCommand(SelfCommandPrompt.class.getName());
-        	builder.addCommand(String.valueOf(pause));
-        	builder.addCommand(mainClass.getName());
-        	builder.addCommand(programArgs(args));
-        	String command = builder.toString();
-            if(OSUtil.isWindows())
-            {
-            	Runtime.getRuntime().exec(terminal + " /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
-            }
-            else if(OSUtil.isMac())
-            {
-            	Runtime.getRuntime().exec(terminal + " -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + command + "\\\"\"");
-            }
-            else if(OSUtil.isLinux())
-            {
-            	Runtime.getRuntime().exec(terminal + " -x " + "--title=" + "\"" + appName + "\" " + command);//use the x flag to enforce it in the new window
-            }
-            Runtime.getRuntime().gc();
-            System.exit(0);
         }
         catch (Exception e)
         {	
@@ -158,9 +169,34 @@ public class SelfCommandPrompt {
         	e.printStackTrace();
 		}
 	}
+	
+	public static void runInNewTerminal(File appdata, String appName, String shName, String command) throws IOException
+	{
+        if(OSUtil.isWindows())
+        {
+        	Runtime.getRuntime().exec(terminal + " /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
+        }
+        else if(OSUtil.isMac())
+        {
+        	File sh = new File(appdata, shName + ".sh");
+        	List<String> cmds = new ArrayList<>();
+        	cmds.add("#!/bin/bash");
+        	cmds.add("set +v");
+        	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
+        	cmds.add("cd " + getProgramDir().getAbsolutePath());//enforce same directory with mac's redirects you never know where you are
+        	cmds.add(command);
+        	IOUtils.saveFileLines(cmds, sh, true);
+        	IOUtils.makeExe(sh);
+        	Runtime.getRuntime().exec("/bin/bash -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
+        }
+        else if(OSUtil.isLinux())
+        {
+        	Runtime.getRuntime().exec(terminal + " -x " + "--title=" + "\"" + appName + "\" " + command);//use the x flag to enforce it in the new window
+        }
+	}
 
-	private static String terminal = null;
-	private static boolean useJConsole;
+	public static String terminal;
+	public static boolean useJConsole;
 	/**
 	 * configurable per app
 	 */
@@ -180,6 +216,12 @@ public class SelfCommandPrompt {
     	
     	useJConsole= cfg.get("useJConsole", false);//if user prefers JConsole over natives
     	cfg.save();
+	}
+	
+	public static void exit()
+	{
+		System.gc();
+		System.exit(0);
 	}
 
 	/**

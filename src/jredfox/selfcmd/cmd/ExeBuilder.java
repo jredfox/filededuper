@@ -17,6 +17,9 @@ public class ExeBuilder {
 		this.commands = new ArrayList<>();
 	}
 	
+	/**
+	 * each command string get's seperated by a space
+	 */
 	public void addCommand(String... commands)
 	{
 		for(String s : commands)
