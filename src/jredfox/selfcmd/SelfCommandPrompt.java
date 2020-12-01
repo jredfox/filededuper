@@ -138,17 +138,6 @@ public class SelfCommandPrompt {
             }
             else if(OSUtil.isLinux())
             {
-//            	File sh = new File(OSUtil.getAppData(), "SelfCommandPrompt/console/shellscripts/" + appId + ".sh");
-//            	List<String> cmds = new ArrayList<>();
-//            	cmds.add("#!/bin/bash");
-//            	cmds.add("set +v");
-//            	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
-//            	cmds.add("cd " + getProgramDir().getAbsolutePath());
-//            	cmds.add(command);
-//            	IOUtils.saveFileLines(cmds, sh, true);
-//            	IOUtils.makeExe(sh);
-//            	loadLinuxConfig();
-//            	Runtime.getRuntime().exec(linux_terminal + " -x " + sh.getAbsolutePath());//use the x flag to enforce it in the new window
             	Runtime.getRuntime().exec(terminal + " -x " + "--title=" + "\"" + appName + "\" " + command);//use the x flag to enforce it in the new window
             }
             Runtime.getRuntime().gc();

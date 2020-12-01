@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * made to build your command rather then constantly calculating spaces to support Runtime.getRuntime.exec as process builder sometimes is broken
+ * @author jredfox
+ */
 public class ExeBuilder {
 	
 	public List<String> commands;
