@@ -94,6 +94,11 @@ public class OSUtil {
 		return isWindows() ? "/c" : (isMac() || isLinux()) ?  "-c" : null;
 	}
 	
+	public static String getLinuxNewWin()
+	{
+		return "-x";
+	}
+	
 	public static boolean isWindows()
 	{
 		return isWindows;

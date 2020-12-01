@@ -78,13 +78,12 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * reboot your application with a command prompt terminal. Note if you hard code your mainClass instead of using the above method it won't support all compilers like eclipse's jar in jar loader
-	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
-	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
+	 * simplified version for command line programs to call on their first line
+	 * @Since 2.0.0
 	 */
-	public static void runwithCMD(String[] args, String appName, String appId, boolean onlyCompiled, boolean pause)
+	public static void runwithCMD(String[] args, String appName, String appId)
 	{
-		runwithCMD(getMainClass(), args, appName, appId, onlyCompiled, pause);
+		runWithCMD(args, appName, appId, false, true);
 	}
 	
 	/**
@@ -92,7 +91,17 @@ public class SelfCommandPrompt {
 	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
 	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
 	 */
-	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
+	public static void runWithCMD(String[] args, String appName, String appId, boolean onlyCompiled, boolean pause)
+	{
+		runWithCMD(getMainClass(), args, appName, appId, onlyCompiled, pause);
+	}
+	
+	/**
+	 * reboot your application with a command prompt terminal. Note if you hard code your mainClass instead of using the above method it won't support all compilers like eclipse's jar in jar loader
+	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
+	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
+	 */
+	public static void runWithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
 		boolean compiled = isCompiled(mainClass);
 		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
@@ -168,12 +177,13 @@ public class SelfCommandPrompt {
 	/**
 	 * runs a command in a new terminal window.
 	 * the sh name is the file name you want the shell script stored. The appId is to locate your folder
+	 * @Since 2.0.0
 	 */
 	public static void runInNewTerminal(String appName, String appId, String shName, String command) throws IOException
 	{
         if(OSUtil.isWindows())
         {
-        	Runtime.getRuntime().exec(terminal + " /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
+        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
         }
         else if(OSUtil.isMac())
         {
@@ -186,12 +196,27 @@ public class SelfCommandPrompt {
         	cmds.add(command);
         	IOUtils.saveFileLines(cmds, sh, true);
         	IOUtils.makeExe(sh);
-        	Runtime.getRuntime().exec("/bin/bash -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
+        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
         }
         else if(OSUtil.isLinux())
         {
-        	Runtime.getRuntime().exec(terminal + " -x " + "--title=" + "\"" + appName + "\" " + command);//use the x flag to enforce it in the new window
+        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getLinuxNewWin() + " --title=" + "\"" + appName + "\" " + command);
         }
+	}
+	
+	//Start APP VARS_____________________________
+	
+	public static boolean hasJConsole() 
+	{
+		return useJConsole || OSUtil.isUnsupported();
+	}
+	
+	/**
+	 * returns the appdata contained in %appdata%/SelfCommandPrompt/appId
+	 */
+	private static File getAppdata(String appId)
+	{
+		return new File(selfcmd, appId);
 	}
 
 	public static String terminal;
@@ -216,20 +241,9 @@ public class SelfCommandPrompt {
     	useJConsole= cfg.get("useJConsole", false);//if user prefers JConsole over natives
     	cfg.save();
 	}
-	
-	/**
-	 * returns the appdata contained in %appdata%/SelfCommandPrompt/appId
-	 */
-	private static File getAppdata(String appId)
-	{
-		return new File(selfcmd, appId);
-	}
-	
-	public static boolean hasJConsole() 
-	{
-		return useJConsole || OSUtil.isUnsupported();
-	}
 
+	//End APP VARS_________________________________
+	
 	public static void shutdown()
 	{
 		System.gc();
