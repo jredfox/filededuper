@@ -92,27 +92,12 @@ public class SelfCommandPrompt {
 	 */
 	public static void runwithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
-        File appdata = new File(OSUtil.getAppData(), "SelfCommandPrompt/" + appId);
-        loadAppConfig(appdata);
-        
 		boolean compiled = isCompiled(mainClass);
 		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
 		{
 			return;
 		}
-		
-		if(hasJConsole())
-		{
-			startJConsole(appName);
-			return;
-		}
-		
 		rebootWithTerminal(mainClass, args, appName, appId, pause);
-	}
-	
-	private static boolean hasJConsole() 
-	{
-		return useJConsole || OSUtil.isUnsupported();
 	}
 
 	/**
@@ -130,10 +115,11 @@ public class SelfCommandPrompt {
             	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + "\"'`,");
            
             File appdata = new File(OSUtil.getAppData(), "SelfCommandPrompt/" + appId);
-            loadAppConfig(appdata);//TODO make it so it doesn't parse twice per launch
+            loadAppConfig(appdata);//TODO differentiate JConsole reboot and JConsole boot
             
             if(hasJConsole())
             {
+            	if(System.console() != null) {
                 ExeBuilder builder = new ExeBuilder();
                 builder.addCommand(terminal);
                 builder.addCommand(OSUtil.getExeAndClose());
@@ -146,6 +132,11 @@ public class SelfCommandPrompt {
             	String command = builder.toString();
         		Runtime.getRuntime().exec(command);
         		exit();
+            	}
+            	else
+            	{
+            		startJConsole(appName);
+            	}
             }
             else
             {
@@ -216,6 +207,11 @@ public class SelfCommandPrompt {
     	
     	useJConsole= cfg.get("useJConsole", false);//if user prefers JConsole over natives
     	cfg.save();
+	}
+	
+	public static boolean hasJConsole() 
+	{
+		return useJConsole || OSUtil.isUnsupported();
 	}
 	
 	public static void exit()
