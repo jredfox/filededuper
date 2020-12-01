@@ -127,7 +127,7 @@ public class SelfCommandPrompt {
         	builder.addCommand(mainClass.getName());
         	builder.addCommand(programArgs(args));
         	String command = builder.toString();
-            
+            System.out.println(terminal + " -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + command + "\\\"\"");
             if(OSUtil.isWindows())
             {
             	Runtime.getRuntime().exec(terminal + " /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
@@ -157,7 +157,7 @@ public class SelfCommandPrompt {
 	 */
 	private static void loadAppConfig(File appdata) 
 	{
-    	MapConfig cfg = new MapConfig(new File(appdata, "SelfCommandPrompt.cfg"));
+    	MapConfig cfg = new MapConfig(new File(appdata, "console.cfg"));
     	cfg.load();
     	
     	//load the terminal string
