@@ -248,7 +248,8 @@ public abstract class Command<T>{
 			e.printStackTrace();
 			errored = true;
 		}
-		System.out.println("finished:" + command.name + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
+		if(!(command instanceof CommandInvalid))
+			System.out.println("finished:" + command.name + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
 	}
 
 }

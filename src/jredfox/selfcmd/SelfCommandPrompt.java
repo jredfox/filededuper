@@ -6,13 +6,12 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import jredfox.filededuper.config.simple.MapConfig;
 import jredfox.filededuper.util.DeDuperUtil;
-import jredfox.filededuper.util.IOUtils;
+import jredfox.selfcmd.cmd.ExeBuilder;
 import jredfox.selfcmd.jconsole.JConsole;
 import jredfox.selfcmd.util.OSUtil;
 /**
@@ -21,7 +20,8 @@ import jredfox.selfcmd.util.OSUtil;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "1.6.1";
+	public static final String VERSION = "2.0.0";
+	public static final String INVALID = "\"'`,";
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
@@ -103,44 +103,42 @@ public class SelfCommandPrompt {
 	 */
 	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean pause)
 	{
-    	if(DeDuperUtil.containsAny(appId, "\"'`,"))
+    	if(DeDuperUtil.containsAny(appId, INVALID))
     		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + "\"'`,");
         try
-        {
-        	//TODO: wrap any spaces in quotes in the arguments
-        	
-        	String str = getProgramArgs(args, " ");
-            String argsStr = " " + mainClass.getName() + (str.isEmpty() ? "" : " " + str);
-            String jvmArgs = getJVMArgs();
-            String command = "java " + (jvmArgs.isEmpty() ? "" : jvmArgs + " ") + "-cp " + System.getProperty("java.class.path") + " " + SelfCommandPrompt.class.getName() + " " + pause + argsStr;
+        {   
             File appdata = new File(OSUtil.getAppData(), "SelfCommandPrompt/" + appId);
             loadAppConfig(appdata);
-            
             if(useJConsole || OSUtil.isUnsupported())
             {
             	startJConsole(appName);
             	return;
             }
+            String libs = System.getProperty("java.class.path");
+            if(DeDuperUtil.containsAny(libs, INVALID))
+            	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + "\"'`,");
+        	ExeBuilder builder = new ExeBuilder();
+        	builder.addCommand("java");
+        	builder.addCommand(getJVMArgs());
+        	builder.addCommand("-cp");
+        	builder.addCommand("\"" + libs + "\"");
+        	builder.addCommand(SelfCommandPrompt.class.getName());
+        	builder.addCommand(String.valueOf(pause));
+        	builder.addCommand(mainClass.getName());
+        	builder.addCommand(programArgs(args));
+        	String command = builder.toString();
+            
             if(OSUtil.isWindows())
             {
             	Runtime.getRuntime().exec(terminal + " /c start " + "\"" + appName + "\" " + command);//power shell isn't supported as it screws up with the java -cp command when using the gui manually
             }
             else if(OSUtil.isMac())
             {
-            	File sh = new File(appdata, appId + ".sh");
-            	List<String> cmds = new ArrayList<>();
-            	cmds.add("#!/bin/bash");
-            	cmds.add("set +v");
-            	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
-            	cmds.add("cd " + getProgramDir().getAbsolutePath());//enforce same directory with mac's redirects you never know where you are
-            	cmds.add(command);
-            	IOUtils.saveFileLines(cmds, sh, true);
-            	IOUtils.makeExe(sh);
-            	Runtime.getRuntime().exec(terminal + " -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
+            	Runtime.getRuntime().exec(terminal + " -c " + "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + command + "\\\"\"");
             }
             else if(OSUtil.isLinux())
             {
-//            	File sh = new File(appdata, appId + ".sh");
+//            	File sh = new File(OSUtil.getAppData(), "SelfCommandPrompt/console/shellscripts/" + appId + ".sh");
 //            	List<String> cmds = new ArrayList<>();
 //            	cmds.add("#!/bin/bash");
 //            	cmds.add("set +v");
@@ -149,7 +147,8 @@ public class SelfCommandPrompt {
 //            	cmds.add(command);
 //            	IOUtils.saveFileLines(cmds, sh, true);
 //            	IOUtils.makeExe(sh);
-//            	Runtime.getRuntime().exec(terminal + " -x " + sh.getAbsolutePath());//use the x flag to enforce it in the new window
+//            	loadLinuxConfig();
+//            	Runtime.getRuntime().exec(linux_terminal + " -x " + sh.getAbsolutePath());//use the x flag to enforce it in the new window
             	Runtime.getRuntime().exec(terminal + " -x " + "--title=" + "\"" + appName + "\" " + command);//use the x flag to enforce it in the new window
             }
             Runtime.getRuntime().gc();
@@ -186,8 +185,7 @@ public class SelfCommandPrompt {
 	}
 
 	/**
-	 * checks if the jar is compiled based on the main class
-	 * @throws UnsupportedEncodingException 
+	 * checks if the jar is compiled based on the main class 
 	 */
 	public static boolean isCompiled()
 	{
@@ -196,7 +194,6 @@ public class SelfCommandPrompt {
 	
 	/**
 	 * checks per class if the jar is compiled
-	 * @throws UnsupportedEncodingException 
 	 */
 	public static boolean isCompiled(Class<?> mainClass)
 	{
@@ -215,14 +212,16 @@ public class SelfCommandPrompt {
 	/**
 	 * get a file from a class
 	 */
-	public static File getFileFromClass(Class<?> clazz) throws UnsupportedEncodingException
+	public static File getFileFromClass(Class<?> clazz) throws UnsupportedEncodingException, RuntimeException
 	{
 		String jarPath = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();//get the path of the currently running jar
 		String fileName = URLDecoder.decode(jarPath, "UTF-8").substring(1);
+		if(fileName.contains(INVALID))
+			throw new RuntimeException("jar file contains invalid parsing chars:" + fileName);
 		return new File(fileName);
 	}
 	
-	public static String getJVMArgs()
+	public static String getJVMArgsAsString()
 	{
 		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
 		List<String> arguments = runtimeMxBean.getInputArguments();
@@ -236,6 +235,12 @@ public class SelfCommandPrompt {
 			index++;
 		}
 		return b.toString();
+	}
+	
+	public static List<String> getJVMArgs()
+	{
+		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+		return runtimeMxBean.getInputArguments();
 	}
 	
 	public static boolean isDebugMode()
@@ -266,20 +271,13 @@ public class SelfCommandPrompt {
 		return mainClass;
 	}
 	
-	public static String getProgramArgs(String[] args, String sep) 
+	public static String[] programArgs(String[] args) 
 	{
-		if(args == null)
-			return null;
-		StringBuilder b = new StringBuilder();
-		int index = 0;
-		for(String s : args)
+		for(int i=0;i<args.length; i++)
 		{
-			String q = s.contains(" ") ? "\"" : "";
-			s = index + 1 != args.length ? (q + s + q + sep) : (q + s + q);
-			b.append(s);
-			index++;
+			args[i] = "\"" + args[i] + "\"";
 		}
-		return b.toString();
+		return args;
 	}
 	
 	/**
