@@ -149,7 +149,7 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * reboot with the original arguments the program had been instantiated with
+	 * reboot the program with config sync enabled
 	 */
 	public static void reboot(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{

@@ -23,8 +23,6 @@ public class Main {
 		System.out.println("Starting " + appName);
 		if(args.length != 0)
 		{
-//			if(Command.get(args[0]) == Commands.reboot)
-//				throw new IllegalArgumentException("cannot use reboot on boot!");
 			Command.run(args);
 		}
 		else
