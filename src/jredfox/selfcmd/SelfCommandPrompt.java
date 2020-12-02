@@ -30,6 +30,7 @@ public class SelfCommandPrompt {
 	/**
 	 * args are [shouldPause, mainClass, programArgs]
 	 */
+	@SuppressWarnings("resource")
 	public static void main(String[] args)
 	{
 		boolean shouldPause = Boolean.parseBoolean(args[0]);
@@ -49,11 +50,10 @@ public class SelfCommandPrompt {
 		
 		if(shouldPause)
 		{
-			Scanner old = new Scanner(System.in);
-			Scanner scanner = old.useDelimiter("\n");
+			Scanner scanner = new Scanner(System.in).useDelimiter("\n");//Warning says scanner is never closed but, useDelimiter returns itself
 			System.out.println("Press ENTER to continue:");
-			scanner.next();
-			old.close();
+			if(scanner.hasNext())
+				scanner.next();
 			scanner.close();
 		}
 	}
@@ -104,74 +104,75 @@ public class SelfCommandPrompt {
 	public static void runWithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
 	{
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()))
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode())
 		{
 			return;
 		}
-        
-		syncConfig(appId);
+
+		syncConfig(appId);//TODO: get decompiled working
         if(hasJConsole())
         {
         	startJConsole(appName);
         	return;
         }
-		rebootWithTerminal(mainClass, args, appName, appId, false, pause);
+		try
+		{
+			rebootWithTerminal(mainClass, args, appName, appId, pause);
+		}
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+			startJConsole(appName);
+		}
+	}
+	
+	/**
+	 * reboot with the original arguments the program had been instantiated with
+	 */
+	public static void reboot(String appName, String appId) throws IOException
+	{
+		syncConfig(appId);
+		ExeBuilder builder = new ExeBuilder();
+		builder.addCommand("java");
+		builder.addCommand(getJVMArgs());
+		String sunCmd = System.getProperty("sun.java.command");
+		boolean isCp = !new File(DeDuperUtil.split(sunCmd, ' ', '"', '"')[0]).exists();
+		builder.addCommand(isCp ? "-cp" : "-jar");
+		if(isCp)
+			builder.addCommand("\"" + System.getProperty("java.class.path") + "\"");
+		builder.addCommand(sunCmd);
+		String command = builder.toString();
+		if(hasJConsole())
+			Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " " + command);
+		else
+			runInNewTerminal(appName, appId, "reboot", command);
+		shutdown();
 	}
 
 	/**
-	 * do not call this directly without checks or it will just keep rebooting.
-	 * Make sure that the config is synced before calling this directly.
-	 * Will reboot the program even it's just with JConsole
+	 * do not call this directly without checks or it will just keep rebooting and only in the terminal
 	 */
-	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean sync, boolean pause)
+	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean pause) throws IOException
 	{
     	if(DeDuperUtil.containsAny(appId, INVALID))
     		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + INVALID);
-        try
-        {
+    	
             String libs = System.getProperty("java.class.path");
             if(DeDuperUtil.containsAny(libs, INVALID))
             	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + INVALID);
             
-            if(sync)
-            	syncConfig(appId);
-            
-            if(hasJConsole())
-            {
-                ExeBuilder builder = new ExeBuilder();
-                builder.addCommand(terminal);
-                builder.addCommand(OSUtil.getExeAndClose());
-            	builder.addCommand("java");
-            	builder.addCommand(getJVMArgs());
-            	builder.addCommand("-cp");
-            	builder.addCommand("\"" + libs + "\"");
-            	builder.addCommand(mainClass.getName());
-            	builder.addCommand(programArgs(args));
-            	String command = builder.toString();
-        		Runtime.getRuntime().exec(command);
-        		shutdown();
-            }
-            else
-            {
-                ExeBuilder builder = new ExeBuilder();
-            	builder.addCommand("java");
-            	builder.addCommand(getJVMArgs());
-            	builder.addCommand("-cp");
-            	builder.addCommand("\"" + libs + "\"");
-            	builder.addCommand(SelfCommandPrompt.class.getName());
-            	builder.addCommand(String.valueOf(pause));
-            	builder.addCommand(mainClass.getName());
-            	builder.addCommand(programArgs(args));
-            	String command = builder.toString();
-            	runInNewTerminal(appName, appId, appId, command);
-            	shutdown();
-            }
-        }
-        catch (Exception e)
-        {	
-			SelfCommandPrompt.startJConsole(appName);//use JConsole as a backup in case they are on a very old os version
-        	e.printStackTrace();
-		}
+            ExeBuilder builder = new ExeBuilder();
+        	builder.addCommand("java");
+        	builder.addCommand(getJVMArgs());
+        	builder.addCommand("-cp");
+        	builder.addCommand("\"" + libs + "\"");
+        	builder.addCommand(SelfCommandPrompt.class.getName());
+        	builder.addCommand(String.valueOf(pause));
+        	builder.addCommand(mainClass.getName());
+        	builder.addCommand(programArgs(args));
+        	String command = builder.toString();
+        	runInNewTerminal(appName, appId, appId, command);
+        	shutdown();
 	}
 	
 	/**

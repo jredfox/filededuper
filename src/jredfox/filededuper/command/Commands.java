@@ -1,6 +1,7 @@
 package jredfox.filededuper.command;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -596,7 +597,15 @@ public class Commands {
 		@Override
 		public void run(ParamList<Object> args) 
 		{
-			SelfCommandPrompt.rebootWithTerminal(Main.class, new String[0], Main.appName, Main.appId, true, true);
+			try
+			{
+				SelfCommandPrompt.reboot(Main.appName, Main.appId);
+			}
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+				System.out.println("unable to reboot");
+			}
 		}
 	};
 	

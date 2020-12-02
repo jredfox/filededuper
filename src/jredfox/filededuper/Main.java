@@ -12,7 +12,7 @@ import jredfox.selfcmd.util.OSUtil;
 
 public class Main {
 	
-	public static final String VERSION = "0.13.1";
+	public static final String VERSION = "0.14.0";
 	public static final String appName = "File De-Duper " + VERSION;
 	public static final String appId = "file-de-duper";
 	
@@ -23,6 +23,8 @@ public class Main {
 		System.out.println("Starting " + appName);
 		if(args.length != 0)
 		{
+			if(Command.get(args[0]) == Commands.reboot)
+				throw new IllegalArgumentException("cannot use reboot on boot!");
 			Command.run(args);
 		}
 		else
