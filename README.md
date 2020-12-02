@@ -17,6 +17,7 @@ Done commands:
 - getCompileTime
 
 Done Features:
+- double click jar to boot up like a normal application
 - added feature command prompt on double click supports mac & windows, and a random linux terminal
 - added a command api
 - added configs
