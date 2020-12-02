@@ -18,7 +18,7 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-		SelfCommandPrompt.runWithCMD(args, appName, "File-De-Duper", false, true);
+		SelfCommandPrompt.runwithCMD(appId, appName, args);
 		loadConfigs();
 		System.out.println("Starting " + appName);
 		if(args.length != 0)

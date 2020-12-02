@@ -599,7 +599,7 @@ public class Commands {
 		{
 			try
 			{
-				SelfCommandPrompt.reboot(Main.appName, Main.appId);
+				SelfCommandPrompt.reboot(Main.appId, Main.appName);
 			}
 			catch (IOException e) 
 			{

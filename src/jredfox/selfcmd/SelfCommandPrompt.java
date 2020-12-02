@@ -81,9 +81,9 @@ public class SelfCommandPrompt {
 	 * simplified version for command line programs to call on their first line
 	 * @Since 2.0.0
 	 */
-	public static void runwithCMD(String[] args, String appName, String appId)
+	public static void runwithCMD(String appId, String appName, String[] args)
 	{
-		runWithCMD(args, appName, appId, false, true);
+		runWithCMD(appId, appName, args, false, true);
 	}
 	
 	/**
@@ -91,9 +91,9 @@ public class SelfCommandPrompt {
 	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
 	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
 	 */
-	public static void runWithCMD(String[] args, String appName, String appId, boolean onlyCompiled, boolean pause)
+	public static void runWithCMD(String appId, String appName, String[] args, boolean onlyCompiled, boolean pause)
 	{
-		runWithCMD(getMainClass(), args, appName, appId, onlyCompiled, pause);
+		runWithCMD(appId, appName, getMainClass(), args, onlyCompiled, pause);
 	}
 	
 	/**
@@ -101,7 +101,7 @@ public class SelfCommandPrompt {
 	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
 	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
 	 */
-	public static void runWithCMD(Class<?> mainClass, String[] args, String appName, String appId, boolean onlyCompiled, boolean pause) 
+	public static void runWithCMD(String appId, String appName, Class<?> mainClass, String[] args, boolean onlyCompiled, boolean pause) 
 	{
 		boolean compiled = isCompiled(mainClass);
 		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode())
@@ -117,7 +117,7 @@ public class SelfCommandPrompt {
         }
 		try
 		{
-			rebootWithTerminal(mainClass, args, appName, appId, pause);
+			rebootWithTerminal(appId, appName, mainClass, args, pause);
 		}
 		catch (IOException e) 
 		{
@@ -129,7 +129,7 @@ public class SelfCommandPrompt {
 	/**
 	 * reboot with the original arguments the program had been instantiated with
 	 */
-	public static void reboot(String appName, String appId) throws IOException
+	public static void reboot(String appId, String appName) throws IOException
 	{
 		syncConfig(appId);
 		ExeBuilder builder = new ExeBuilder();
@@ -145,14 +145,14 @@ public class SelfCommandPrompt {
 		if(hasJConsole())
 			Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " " + command);
 		else
-			runInNewTerminal(appName, appId, "reboot", command);
+			runInNewTerminal(appId, appName, "reboot", command);
 		shutdown();
 	}
 
 	/**
 	 * do not call this directly without checks or it will just keep rebooting and only in the terminal
 	 */
-	public static void rebootWithTerminal(Class<?> mainClass, String[] args, String appName, String appId, boolean pause) throws IOException
+	public static void rebootWithTerminal(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{
     	if(DeDuperUtil.containsAny(appId, INVALID))
     		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + INVALID);
@@ -171,7 +171,7 @@ public class SelfCommandPrompt {
         	builder.addCommand(mainClass.getName());
         	builder.addCommand(programArgs(args));
         	String command = builder.toString();
-        	runInNewTerminal(appName, appId, appId, command);
+        	runInNewTerminal(appId, appName, appId, command);
         	shutdown();
 	}
 	
@@ -180,7 +180,7 @@ public class SelfCommandPrompt {
 	 * the sh name is the file name you want the shell script stored. The appId is to locate your folder
 	 * @Since 2.0.0
 	 */
-	public static void runInNewTerminal(String appName, String appId, String shName, String command) throws IOException
+	public static void runInNewTerminal(String appId, String appName, String shName, String command) throws IOException
 	{
         if(OSUtil.isWindows())
         {
