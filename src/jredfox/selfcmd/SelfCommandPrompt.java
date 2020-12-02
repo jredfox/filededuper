@@ -33,6 +33,11 @@ public class SelfCommandPrompt {
 	public static String[] wrappedAppArgs;
 	public static boolean wrappedPause;
 	
+	static
+	{
+		syncConfig();
+	}
+	
 	/**
 	 * args are [shouldPause, mainClass, programArgs...]
 	 */
@@ -120,7 +125,6 @@ public class SelfCommandPrompt {
 			return;
 		}
 		
-		syncConfig();
         if(hasJConsole())
         {
         	startJConsole(appName);
@@ -392,7 +396,7 @@ public class SelfCommandPrompt {
 	public static String terminal;
 	public static boolean useJConsole;
 	/**
-	 * configurable per app
+	 * syncs the global terminal and the boolean for useJConsole
 	 */
 	public static void syncConfig() 
 	{
