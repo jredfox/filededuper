@@ -27,6 +27,11 @@ public class SelfCommandPrompt {
 	public static final String VERSION = "2.0.0";
 	public static final String INVALID = "\"'`,";
 	public static final File selfcmd = new File(OSUtil.getAppData(), "SelfCommandPrompt");
+	public static String wrappedAppId;
+	public static String wrappedAppName;
+	public static Class<?> wrappedAppClass;
+	public static String[] wrappedAppArgs;
+	public static boolean wrappedPause;
 	
 	/**
 	 * args are [shouldPause, mainClass, programArgs...]
@@ -39,6 +44,7 @@ public class SelfCommandPrompt {
 		try
 		{
 			Class<?> mainClass = Class.forName(args[1]);
+			wrappedAppClass = mainClass;
 			String[] programArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, programArgs, 0, programArgs.length);
 			Method method = mainClass.getMethod("main", String[].class);
@@ -83,7 +89,7 @@ public class SelfCommandPrompt {
 	 * if you have connections in jvm args close them before reboot !SelfCommandPrompt#hasJConsole()
 	 * @Since 2.0.0
 	 */
-	public static void runwithCMD(String appId, String appName, String[] args)
+	public static void runWithCMD(String appId, String appName, String[] args)
 	{
 		runWithCMD(appId, appName, args, false, true);
 	}
@@ -107,6 +113,7 @@ public class SelfCommandPrompt {
 	 */
 	public static void runWithCMD(String appId, String appName, Class<?> mainClass, String[] args, boolean onlyCompiled, boolean pause) 
 	{
+		cacheApp(appId, appName, mainClass, args, pause);
 		boolean compiled = isCompiled(mainClass);
 		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode())
 		{
@@ -136,28 +143,40 @@ public class SelfCommandPrompt {
 			startJConsole(appName);
 		}
 	}
+
+	public static void reboot() throws IOException
+	{
+		reboot(wrappedAppId, wrappedAppName, wrappedAppClass, wrappedAppArgs, wrappedPause);
+	}
+	
+	public static void reboot(String[] newArgs) throws IOException
+	{
+		reboot(wrappedAppId, wrappedAppName, wrappedAppClass, newArgs, wrappedPause);
+	}
 	
 	/**
 	 * reboot with the original arguments the program had been instantiated with
 	 */
-	public static void reboot(String appId, String appName) throws IOException
+	public static void reboot(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{
 		syncConfig();
 		ExeBuilder builder = new ExeBuilder();
-		builder.addCommand("java");
-		builder.addCommand(getJVMArgs());
-		String sunCmd = System.getProperty("sun.java.command");
-		boolean isCp = !new File(split(sunCmd, ' ', '"', '"')[0]).exists();
-		builder.addCommand(isCp ? "-cp" : "-jar");
-		if(isCp)
-			builder.addCommand("\"" + System.getProperty("java.class.path") + "\"");
-		builder.addCommand(sunCmd);
-		String command = builder.toString();
 		if(hasJConsole())
+		{
+			builder.addCommand("java");
+			builder.addCommand(getJVMArgs());
+			builder.addCommand("-cp");
+			builder.addCommand("\"" + System.getProperty("java.class.path") + "\"");
+			builder.addCommand(mainClass.getName());
+			builder.addCommand(programArgs(args));
+			String command = builder.toString();
 			runInTerminal(command);
+			shutdown();
+		}
 		else
-			runInNewTerminal(appId, appName, "reboot", command);//make it so when it reboots it doesn't have to reboot to get command prompt terminal
-		shutdown();
+		{
+			rebootWithTerminal(appId, appName, mainClass, args, pause);
+		}
 	}
 
 	/**
@@ -165,6 +184,7 @@ public class SelfCommandPrompt {
 	 */
 	public static void rebootWithTerminal(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{
+		cacheApp(appId, appName, mainClass, args, pause);
     	if(containsAny(appId, INVALID))
     		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + INVALID);
     	
@@ -397,6 +417,18 @@ public class SelfCommandPrompt {
     	
     	useJConsole= cfg.get("useJConsole", false);//if user prefers JConsole over natives
     	cfg.save();
+	}
+	
+	private static void cacheApp(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) 
+	{
+		if(wrappedAppId == null) 
+		{
+			wrappedAppId = appId;
+			wrappedAppName = appName;
+			wrappedAppClass = wrappedAppClass == null ? mainClass : wrappedAppClass;
+			wrappedAppArgs = args;
+			wrappedPause = pause;
+		}
 	}
 
 	//End APP VARS_________________________________

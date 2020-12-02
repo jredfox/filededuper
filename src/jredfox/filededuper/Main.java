@@ -18,13 +18,13 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-		SelfCommandPrompt.runwithCMD(appId, appName, args);
+		SelfCommandPrompt.runWithCMD(appId, appName, args);
 		loadConfigs();
 		System.out.println("Starting " + appName);
 		if(args.length != 0)
 		{
-			if(Command.get(args[0]) == Commands.reboot)
-				throw new IllegalArgumentException("cannot use reboot on boot!");
+//			if(Command.get(args[0]) == Commands.reboot)
+//				throw new IllegalArgumentException("cannot use reboot on boot!");
 			Command.run(args);
 		}
 		else
