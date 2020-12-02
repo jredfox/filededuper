@@ -115,21 +115,15 @@ public class SelfCommandPrompt {
 	{
 		cacheApp(appId, appName, mainClass, args, pause);
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode())
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()) )
 		{
 			return;
 		}
 		
-		syncConfig();//in decompiled will get parsed twice once per boot this is because System.console cannot be detected properly for non eclipse ides if it needs to reboot or not with the native terminal
+		syncConfig();
         if(hasJConsole())
         {
         	startJConsole(appName);
-        	return;
-        }
-        
-        //don't reboot if the main class is already our wrapper. It's here so jconsole can start if the program was rebooted using SelfCommandPrompt#reboot
-        if(SelfCommandPrompt.class.getName().equals(getMainClassName()) )
-        {
         	return;
         }
         
@@ -180,11 +174,10 @@ public class SelfCommandPrompt {
 	}
 
 	/**
-	 * do not call this directly without checks or it will just keep rebooting and only in the terminal
+	 * do not call this directly without checks or it will just keep rebooting and only in the terminal. Doesn't call {@link SelfCommandPrompt#cacheApp(String, String, Class, String[], boolean)}
 	 */
 	public static void rebootWithTerminal(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{
-		cacheApp(appId, appName, mainClass, args, pause);
     	if(containsAny(appId, INVALID))
     		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + INVALID);
     	
@@ -207,7 +200,7 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * run a command in the same terminal assuming your not using the start command equalivent for your os
+	 * enforces it to run in the command prompt terminal as sometimes it doesn't work without it
 	 */
 	public static void runInTerminal(String command) throws IOException
 	{
@@ -419,7 +412,7 @@ public class SelfCommandPrompt {
     	cfg.save();
 	}
 	
-	private static void cacheApp(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) 
+	public static void cacheApp(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) 
 	{
 		if(wrappedAppId == null) 
 		{
