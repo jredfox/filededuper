@@ -14,7 +14,7 @@ public class Main {
 	
 	public static final String VERSION = "0.14.0";
 	public static final String appName = "File De-Duper " + VERSION;
-	public static final String appId = "file-de-duper";
+	public static final String appId = "File-De-Duper";
 	
 	public static void main(String[] args)
 	{

@@ -28,7 +28,7 @@ public class SelfCommandPrompt {
 	public static final File selfcmd = new File(OSUtil.getAppData(), "SelfCommandPrompt");
 	
 	/**
-	 * args are [shouldPause, mainClass, programArgs]
+	 * args are [shouldPause, mainClass, programArgs...]
 	 */
 	@SuppressWarnings("resource")
 	public static void main(String[] args)
@@ -59,8 +59,7 @@ public class SelfCommandPrompt {
 	}
 
 	/**
-	 * NOTE: is WIP and doesn't take input currently use shell / batch files for unsupported oses in the mean time to run the jar
-	 * supports all platforms no need to reboot, supports debugging and all ides, and supports shutdown hooks
+	 * NOTE: this is WIP and doesn't support System.in redirect yet, and there are many other issues with it
 	 */
 	public static JConsole startJConsole(String appName)
 	{	
@@ -78,7 +77,9 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * simplified version for command line programs to call on their first line
+	 * ensure your program boots up with a command prompt terminal either a native configurable os terminal or JConsole.
+	 * If you hard code your main class it won't support wrappers like eclipe's jar in jar loader.
+	 * if you have connections in jvm args close them before reboot !SelfCommandPrompt#hasJConsole()
 	 * @Since 2.0.0
 	 */
 	public static void runwithCMD(String appId, String appName, String[] args)
@@ -87,9 +88,10 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * reboot your application with a command prompt terminal. Note if you hard code your mainClass instead of using the above method it won't support all compilers like eclipse's jar in jar loader
-	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
-	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
+	 * ensure your program boots up with a command prompt terminal either a native configurable os terminal or JConsole.
+	 * If you hard code your main class it won't support wrappers like eclipe's jar in jar loader.
+	 * if you have connections in jvm args close them before reboot !SelfCommandPrompt#hasJConsole()
+	 * @Since 2.0.0
 	 */
 	public static void runWithCMD(String appId, String appName, String[] args, boolean onlyCompiled, boolean pause)
 	{
@@ -97,9 +99,10 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * reboot your application with a command prompt terminal. Note if you hard code your mainClass instead of using the above method it won't support all compilers like eclipse's jar in jar loader
-	 * NOTE: doesn't support debug function as it breaks ides connection proxies to the jvm agent's debug.
-	 * before calling this if you have jvmArguments for like ports or connections close them before rebooting
+	 * ensure your program boots up with a command prompt terminal either a native configurable os terminal or JConsole.
+	 * If you hard code your main class it won't support wrappers like eclipe's jar in jar loader.
+	 * if you have connections in jvm args close them before reboot !SelfCommandPrompt#hasJConsole()
+	 * @Since 2.0.0
 	 */
 	public static void runWithCMD(String appId, String appName, Class<?> mainClass, String[] args, boolean onlyCompiled, boolean pause) 
 	{
@@ -108,13 +111,20 @@ public class SelfCommandPrompt {
 		{
 			return;
 		}
-
-		syncConfig(appId);//TODO: get decompiled working
+		
+		syncConfig(appId);
         if(hasJConsole())
         {
         	startJConsole(appName);
         	return;
         }
+        
+        //don't reboot if the main class is already our wrapper. It's here so jconsole can start if the program was rebooted using SelfCommandPrompt#reboot
+        if(SelfCommandPrompt.class.getName().equals(getMainClassName()) )
+        {
+        	return;
+        }
+        
 		try
 		{
 			rebootWithTerminal(appId, appName, mainClass, args, pause);
@@ -204,46 +214,6 @@ public class SelfCommandPrompt {
         	Runtime.getRuntime().exec(terminal + " " + OSUtil.getLinuxNewWin() + " --title=" + "\"" + appName + "\" " + command);
         }
 	}
-	
-	//Start APP VARS_____________________________
-	
-	public static boolean hasJConsole() 
-	{
-		return useJConsole || OSUtil.isUnsupported();
-	}
-	
-	/**
-	 * returns the appdata contained in %appdata%/SelfCommandPrompt/appId
-	 */
-	private static File getAppdata(String appId)
-	{
-		return new File(selfcmd, appId);
-	}
-
-	public static String terminal;
-	public static boolean useJConsole;
-	/**
-	 * configurable per app
-	 */
-	public static void syncConfig(String appId) 
-	{
-    	MapConfig cfg = new MapConfig(new File(getAppdata(appId), "console.cfg"));
-    	cfg.load();
-    	
-    	//load the terminal string
-    	String cfgTerm = cfg.get("terminal", "").trim();
-    	if(cfgTerm.isEmpty())
-    	{
-    		cfgTerm = OSUtil.getTerminal();//since it's a heavy process cache it to the config
-    		cfg.set("terminal", cfgTerm);
-    	}
-    	terminal = cfgTerm;
-    	
-    	useJConsole= cfg.get("useJConsole", false);//if user prefers JConsole over natives
-    	cfg.save();
-	}
-
-	//End APP VARS_________________________________
 	
 	public static void shutdown()
 	{
@@ -381,4 +351,44 @@ public class SelfCommandPrompt {
 	{
 		return new File(System.getProperty("user.dir"));
 	}
+	
+	//Start APP VARS_____________________________
+	
+	public static boolean hasJConsole() 
+	{
+		return useJConsole || OSUtil.isUnsupported();
+	}
+	
+	/**
+	 * returns the appdata contained in %appdata%/SelfCommandPrompt/appId
+	 */
+	private static File getAppdata(String appId)
+	{
+		return new File(selfcmd, appId);
+	}
+
+	public static String terminal;
+	public static boolean useJConsole;
+	/**
+	 * configurable per app
+	 */
+	public static void syncConfig(String appId) 
+	{
+    	MapConfig cfg = new MapConfig(new File(getAppdata(appId), "console.cfg"));
+    	cfg.load();
+    	
+    	//load the terminal string
+    	String cfgTerm = cfg.get("terminal", "").trim();
+    	if(cfgTerm.isEmpty())
+    	{
+    		cfgTerm = OSUtil.getTerminal();//since it's a heavy process cache it to the config
+    		cfg.set("terminal", cfgTerm);
+    	}
+    	terminal = cfgTerm;
+    	
+    	useJConsole= cfg.get("useJConsole", false);//if user prefers JConsole over natives
+    	cfg.save();
+	}
+
+	//End APP VARS_________________________________
 }
