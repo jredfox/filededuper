@@ -73,7 +73,7 @@ public class SelfCommandPrompt {
 	/**
 	 * NOTE: this is WIP and doesn't support System.in redirect yet, and there are many other issues with it
 	 */
-	public static JConsole startJConsole(String appName)
+	public static JConsole startJConsole(String appId, String appName)
 	{	
 		JConsole console = new JConsole(appName)
 		{
@@ -127,7 +127,7 @@ public class SelfCommandPrompt {
 		
         if(hasJConsole())
         {
-        	startJConsole(appName);
+        	startJConsole(appId, appName);
         	return;
         }
         
@@ -138,22 +138,28 @@ public class SelfCommandPrompt {
 		catch (IOException e) 
 		{
 			e.printStackTrace();
-			startJConsole(appName);
+			startJConsole(appId, appName);
 		}
 	}
 
+	/**
+	 * reboot the program. config sync enabled
+	 */
 	public static void reboot() throws IOException
 	{
 		reboot(wrappedAppId, wrappedAppName, wrappedAppClass, wrappedAppArgs, wrappedPause);
 	}
 	
+	/**
+	 * reboot the program with new args. config sync enabled
+	 */
 	public static void reboot(String[] newArgs) throws IOException
 	{
 		reboot(wrappedAppId, wrappedAppName, wrappedAppClass, newArgs, wrappedPause);
 	}
 	
 	/**
-	 * reboot the program with config sync enabled
+	 * reboot the program. config sync enabled
 	 */
 	public static void reboot(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{
@@ -284,22 +290,6 @@ public class SelfCommandPrompt {
 		return new File(fileName);
 	}
 	
-	public static String getJVMArgsAsString()
-	{
-		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-		List<String> arguments = runtimeMxBean.getInputArguments();
-		StringBuilder b = new StringBuilder();
-		String sep = " ";
-		int index = 0;
-		for(String s : arguments)
-		{
-			s = index + 1 != arguments.size() ? s + sep : s;
-			b.append(s);
-			index++;
-		}
-		return b.toString();
-	}
-	
 	public static List<String> getJVMArgs()
 	{
 		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
@@ -363,21 +353,6 @@ public class SelfCommandPrompt {
 		System.setProperty("user.dir", file.getAbsolutePath());
 	}
 	
-	/**
-	 * get a file extension. Note directories do not have file extensions
-	 */
-	public static String getExtension(File file) 
-	{
-		String name = file.getName();
-		int index = name.lastIndexOf('.');
-		return index != -1 && !file.isDirectory() ? name.substring(index + 1) : "";
-	}
-	
-	public static File getProgramDir()
-	{
-		return new File(System.getProperty("user.dir"));
-	}
-	
 	//Start APP VARS_____________________________
 	
 	public static boolean hasJConsole() 
@@ -429,6 +404,21 @@ public class SelfCommandPrompt {
 	}
 
 	//End APP VARS_________________________________
+	
+	/**
+	 * get a file extension. Note directories do not have file extensions
+	 */
+	public static String getExtension(File file) 
+	{
+		String name = file.getName();
+		int index = name.lastIndexOf('.');
+		return index != -1 && !file.isDirectory() ? name.substring(index + 1) : "";
+	}
+	
+	public static File getProgramDir()
+	{
+		return new File(System.getProperty("user.dir"));
+	}
 	
 	/**
 	 * split with quote ignoring support
