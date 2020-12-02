@@ -5,14 +5,15 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
 import jredfox.filededuper.config.simple.MapConfig;
-import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.cmd.ExeBuilder;
 import jredfox.selfcmd.jconsole.JConsole;
@@ -112,7 +113,7 @@ public class SelfCommandPrompt {
 			return;
 		}
 		
-		syncConfig(appId);//in decompiled will get parsed twice once per boot this is because System.console cannot be detected properly for non eclipse ides if it needs to reboot or not with the native terminal
+		syncConfig();//in decompiled will get parsed twice once per boot this is because System.console cannot be detected properly for non eclipse ides if it needs to reboot or not with the native terminal
         if(hasJConsole())
         {
         	startJConsole(appName);
@@ -141,12 +142,12 @@ public class SelfCommandPrompt {
 	 */
 	public static void reboot(String appId, String appName) throws IOException
 	{
-		syncConfig(appId);
+		syncConfig();
 		ExeBuilder builder = new ExeBuilder();
 		builder.addCommand("java");
 		builder.addCommand(getJVMArgs());
 		String sunCmd = System.getProperty("sun.java.command");
-		boolean isCp = !new File(DeDuperUtil.split(sunCmd, ' ', '"', '"')[0]).exists();
+		boolean isCp = !new File(split(sunCmd, ' ', '"', '"')[0]).exists();
 		builder.addCommand(isCp ? "-cp" : "-jar");
 		if(isCp)
 			builder.addCommand("\"" + System.getProperty("java.class.path") + "\"");
@@ -164,11 +165,11 @@ public class SelfCommandPrompt {
 	 */
 	public static void rebootWithTerminal(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{
-    	if(DeDuperUtil.containsAny(appId, INVALID))
+    	if(containsAny(appId, INVALID))
     		throw new RuntimeException("appId contains illegal parsing characters:(" + appId + "), invalid:" + INVALID);
     	
             String libs = System.getProperty("java.class.path");
-            if(DeDuperUtil.containsAny(libs, INVALID))
+            if(containsAny(libs, INVALID))
             	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + INVALID);
             
             ExeBuilder builder = new ExeBuilder();
@@ -372,9 +373,9 @@ public class SelfCommandPrompt {
 	/**
 	 * configurable per app
 	 */
-	public static void syncConfig(String appId) 
+	public static void syncConfig() 
 	{
-    	MapConfig cfg = new MapConfig(new File(getAppdata(appId), "console.cfg"));
+    	MapConfig cfg = new MapConfig(new File(selfcmd, "console.cfg"));
     	cfg.load();
     	
     	//load the terminal string
@@ -391,4 +392,62 @@ public class SelfCommandPrompt {
 	}
 
 	//End APP VARS_________________________________
+	
+	/**
+	 * split with quote ignoring support
+	 */
+	public static String[] split(String str, char sep, char lquote, char rquote) 
+	{
+		if(str.isEmpty())
+			return new String[]{str};
+		List<String> list = new ArrayList<>();
+		boolean inside = false;
+		for(int i = 0; i < str.length(); i += 1)
+		{
+			String a = str.substring(i, i + 1);
+			String prev = i == 0 ? "a" : str.substring(i-1, i);
+			boolean escape = prev.charAt(0) ==  '\\';
+			if(a.equals("" + lquote) && !escape || a.equals("" + rquote) && !escape)
+			{
+				inside = !inside;
+			}
+			if(a.equals("" + sep) && !inside)
+			{
+				String section = str.substring(0, i);
+				list.add(section);
+				str = str.substring(i + ("" + sep).length(), str.length());
+				i = -1;
+			}
+		}
+		list.add(str);//add the rest of the string
+		return toArray(list, String.class);
+	}
+	
+	public static <T> T[] toArray(Collection<T> col, Class<T> clazz)
+	{
+	    @SuppressWarnings("unchecked")
+		T[] li = (T[]) Array.newInstance(clazz, col.size());
+	    int index = 0;
+	    for(T obj : col)
+	    {
+	        li[index++] = obj;
+	    }
+	    return li;
+	}
+	
+	public static boolean containsAny(String string, String invalid) 
+	{
+		if(string.isEmpty())
+			return invalid.isEmpty();
+		
+		for(int i=0; i < string.length(); i++)
+		{
+			String s = string.substring(i, i + 1);
+			if(invalid.contains(s))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

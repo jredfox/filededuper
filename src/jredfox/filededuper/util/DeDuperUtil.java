@@ -508,18 +508,6 @@ public class DeDuperUtil {
 		return b.toString();
 	}
 	
-    @SuppressWarnings("unchecked")
-	public static <T> T[] toArrayStatic(Collection<T> col, Class<T> clazz)
-	{
-		T[] li = (T[]) Array.newInstance(clazz, col.size());
-	    int index = 0;
-	    for(T obj : col)
-	    {
-	        li[index++] = obj;
-	    }
-	    return li;
-	}
-	
 	/**
 	 * split with quote ignoring support
 	 */
