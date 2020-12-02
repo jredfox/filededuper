@@ -156,7 +156,7 @@ public class SelfCommandPrompt {
 		if(hasJConsole())
 			Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " " + command);
 		else
-			runInNewTerminal(appId, appName, "reboot", command);
+			runInNewTerminal(appId, appName, "reboot", command);//make it so when it reboots it doesn't have to reboot to get command prompt terminal
 		shutdown();
 	}
 
