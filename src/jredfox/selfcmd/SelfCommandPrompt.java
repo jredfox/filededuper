@@ -112,7 +112,7 @@ public class SelfCommandPrompt {
 			return;
 		}
 		
-		syncConfig(appId);
+		syncConfig(appId);//in decompiled will get parsed twice once per boot this is because System.console cannot be detected properly for non eclipse ides if it needs to reboot or not with the native terminal
         if(hasJConsole())
         {
         	startJConsole(appName);
