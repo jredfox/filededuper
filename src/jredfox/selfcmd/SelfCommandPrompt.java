@@ -120,7 +120,7 @@ public class SelfCommandPrompt {
 	{
 		cacheApp(appId, appName, mainClass, args, pause);
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()) )
+		if(!compiled && onlyCompiled || /*compiled && System.console() != null ||*/ isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()) )
 		{
 			return;
 		}
@@ -243,7 +243,17 @@ public class SelfCommandPrompt {
         }
         else if(OSUtil.isLinux())
         {
-        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getLinuxNewWin() + " --title=" + "\"" + appName + "\" " + command);
+        	//apprently linux wants to open the -x in a new tab instead of a new window unless it's a shellscript so force it in a new window
+        	File sh = new File(getAppdata(appId), shName + ".sh");
+        	List<String> cmds = new ArrayList<>();
+        	cmds.add("#!/bin/bash");
+        	cmds.add("set +v");
+        	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");
+        	cmds.add("cd " + getProgramDir().getAbsolutePath());
+        	cmds.add(command);
+        	IOUtils.saveFileLines(cmds, sh, true);
+        	IOUtils.makeExe(sh);
+        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getLinuxNewWin() + " " + sh.getAbsolutePath());
         }
 	}
 	
