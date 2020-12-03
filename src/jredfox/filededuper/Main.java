@@ -56,9 +56,9 @@ public class Main {
 	{
 		MapConfig mainCfg = new MapConfig(new File(getProgramDir(), "filededuper.cfg"));
 		mainCfg.load();
-		genExt = mainCfg.get("genMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
+		genExt = mainCfg.get("genHashesExtension", "*").toLowerCase().replace("\\.", "").split(",");
 		genDupesExt = mainCfg.get("genDupesExtension", "*").toLowerCase().replace("\\.", "").split(",");
-		compareExt = mainCfg.get("compareMD5Extension", "*").toLowerCase().replace("\\.", "").split(",");
+		compareExt = mainCfg.get("compareHashesExtension", "*").toLowerCase().replace("\\.", "").split(",");
 		lowercaseHash = mainCfg.get("lowercaseHash", false);
 		skipGenPluginData = mainCfg.get("skipGenPluginData", false);
 		compareHash = HashType.getByName(mainCfg.get("compareHash", "MD5").toLowerCase().replace("-", ""));//options are MD5, SHA1, SHA256
