@@ -298,12 +298,69 @@ public class SelfCommandPrompt {
 		boolean shouldScan = argsInit.length == 0;
 		if(!msg.isEmpty() && shouldScan)
 			System.out.println(msg);
-		String[] newArgs = shouldScan ? DeDuperUtil.split(Command.getScanner().nextLine(), ' ', '"', '"') : argsInit;
-		if(newArgs.length == 1 && newArgs[0].trim().isEmpty())
+		String[] newArgs = shouldScan ? Command.fixArgs(DeDuperUtil.split(Command.getScanner().nextLine(), ' ', '"', '"')) : argsInit;
+		if(isEmpty(newArgs, true))
 			newArgs = new String[0];//if args are empty from the user simulate it
 		return newArgs;
 	}
 	
+	/**
+	 * execute an external jar file
+	 * WIP: doesn't work yet fully
+	 */
+	public static void exeJar(String[] jvmArgs, File[] libs, String mainClass, String[] argsInit)
+	{
+		String[] newArgs = wrapWithCMD(argsInit);
+		ExeBuilder builder = new ExeBuilder();
+		builder.addCommand("java");
+		builder.addCommand("-cp");
+		builder.addCommand(jvmArgs);
+		builder.addCommand("\"" + getClassPath(libs) + "\"");
+		builder.addCommand(mainClass);
+		builder.addCommand(newArgs);
+		String command = builder.toString();
+		try 
+		{
+			runInTerminal(command);
+		} 
+		catch(IOException e) 
+		{
+			System.out.println("unable to exe jar in terminal this is bad!");
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * get a class path from a list of files
+	 */
+	public static String getClassPath(File[] libs) 
+	{
+		StringBuilder builder = new StringBuilder();
+		int index = 0;
+		for(File f : libs)
+		{
+			
+			builder.append(index + 1 != libs.length ? f + File.pathSeparator : f);//TODO: support directories for * rather then just inputing all the individual files
+			index++;
+		}
+		System.out.println(builder);
+		return builder.toString();
+	}
+
+	/**
+	 * returns if the entire array is empty and whether or not to trim it before hand
+	 */
+	public static boolean isEmpty(String[] arr, boolean trim) 
+	{
+		for(String s : arr)
+		{
+			s = trim ? s.trim() : s;
+			if(!s.isEmpty())
+				return false;
+		}
+		return true;
+	}
+
 	public static void shutdown()
 	{
 		System.gc();

@@ -1,12 +1,14 @@
 package jredfox.filededuper;
 
-import jredfox.selfcmd.jconsole.JConsole;
+import java.io.File;
+
+import jredfox.selfcmd.SelfCommandPrompt;
 
 public class DebugCode {
 	
 	public static void main(String[] args)
 	{
-		System.out.println(" ".charAt(0) == 32);
+		SelfCommandPrompt.getClassPath(new File[]{new File("a"), new File("b")});
 	}
 
 }

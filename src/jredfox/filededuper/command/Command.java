@@ -204,7 +204,7 @@ public abstract class Command<T>{
 		return c;
 	}
 	
-	protected static String[] fixArgs(String[] args) 
+	public static String[] fixArgs(String[] args) 
 	{
 		int index = 0;
 		for(String s : args)
