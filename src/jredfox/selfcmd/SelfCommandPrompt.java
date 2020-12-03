@@ -295,9 +295,13 @@ public class SelfCommandPrompt {
 	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit)
 	{
 		SelfCommandPrompt.runWithCMD(appId, appName, argsInit);
-		if(!msg.isEmpty() && argsInit.length == 0)
+		boolean shouldScan = argsInit.length == 0;
+		if(!msg.isEmpty() && shouldScan)
 			System.out.println(msg);
-		return argsInit.length == 0 ? DeDuperUtil.split(Command.getScanner().nextLine(), ' ', '"', '"') : argsInit;
+		String[] newArgs = shouldScan ? DeDuperUtil.split(Command.getScanner().nextLine(), ' ', '"', '"') : argsInit;
+		if(newArgs.length == 1 && newArgs[0].trim().isEmpty())
+			newArgs = new String[0];//if args are empty from the user simulate it
+		return newArgs;
 	}
 	
 	public static void shutdown()
