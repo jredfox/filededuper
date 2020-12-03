@@ -313,7 +313,8 @@ public class SelfCommandPrompt {
 		ExeBuilder builder = new ExeBuilder();
 		builder.addCommand("java");
 		builder.addCommand("-cp");
-		builder.addCommand(jvmArgs);
+		if(jvmArgs.length != 0)
+			builder.addCommand(jvmArgs);
 		builder.addCommand("\"" + getClassPath(libs) + "\"");
 		builder.addCommand(mainClass);
 		builder.addCommand(args);
