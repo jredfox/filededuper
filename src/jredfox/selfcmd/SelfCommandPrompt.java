@@ -170,7 +170,7 @@ public class SelfCommandPrompt {
 			builder.addCommand("java");
 			builder.addCommand(getJVMArgs());
 			builder.addCommand("-cp");
-			builder.addCommand("\"" + System.getProperty("java.class.path") + "\"");
+			builder.addCommand("\"" + System.getProperty("java.class.path") + "\"");//doesn't need to check parsing chars cause this is a generic reboot and if it reboots with terminal it will catch the error on boot
 			builder.addCommand(mainClass.getName());
 			builder.addCommand(programArgs(args));
 			String command = builder.toString();
