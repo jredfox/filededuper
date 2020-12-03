@@ -120,7 +120,7 @@ public class SelfCommandPrompt {
 	{
 		cacheApp(appId, appName, mainClass, args, pause);
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || /*compiled && System.console() != null ||*/ isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()) )
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || SelfCommandPrompt.class.getName().equals(getMainClassName()) )
 		{
 			return;
 		}
