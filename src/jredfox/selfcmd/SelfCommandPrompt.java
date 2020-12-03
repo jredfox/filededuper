@@ -13,7 +13,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
+import jredfox.filededuper.command.Command;
+import jredfox.filededuper.command.ParamList;
 import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.cmd.ExeBuilder;
 import jredfox.selfcmd.jconsole.JConsole;
@@ -254,6 +257,47 @@ public class SelfCommandPrompt {
         	IOUtils.makeExe(sh);//make it executable
         	Runtime.getRuntime().exec(terminal + " " + OSUtil.getLinuxNewWin() + " " + sh.getAbsolutePath());
         }
+	}
+	
+	/**
+	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input
+	 * @since 2.0.0-rc.7
+	 */	
+	public static String[] wrapWithCMD(String[] argsInit)
+	{
+		return wrapWithCMD("", argsInit);
+	}
+	
+	/**
+	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input
+	 * @since 2.0.0-rc.7
+	 */	
+	public static String[] wrapWithCMD(String msg, String[] argsInit)
+	{
+		Class<?> mainClass = getMainClass();
+		String appId = mainClass.getName().replaceAll("\\.", "/");
+		return wrapWithCMD(msg, appId, appId, mainClass, argsInit);
+	}
+	
+	/**
+	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input
+	 * @since 2.0.0-rc.7
+	 */	
+	public static String[] wrapWithCMD(String msg, String appId, String appName, String[] argsInit)
+	{
+		return wrapWithCMD(msg, appId, appName, getMainClass(), argsInit);
+	}
+	
+	/**
+	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input
+	 * @since 2.0.0-rc.7
+	 */	
+	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit)
+	{
+		SelfCommandPrompt.runWithCMD(appId, appName, argsInit);
+		if(!msg.isEmpty() && argsInit.length == 0)
+			System.out.println(msg);
+		return argsInit.length == 0 ? DeDuperUtil.split(Command.getScanner().nextLine(), ' ', '"', '"') : argsInit;
 	}
 	
 	public static void shutdown()
