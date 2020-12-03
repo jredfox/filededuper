@@ -305,24 +305,23 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * execute an external jar file
+	 * execute an external jar file. doesn't enforce {@link SelfCommandPrompt#runWithCMD(String, String, String[])} or {@link SelfCommandPrompt#wrapWithCMD(String[])} before executing
 	 * WIP: doesn't work yet fully
 	 */
-	public static void exeJar(String[] jvmArgs, File[] libs, String mainClass, String[] argsInit)
+	public static void exeJar(String[] jvmArgs, File[] libs, String mainClass, String[] args)
 	{
-		String[] newArgs = wrapWithCMD(argsInit);
 		ExeBuilder builder = new ExeBuilder();
 		builder.addCommand("java");
 		builder.addCommand("-cp");
 		builder.addCommand(jvmArgs);
 		builder.addCommand("\"" + getClassPath(libs) + "\"");
 		builder.addCommand(mainClass);
-		builder.addCommand(newArgs);
+		builder.addCommand(args);
 		String command = builder.toString();
-		try 
+		try
 		{
 			runInTerminal(command);
-		} 
+		}
 		catch(IOException e) 
 		{
 			System.out.println("unable to exe jar in terminal this is bad!");
@@ -332,6 +331,7 @@ public class SelfCommandPrompt {
 	
 	/**
 	 * get a class path from a list of files
+	 * WIP: doesn't work fully yet
 	 */
 	public static String getClassPath(File[] libs) 
 	{
@@ -340,10 +340,9 @@ public class SelfCommandPrompt {
 		for(File f : libs)
 		{
 			
-			builder.append(index + 1 != libs.length ? f + File.pathSeparator : f);//TODO: support directories for * rather then just inputing all the individual files
+			builder.append(index + 1 != libs.length ? f + File.pathSeparator : f);
 			index++;
 		}
-		System.out.println(builder);
 		return builder.toString();
 	}
 
