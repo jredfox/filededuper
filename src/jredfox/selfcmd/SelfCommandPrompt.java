@@ -35,6 +35,7 @@ public class SelfCommandPrompt {
 	public static Class<?> wrappedAppClass;
 	public static String[] wrappedAppArgs;
 	public static boolean wrappedPause;
+	public static JConsole jconsole;
 	
 	static
 	{
@@ -78,6 +79,8 @@ public class SelfCommandPrompt {
 	 */
 	public static JConsole startJConsole(String appId, String appName)
 	{	
+		if(jconsole != null)
+			throw new RuntimeException("jconsole has already started!");
 		JConsole console = new JConsole(appName)
 		{
 			@Override
@@ -87,8 +90,9 @@ public class SelfCommandPrompt {
 			public boolean shutdown(){return true;}
 		};
 		console.setEnabled(true);
+		jconsole = console;
 		System.out.println("JCONSOLE isn't working yet. Please check back in a future version ;)");
-		return console;
+		return jconsole;
 	}
 	
 	/**
@@ -123,7 +127,7 @@ public class SelfCommandPrompt {
 	{
 		cacheApp(appId, appName, mainClass, args, pause);
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || isWrapped())
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || isWrapped() || jconsole != null)
 		{
 			return;
 		}
