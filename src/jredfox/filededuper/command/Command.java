@@ -191,6 +191,8 @@ public abstract class Command<T>{
 	public static Command<?> nextCommand()
 	{
 		String[] args = SelfCommandPrompt.parseCommandLine(getScanner().nextLine());
+		if(args.length == 0)
+			args = new String[]{""};
 		return fromArgs(args);
 	}
 	

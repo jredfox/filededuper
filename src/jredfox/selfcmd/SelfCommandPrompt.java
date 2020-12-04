@@ -310,20 +310,20 @@ public class SelfCommandPrompt {
 		if(!msg.isEmpty() && shouldScan)
 			System.out.println(msg);
 		
-		String[] newArgs = shouldScan ? parseCommandLine(scanner.nextLine()) : argsInit;
-		if(isEmpty(newArgs, true))
-			newArgs = new String[0];//if args are empty from the user simulate it
-
-		return newArgs;
+		return shouldScan ? parseCommandLine(scanner.nextLine()) : argsInit;
 	}
 
 	public static String[] parseCommandLine(String line) 
 	{
 		String[] args = split(line, ' ', '"', '"');
-		int index = 0;
+		List<String> arr = new ArrayList<>(args.length);
 		for(String s : args)
-			args[index++] = parseQuotes(s.trim(), '"', '"');
-		return args;
+		{
+			String arg = parseQuotes(s.trim(), '"', '"');
+			if(!arg.isEmpty())
+				arr.add(arg);
+		}
+		return toArray(arr, String.class);
 	}
 
 	public static void shutdown()
