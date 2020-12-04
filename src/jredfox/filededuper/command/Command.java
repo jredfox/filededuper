@@ -67,7 +67,7 @@ public abstract class Command<T>{
 	
 	public static Scanner getScanner()
 	{
-		return DeDuperUtil.scanner;
+		return SelfCommandPrompt.scanner;
 	}
 	
 	public boolean hasScanner(String... inputs)
@@ -190,8 +190,7 @@ public abstract class Command<T>{
 
 	public static Command<?> nextCommand()
 	{
-		System.out.println("input cmd");
-		String[] args = SelfCommandPrompt.parseCommandLine(getScanner().next());
+		String[] args = SelfCommandPrompt.parseCommandLine(getScanner().nextLine());
 		return fromArgs(args);
 	}
 	

@@ -28,8 +28,6 @@ import jredfox.filededuper.archive.Zip;
 
 public class DeDuperUtil {
 	
-	public static final Scanner scanner = new Scanner(System.in);
-	
 	public static void move(List<File> files, File input, File outputDir, boolean sameDir)
 	{
 		Set<String> hashes = getHashes(outputDir);

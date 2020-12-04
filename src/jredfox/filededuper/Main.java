@@ -3,12 +3,8 @@ package jredfox.filededuper;
 import java.io.File;
 
 import jredfox.filededuper.command.Command;
-import jredfox.filededuper.command.Commands;
 import jredfox.filededuper.config.simple.MapConfig;
 import jredfox.selfcmd.SelfCommandPrompt;
-import jredfox.selfcmd.jconsole.JConsole;
-import jredfox.selfcmd.thread.ShutdownThread;
-import jredfox.selfcmd.util.OSUtil;
 
 public class Main {
 	
@@ -18,8 +14,8 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-//		args = SelfCommandPrompt.wrapWithCMD(args);
-		SelfCommandPrompt.runWithCMD(appId, appName, args);
+		args = SelfCommandPrompt.wrapWithCMD(args);
+//		SelfCommandPrompt.runWithCMD(appId, appName, args);
 		loadConfigs();
 		System.out.println("Starting " + appName);
 		if(args.length != 0)

@@ -31,6 +31,7 @@ public class SelfCommandPrompt {
 	public static final String VERSION = "2.0.0-rc.9";
 	public static final String INVALID = "\"'`,";
 	public static final File selfcmd = new File(OSUtil.getAppData(), "SelfCommandPrompt");
+	public static final Scanner scanner = new Scanner(System.in);
 	public static String wrappedAppId;
 	public static String wrappedAppName;
 	public static Class<?> wrappedAppClass;
@@ -304,24 +305,16 @@ public class SelfCommandPrompt {
 	 */	
 	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit)
 	{
-		try
-		{
 		SelfCommandPrompt.runWithCMD(appId, appName, mainClass, argsInit, false, true);
 		boolean shouldScan = argsInit.length == 0;
 		if(!msg.isEmpty() && shouldScan)
 			System.out.println(msg);
-		Scanner scanner = new Scanner(System.in);
+		
 		String[] newArgs = shouldScan ? parseCommandLine(scanner.nextLine()) : argsInit;
 		if(isEmpty(newArgs, true))
 			newArgs = new String[0];//if args are empty from the user simulate it
 
 		return newArgs;
-		}
-		catch(Throwable e)
-		{
-			e.printStackTrace();
-		}
-		return argsInit;
 	}
 
 	public static String[] parseCommandLine(String line) 
