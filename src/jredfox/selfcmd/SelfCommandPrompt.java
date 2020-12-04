@@ -18,7 +18,7 @@ import jredfox.filededuper.command.ParamList;
 import jredfox.filededuper.config.simple.MapConfig;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
-import jredfox.selfcmd.cmd.ExeBuilder;
+import jredfox.selfcmd.exe.ExeBuilder;
 import jredfox.selfcmd.jconsole.JConsole;
 import jredfox.selfcmd.util.OSUtil;
 /**
@@ -298,7 +298,7 @@ public class SelfCommandPrompt {
 	 */	
 	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit)
 	{
-		SelfCommandPrompt.runWithCMD(appId, appName, argsInit);
+		SelfCommandPrompt.runWithCMD(appId, appName, mainClass, argsInit, false, true);
 		boolean shouldScan = argsInit.length == 0;
 		if(!msg.isEmpty() && shouldScan)
 			System.out.println(msg);
@@ -306,49 +306,6 @@ public class SelfCommandPrompt {
 		if(isEmpty(newArgs, true))
 			newArgs = new String[0];//if args are empty from the user simulate it
 		return newArgs;
-	}
-	
-	/**
-	 * execute an external jar file. doesn't enforce {@link SelfCommandPrompt#runWithCMD(String, String, String[])} or {@link SelfCommandPrompt#wrapWithCMD(String[])} before executing
-	 * WIP: doesn't work yet fully
-	 */
-	public static void exeJar(String[] jvmArgs, File[] libs, String mainClass, String[] args)
-	{
-		ExeBuilder builder = new ExeBuilder();
-		builder.addCommand("java");
-		builder.addCommand("-cp");
-		if(jvmArgs.length != 0)
-			builder.addCommand(jvmArgs);
-		builder.addCommand("\"" + getClassPath(libs) + "\"");
-		builder.addCommand(mainClass);
-		builder.addCommand(args);
-		String command = builder.toString();
-		try
-		{
-			runInTerminal(command);
-		}
-		catch(IOException e) 
-		{
-			System.out.println("unable to exe jar in terminal this is bad!");
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * get a class path from a list of files
-	 * WIP: doesn't work fully yet
-	 */
-	public static String getClassPath(File[] libs) 
-	{
-		StringBuilder builder = new StringBuilder();
-		int index = 0;
-		for(File f : libs)
-		{
-			
-			builder.append(index + 1 != libs.length ? f + File.pathSeparator : f);
-			index++;
-		}
-		return builder.toString();
 	}
 
 	/**
