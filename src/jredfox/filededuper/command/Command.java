@@ -204,11 +204,14 @@ public abstract class Command<T>{
 		return c;
 	}
 	
-	public static String[] fixArgs(String[] args) 
+	public static String[] fixArgs(String[] args)
 	{
 		int index = 0;
+		String prev = null;
 		for(String s : args)
-			args[index++] = s.trim().replace("\"", "");//trim before spacing so it preserves spaces
+		{
+			args[index++] = DeDuperUtil.parseQuotes(s.trim(), '"', '"');
+		}
 		return args;
 	}
 
