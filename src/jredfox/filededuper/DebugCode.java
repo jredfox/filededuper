@@ -1,19 +1,16 @@
 package jredfox.filededuper;
 
-import java.util.Scanner;
+import java.io.IOException;
 
-import jredfox.filededuper.command.Command;
 import jredfox.selfcmd.SelfCommandPrompt;
 
 public class DebugCode {
 	
-	public static void main(String[] args)
+	public static void main(String[] args) throws IOException
 	{
-		String appId = DebugCode.class.getName().replaceAll("\\.", "/");
-		SelfCommandPrompt.runWithCMD(appId, appId, args);
-        System.out.print("test");
-        String a = new Scanner(System.in).nextLine();
-        System.out.println("out:\"" + a + "\"");
+		args = SelfCommandPrompt.wrapWithCMD("testing>", args);
+		for(String s : args)
+			System.out.println(s);
 	}
 
 }
