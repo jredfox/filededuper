@@ -301,11 +301,21 @@ public class SelfCommandPrompt {
 	/**
 	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
 	 * escape sequences are \char to have actual quotes in the jvm args cross platform
-	 * @since 2.0.0-rc.9
+	 * @since 2.0.0
 	 */	
 	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit)
 	{
-		SelfCommandPrompt.runWithCMD(appId, appName, mainClass, argsInit, false, true);
+		return wrapWithCMD(msg, appId, appName, mainClass, argsInit, false, true);
+	}
+	
+	/**
+	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
+	 * escape sequences are \char to have actual quotes in the jvm args cross platform
+	 * @since 2.0.1
+	 */	
+	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit, boolean onlyCompiled, boolean pause)
+	{
+		SelfCommandPrompt.runWithCMD(appId, appName, mainClass, argsInit, onlyCompiled, pause);
 		boolean shouldScan = argsInit.length == 0;
 		if(!msg.isEmpty() && shouldScan)
 			System.out.print(msg);//don't enforce line feed
@@ -565,20 +575,26 @@ public class SelfCommandPrompt {
 		for(int i=index;i<s.length();i++)
 		{
 			String c = s.substring(i, i + 1);
+			char firstChar = c.charAt(0);
+			if(firstChar == '\\' && prev == '\\')
+			{
+				prev = '/';
+				firstChar = '/';//escape the escape
+			}
 			boolean escaped = prev == '\\';
 			if(hasQuote && !escaped && (count == 0 && c.equals("" + lq) || count == 1 && c.equals("" + rq)))
 			{
 				count++;
 				if(count == 2)
 					break;
-				prev = c.charAt(0);//set previous before skipping
+				prev = firstChar;//set previous before skipping
 				continue;
 			}
 			if(!hasQuote || count == 1)
 			{
 				builder.append(c);
 			}
-			prev = c.charAt(0);//set the previous char here
+			prev = firstChar;//set the previous char here
 		}
 		return lq == rq ? builder.toString().replaceAll("\\\\" + lq, "" + lq) : builder.toString().replaceAll("\\\\" + lq, "" + lq).replaceAll("\\\\" + rq, "" + rq);
 	}

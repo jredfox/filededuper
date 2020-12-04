@@ -302,20 +302,26 @@ public class DeDuperUtil {
 		for(int i=index;i<s.length();i++)
 		{
 			String c = s.substring(i, i + 1);
+			char firstChar = c.charAt(0);
+			if(firstChar == '\\' && prev == '\\')
+			{
+				prev = '/';
+				firstChar = '/';//escape the escape
+			}
 			boolean escaped = prev == '\\';
 			if(hasQuote && !escaped && (count == 0 && c.equals("" + lq) || count == 1 && c.equals("" + rq)))
 			{
 				count++;
 				if(count == 2)
 					break;
-				prev = c.charAt(0);//set previous before skipping
+				prev = firstChar;//set previous before skipping
 				continue;
 			}
 			if(!hasQuote || count == 1)
 			{
 				builder.append(c);
 			}
-			prev = c.charAt(0);//set the previous char here
+			prev = firstChar;//set the previous char here
 		}
 		return lq == rq ? builder.toString().replaceAll("\\\\" + lq, "" + lq) : builder.toString().replaceAll("\\\\" + lq, "" + lq).replaceAll("\\\\" + rq, "" + rq);
 	}
