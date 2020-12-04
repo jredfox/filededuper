@@ -66,7 +66,7 @@ public class SelfCommandPrompt {
 			t.printStackTrace();
 		}
 		
-		if(shouldPause || true)
+		if(shouldPause)
 		{
 			Scanner scanner = new Scanner(System.in).useDelimiter("\n");//Warning says scanner is never closed but, useDelimiter returns itself
 			System.out.println("Press ENTER to continue:");
