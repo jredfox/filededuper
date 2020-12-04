@@ -178,7 +178,8 @@ public class SelfCommandPrompt {
 			builder.addCommand("java");
 			builder.addCommand(getJVMArgs());
 			builder.addCommand("-cp");
-			builder.addCommand("\"" + System.getProperty("java.class.path") + "\"");//doesn't need to check parsing chars cause this is a generic reboot and if it reboots with terminal it will catch the error on boot
+			String q = OSUtil.getQuote();
+			builder.addCommand(q + System.getProperty("java.class.path") + q);//doesn't need to check parsing chars cause this is a generic reboot and if it reboots with terminal it will catch the error on boot
 			builder.addCommand(mainClass.getName());
 			builder.addCommand(programArgs(args));
 			String command = builder.toString();
@@ -207,7 +208,8 @@ public class SelfCommandPrompt {
         	builder.addCommand("java");
         	builder.addCommand(getJVMArgs());
         	builder.addCommand("-cp");
-        	builder.addCommand("\"" + libs + "\"");
+        	String q = OSUtil.getQuote();
+        	builder.addCommand(q + libs + q);
         	builder.addCommand(SelfCommandPrompt.class.getName());
         	builder.addCommand(String.valueOf(pause));
         	builder.addCommand(mainClass.getName());
@@ -312,7 +314,7 @@ public class SelfCommandPrompt {
 		return newArgs;
 	}
 
-	private static String[] parseCommandLine() 
+	public static String[] parseCommandLine() 
 	{
 		String[] args = fixArgs(split(Command.getScanner().nextLine(), ' ', '"', '"'));
 		List<String> list = Arrays.asList(args);
@@ -412,9 +414,11 @@ public class SelfCommandPrompt {
 	
 	public static String[] programArgs(String[] args) 
 	{
+		String q = OSUtil.getQuote();
+		String esc = OSUtil.getEsc();
 		for(int i=0;i<args.length; i++)
 		{
-			args[i] = "\"" + args[i] + "\"";
+			args[i] = q + args[i].replaceAll(q, esc) + q;//wrap the jvm args to the native terminal quotes and escape quotes
 		}
 		return args;
 	}
