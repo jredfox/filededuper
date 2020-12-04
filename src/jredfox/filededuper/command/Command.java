@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.TreeMap;
 
 import jredfox.filededuper.util.DeDuperUtil;
+import jredfox.selfcmd.SelfCommandPrompt;
 
 public abstract class Command<T>{
 	
@@ -189,7 +190,8 @@ public abstract class Command<T>{
 
 	public static Command<?> nextCommand()
 	{
-		String[] args = fixArgs(DeDuperUtil.split(getScanner().nextLine(), ' ', '"', '"'));
+		System.out.println("input cmd");
+		String[] args = SelfCommandPrompt.parseCommandLine(getScanner().next());
 		return fromArgs(args);
 	}
 	
@@ -202,17 +204,6 @@ public abstract class Command<T>{
 		if(c != null)
 			c.parseParamList(getCmdArgs(args));
 		return c;
-	}
-	
-	public static String[] fixArgs(String[] args)
-	{
-		int index = 0;
-		String prev = null;
-		for(String s : args)
-		{
-			args[index++] = DeDuperUtil.parseQuotes(s.trim(), '"', '"');
-		}
-		return args;
 	}
 
 	protected static String[] getCmdArgs(String[] args)

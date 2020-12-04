@@ -28,7 +28,7 @@ import jredfox.selfcmd.util.OSUtil;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "2.0.0";
+	public static final String VERSION = "2.0.0-rc.9";
 	public static final String INVALID = "\"'`,";
 	public static final File selfcmd = new File(OSUtil.getAppData(), "SelfCommandPrompt");
 	public static String wrappedAppId;
@@ -65,7 +65,7 @@ public class SelfCommandPrompt {
 			t.printStackTrace();
 		}
 		
-		if(shouldPause)
+		if(shouldPause || true)
 		{
 			Scanner scanner = new Scanner(System.in).useDelimiter("\n");//Warning says scanner is never closed but, useDelimiter returns itself
 			System.out.println("Press ENTER to continue:");
@@ -300,39 +300,37 @@ public class SelfCommandPrompt {
 	/**
 	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
 	 * escape sequences are \char to have actual quotes in the jvm args cross platform
-	 * @since 2.0.0-rc.8
+	 * @since 2.0.0-rc.9
 	 */	
 	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit)
 	{
+		try
+		{
 		SelfCommandPrompt.runWithCMD(appId, appName, mainClass, argsInit, false, true);
 		boolean shouldScan = argsInit.length == 0;
 		if(!msg.isEmpty() && shouldScan)
 			System.out.println(msg);
-		String[] newArgs = shouldScan ? parseCommandLine() : argsInit;
+		Scanner scanner = new Scanner(System.in);
+		String[] newArgs = shouldScan ? parseCommandLine(scanner.nextLine()) : argsInit;
 		if(isEmpty(newArgs, true))
 			newArgs = new String[0];//if args are empty from the user simulate it
+
 		return newArgs;
-	}
-
-	public static String[] parseCommandLine() 
-	{
-		String[] args = fixArgs(split(Command.getScanner().nextLine(), ' ', '"', '"'));
-		List<String> list = Arrays.asList(args);
-		return (String[]) list.toArray();
-	}
-
-	/**
-	 * returns if the entire array is empty and whether or not to trim it before hand
-	 */
-	public static boolean isEmpty(String[] arr, boolean trim) 
-	{
-		for(String s : arr)
-		{
-			s = trim ? s.trim() : s;
-			if(!s.isEmpty())
-				return false;
 		}
-		return true;
+		catch(Throwable e)
+		{
+			e.printStackTrace();
+		}
+		return argsInit;
+	}
+
+	public static String[] parseCommandLine(String line) 
+	{
+		String[] args = split(line, ' ', '"', '"');
+		int index = 0;
+		for(String s : args)
+			args[index++] = parseQuotes(s.trim(), '"', '"');
+		return args;
 	}
 
 	public static void shutdown()
@@ -502,6 +500,20 @@ public class SelfCommandPrompt {
 	//End APP VARS_________________________________
 	
 	/**
+	 * returns if the entire array is empty and whether or not to trim it before hand
+	 */
+	public static boolean isEmpty(String[] arr, boolean trim) 
+	{
+		for(String s : arr)
+		{
+			s = trim ? s.trim() : s;
+			if(!s.isEmpty())
+				return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * get a file extension. Note directories do not have file extensions
 	 */
 	public static String getExtension(File file) 
@@ -544,17 +556,6 @@ public class SelfCommandPrompt {
 		}
 		list.add(str);//add the rest of the string
 		return toArray(list, String.class);
-	}
-	
-	public static String[] fixArgs(String[] args)
-	{
-		int index = 0;
-		String prev = null;
-		for(String s : args)
-		{
-			args[index++] = parseQuotes(s.trim(), '"', '"');
-		}
-		return args;
 	}
 	
 	public static String parseQuotes(String s, char lq, char rq) 
