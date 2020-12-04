@@ -279,7 +279,7 @@ public class SelfCommandPrompt {
 	/**
 	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
 	 * escape sequences are \char to have actual quotes in the jvm args cross platform
-	 * @since 2.0.0-rc.8
+	 * @since 2.0.0-rc.9
 	 */	
 	public static String[] wrapWithCMD(String msg, String[] argsInit)
 	{
@@ -291,7 +291,7 @@ public class SelfCommandPrompt {
 	/**
 	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
 	 * escape sequences are \char to have actual quotes in the jvm args cross platform
-	 * @since 2.0.0-rc.8
+	 * @since 2.0.0-rc.9
 	 */		
 	public static String[] wrapWithCMD(String msg, String appId, String appName, String[] argsInit)
 	{

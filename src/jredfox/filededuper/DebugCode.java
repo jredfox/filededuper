@@ -1,5 +1,7 @@
 package jredfox.filededuper;
 
+import java.util.Scanner;
+
 import jredfox.filededuper.command.Command;
 import jredfox.selfcmd.SelfCommandPrompt;
 
@@ -7,9 +9,11 @@ public class DebugCode {
 	
 	public static void main(String[] args)
 	{
-		int index = 0;
-		for(String s : args)
-			System.out.println(index++ + "," + s);
+		String appId = DebugCode.class.getName().replaceAll("\\.", "/");
+		SelfCommandPrompt.runWithCMD(appId, appId, args);
+        System.out.print("test");
+        String a = new Scanner(System.in).nextLine();
+        System.out.println("out:\"" + a + "\"");
 	}
 
 }
