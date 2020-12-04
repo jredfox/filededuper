@@ -9,6 +9,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
@@ -273,8 +274,9 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input
-	 * @since 2.0.0-rc.7
+	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
+	 * escape sequences are \char to have actual quotes in the jvm args cross platform
+	 * @since 2.0.0-rc.8
 	 */	
 	public static String[] wrapWithCMD(String msg, String[] argsInit)
 	{
@@ -284,17 +286,19 @@ public class SelfCommandPrompt {
 	}
 	
 	/**
-	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input
-	 * @since 2.0.0-rc.7
-	 */	
+	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
+	 * escape sequences are \char to have actual quotes in the jvm args cross platform
+	 * @since 2.0.0-rc.8
+	 */		
 	public static String[] wrapWithCMD(String msg, String appId, String appName, String[] argsInit)
 	{
 		return wrapWithCMD(msg, appId, appName, getMainClass(), argsInit);
 	}
 	
 	/**
-	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input
-	 * @since 2.0.0-rc.7
+	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
+	 * escape sequences are \char to have actual quotes in the jvm args cross platform
+	 * @since 2.0.0-rc.8
 	 */	
 	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit)
 	{
@@ -302,10 +306,17 @@ public class SelfCommandPrompt {
 		boolean shouldScan = argsInit.length == 0;
 		if(!msg.isEmpty() && shouldScan)
 			System.out.println(msg);
-		String[] newArgs = shouldScan ? Command.fixArgs(DeDuperUtil.split(Command.getScanner().nextLine(), ' ', '"', '"')) : argsInit;
+		String[] newArgs = shouldScan ? parseCommandLine() : argsInit;
 		if(isEmpty(newArgs, true))
 			newArgs = new String[0];//if args are empty from the user simulate it
 		return newArgs;
+	}
+
+	private static String[] parseCommandLine() 
+	{
+		String[] args = Command.fixArgs(split(Command.getScanner().nextLine(), ' ', '"', '"'));
+		List<String> list = Arrays.asList(args);
+		return (String[]) list.toArray();
 	}
 
 	/**
