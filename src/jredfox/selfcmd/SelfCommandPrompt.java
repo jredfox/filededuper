@@ -231,16 +231,9 @@ public class SelfCommandPrompt {
 	 */
 	public static void runInNewTerminal(String appId, String appName, String shName, String command) throws IOException
 	{
-		File log = new File(getAppdata(appId), "logs/log-console.txt");//redirect errors to the log in case it doesn't boot
-		createFileSafley(log);
-		
         if(OSUtil.isWindows())
         {
-        	ProcessBuilder pb = new ProcessBuilder(new String[]{terminal, OSUtil.getExeAndClose(), "start " + "\"" + appName + "\" " + command});
-        	pb.directory(getProgramDir());
-        	pb.redirectInput(log);
-        	pb.redirectError(log);
-        	pb.start();
+        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " start " + "\"" + appName + "\" " + command);
         }
         else if(OSUtil.isMac())
         {
@@ -249,15 +242,11 @@ public class SelfCommandPrompt {
         	cmds.add("#!/bin/bash");
         	cmds.add("set +v");//@Echo off
         	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");//Title
+        	cmds.add("cd " + getProgramDir().getAbsolutePath());//set the proper directory
         	cmds.add(command);//actual command
         	IOUtils.saveFileLines(cmds, sh, true);//save the file
         	IOUtils.makeExe(sh);//make it executable
-
-        	ProcessBuilder pb = new ProcessBuilder(terminal, OSUtil.getExeAndClose(), "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
-        	pb.directory(getProgramDir());
-        	pb.redirectInput(log);
-        	pb.redirectError(log);
-        	pb.start();
+        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
         }
         else if(OSUtil.isLinux())
         {
@@ -266,32 +255,12 @@ public class SelfCommandPrompt {
         	cmds.add("#!/bin/bash");
         	cmds.add("set +v");//@Echo off
         	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");//Title
+        	cmds.add("cd " + getProgramDir().getAbsolutePath());//set the proper directory
         	cmds.add(command);//actual command
         	IOUtils.saveFileLines(cmds, sh, true);//save the file
         	IOUtils.makeExe(sh);//make it executable
-        	
-        	ProcessBuilder pb = new ProcessBuilder(terminal, OSUtil.getLinuxNewWin(), sh.getAbsolutePath());
-        	pb.directory(getProgramDir());
-        	pb.redirectInput(log);
-        	pb.redirectError(log);
-        	pb.start();
+        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getLinuxNewWin() + " " + sh.getAbsolutePath());
         }
-	}
-	
-	public static void createFileSafley(File log)
-	{
-		if(!log.exists())
-		{
-			try 
-			{
-				log.getParentFile().mkdirs();
-				log.createNewFile();
-			} 
-			catch (IOException e) 
-			{
-				e.printStackTrace();
-			}
-		}
 	}
 
 	/**
@@ -502,10 +471,9 @@ public class SelfCommandPrompt {
 	{
     	MapConfig cfg = new MapConfig(new File(selfcmd, "console.cfg"));
     	cfg.load();
-    	
     	//load the terminal string
     	String cfgTerm = cfg.get("terminal", "").trim();
-    	if(cfgTerm.isEmpty())
+    	if(cfgTerm.isEmpty() || !OSUtil.isTerminalValid(cfgTerm))
     	{
     		cfgTerm = OSUtil.getTerminal();//since it's a heavy process cache it to the config
     		cfg.set("terminal", cfgTerm);
