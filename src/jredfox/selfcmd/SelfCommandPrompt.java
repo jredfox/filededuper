@@ -418,9 +418,7 @@ public class SelfCommandPrompt {
 		String q = OSUtil.getQuote();
 		String esc = OSUtil.getEsc();
 		for(int i=0;i<args.length; i++)
-		{
-			args[i] = q + args[i].replaceAll(q, esc) + q;//wrap the jvm args to the native terminal quotes and escape quotes
-		}
+			args[i] =  q + args[i].replaceAll(q, esc + q) + q;//wrap the jvm args to the native terminal quotes and escape quotes
 		return args;
 	}
 	
