@@ -9,15 +9,11 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
-import jredfox.filededuper.command.Command;
-import jredfox.filededuper.command.ParamList;
 import jredfox.filededuper.config.simple.MapConfig;
-import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.exe.ExeBuilder;
 import jredfox.selfcmd.jconsole.JConsole;
@@ -28,7 +24,7 @@ import jredfox.selfcmd.util.OSUtil;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "2.0.0";
+	public static final String VERSION = "2.0.1";
 	public static final String INVALID = "\"'`,";
 	public static final File selfcmd = new File(OSUtil.getAppData(), "SelfCommandPrompt");
 	public static final Scanner scanner = new Scanner(System.in);
@@ -235,9 +231,16 @@ public class SelfCommandPrompt {
 	 */
 	public static void runInNewTerminal(String appId, String appName, String shName, String command) throws IOException
 	{
+		File log = new File(getAppdata(appId), "logs/log-console.txt");//redirect errors to the log in case it doesn't boot
+		createFileSafley(log);
+		
         if(OSUtil.isWindows())
         {
-        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " start " + "\"" + appName + "\" " + command);
+        	ProcessBuilder pb = new ProcessBuilder(new String[]{terminal, OSUtil.getExeAndClose(), "start " + "\"" + appName + "\" " + command});
+        	pb.directory(getProgramDir());
+        	pb.redirectInput(log);
+        	pb.redirectError(log);
+        	pb.start();
         }
         else if(OSUtil.isMac())
         {
@@ -246,11 +249,15 @@ public class SelfCommandPrompt {
         	cmds.add("#!/bin/bash");
         	cmds.add("set +v");//@Echo off
         	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");//Title
-        	cmds.add("cd " + getProgramDir().getAbsolutePath());//set the proper directory
         	cmds.add(command);//actual command
         	IOUtils.saveFileLines(cmds, sh, true);//save the file
         	IOUtils.makeExe(sh);//make it executable
-        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
+
+        	ProcessBuilder pb = new ProcessBuilder(terminal, OSUtil.getExeAndClose(), "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
+        	pb.directory(getProgramDir());
+        	pb.redirectInput(log);
+        	pb.redirectError(log);
+        	pb.start();
         }
         else if(OSUtil.isLinux())
         {
@@ -259,14 +266,34 @@ public class SelfCommandPrompt {
         	cmds.add("#!/bin/bash");
         	cmds.add("set +v");//@Echo off
         	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");//Title
-        	cmds.add("cd " + getProgramDir().getAbsolutePath());//set the proper directory
         	cmds.add(command);//actual command
         	IOUtils.saveFileLines(cmds, sh, true);//save the file
         	IOUtils.makeExe(sh);//make it executable
-        	Runtime.getRuntime().exec(terminal + " " + OSUtil.getLinuxNewWin() + " " + sh.getAbsolutePath());
+        	
+        	ProcessBuilder pb = new ProcessBuilder(terminal, OSUtil.getLinuxNewWin(), sh.getAbsolutePath());
+        	pb.directory(getProgramDir());
+        	pb.redirectInput(log);
+        	pb.redirectError(log);
+        	pb.start();
         }
 	}
 	
+	public static void createFileSafley(File log)
+	{
+		if(!log.exists())
+		{
+			try 
+			{
+				log.getParentFile().mkdirs();
+				log.createNewFile();
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input
 	 * @since 2.0.0-rc.7
@@ -499,20 +526,6 @@ public class SelfCommandPrompt {
 	}
 
 	//End APP VARS_________________________________
-	
-	/**
-	 * returns if the entire array is empty and whether or not to trim it before hand
-	 */
-	public static boolean isEmpty(String[] arr, boolean trim) 
-	{
-		for(String s : arr)
-		{
-			s = trim ? s.trim() : s;
-			if(!s.isEmpty())
-				return false;
-		}
-		return true;
-	}
 	
 	/**
 	 * get a file extension. Note directories do not have file extensions
