@@ -9,13 +9,12 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.14.3";
+	public static final String VERSION = "0.14.4";
 	public static final String appName = "File De-Duper " + VERSION;
 	public static final String appId = "File-De-Duper";
 	
 	public static void main(String[] args)
 	{
-//		args = SelfCommandPrompt.wrapWithCMD("", "filededuper", "AppNAME", Main.class, args, false, true);
 		SelfCommandPrompt.runWithCMD(appId, appName, args);
 		loadConfigs();
 		System.out.println("Starting " + appName);
