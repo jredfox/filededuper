@@ -40,22 +40,22 @@ public class IOUtils {
    	 	}
 	}
 	
-	public static void closeQuietly(Closeable zip)
+	public static void closeQuietly(Closeable clos)
 	{
-		close(zip, false);
+		close(clos, false);
 	}
 	
-	public static void close(Closeable out)
+	public static void close(Closeable clos)
 	{
-		close(out, true);
+		close(clos, true);
 	}
 
-	public static void close(Closeable out, boolean print)
+	public static void close(Closeable clos, boolean print)
 	{
 		try 
 		{
-			if(out != null)
-				out.close();
+			if(clos != null)
+				clos.close();
 		}
 		catch (IOException e)
 		{
@@ -93,17 +93,7 @@ public class IOUtils {
 		}
 		finally
 		{
-			if(writer != null)
-			{
-				try
-				{
-					writer.close();
-				}
-				catch(Exception e)
-				{
-					System.out.println("Unable to Close OutputStream this is bad");
-				}
-			}
+			close(writer);
 		}
 	}
 	
@@ -139,7 +129,7 @@ public class IOUtils {
 		List<String> list = null;
 		try
 		{
-			list = new ArrayList();
+			list = new ArrayList<>();
 			String s = reader.readLine();
 			
 			if(s != null)
@@ -200,6 +190,5 @@ public class IOUtils {
 	{
 		return new BufferedReader(new InputStreamReader(IOUtils.class.getClassLoader().getResourceAsStream(input)));
 	}
-
 
 }

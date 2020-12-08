@@ -19,6 +19,7 @@ public abstract class Command<T>{
 	public List<String> names;
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	public ParamList<T> params;
+	public boolean err;
 	
 	public Command(String... ids)
 	{
@@ -34,21 +35,6 @@ public abstract class Command<T>{
 		}
 		this.register();
 	}
-	
-	protected void register() 
-	{
-		cmds.put(this.id, this);
-	}
-	
-	public boolean isCommand(String compareId)
-	{
-		return this.ids.contains(compareId);
-	}
-	
-	public boolean isAliases(String compareId)
-	{
-		return this.ids.indexOf(compareId) > 0;
-	}
 
 	public abstract String[] displayArgs();
 	public abstract T[] parse(String... args);
@@ -56,7 +42,18 @@ public abstract class Command<T>{
 	
 	public void run()
 	{
+		this.setErr(false);
 		this.run(this.params);
+	}
+	
+	public void setErr(boolean err)
+	{
+		this.err = err;
+	}
+	
+	public boolean isErr()
+	{
+		return this.err;
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -71,6 +68,21 @@ public abstract class Command<T>{
 		{
 			throw new CommandParseException(e);
 		}
+	}
+	
+	protected void register() 
+	{
+		cmds.put(this.id, this);
+	}
+	
+	public boolean isCommand(String compareId)
+	{
+		return this.ids.contains(compareId);
+	}
+	
+	public boolean isAliases(String compareId)
+	{
+		return this.ids.indexOf(compareId) > 0;
 	}
 	
 	public static Scanner getScanner()
@@ -172,7 +184,9 @@ public abstract class Command<T>{
 		Commands.load();
 		Command<?> fetched = cmds.get(id);//the hashing algorithm will make it faster
 		Command<?> cmd = fetched != null ? fetched : getByAliases(id);
-		return cmd != null ? cmd : new CommandInvalid(id);
+		Command<?> actual = cmd != null ? cmd : new CommandInvalid(id);
+		actual.setErr(false);
+		return actual;
 	}
 
 	public static Command<?> getByAliases(String id)
@@ -216,7 +230,7 @@ public abstract class Command<T>{
 				c.parseParamList(getCmdArgs(args));
 			}
 			catch(CommandParseException e) {
-				return new CommandInvalidParse(DeDuperUtil.toString(args, " "), "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")");
+				return new CommandInvalidParse(DeDuperUtil.toString(args, " "), " Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")");
 			}
 		}
 		return c;
@@ -252,6 +266,7 @@ public abstract class Command<T>{
 		try
 		{
 			command.run();
+			errored = command.isErr();
 		}
 		catch(Exception e)
 		{

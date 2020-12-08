@@ -64,7 +64,7 @@ public class JarUtil {
 		{
 			e.printStackTrace();
 		}
-		IOUtils.close(jar, true);
+		IOUtils.close(jar);
 		return modded;
 	}
 	
@@ -256,7 +256,7 @@ public class JarUtil {
 		}
 		finally
 		{
-			IOUtils.close(zip, true);
+			IOUtils.close(zip);
 		}
 		return -1;
 	}
