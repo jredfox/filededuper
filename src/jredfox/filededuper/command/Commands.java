@@ -377,7 +377,7 @@ public class Commands {
 		@Override
 		public String[] displayArgs() 
 		{
-			return new String[]{"File"};
+			return new String[]{"File & Long"};
 		}
 	};
 	
@@ -427,7 +427,7 @@ public class Commands {
 		@Override
 		public String[] displayArgs()
 		{
-			return new String[]{"Archive-File"};
+			return new String[]{"Archive-File & Long"};
 		}
 	};
 	

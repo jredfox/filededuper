@@ -1,6 +1,6 @@
 package jredfox.filededuper.command;
 
-public final class CommandInvalid extends Command<Object>{
+public class CommandInvalid extends Command<Object>{
 	
 	public CommandInvalid(String... args)
 	{

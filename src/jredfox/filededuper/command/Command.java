@@ -60,9 +60,17 @@ public abstract class Command<T>{
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void parseParamList(String[] args)
+	public void parseParamList(String[] args) throws CommandParseException
 	{
-		this.params = new ParamList(this.parse(args));
+		try
+		{
+			T[] params = this.parse(args);
+			this.params = new ParamList(params);
+		}
+		catch(Exception e)
+		{
+			throw new CommandParseException(e);
+		}
 	}
 	
 	public static Scanner getScanner()
@@ -202,8 +210,15 @@ public abstract class Command<T>{
 	public static Command<?> fromArgs(String[] args) 
 	{
 		Command<?> c = Command.get(args[0]);
-		if(c != null)
-			c.parseParamList(getCmdArgs(args));
+		if(c != null) 
+		{
+			try {
+				c.parseParamList(getCmdArgs(args));
+			}
+			catch(CommandParseException e) {
+				return new CommandInvalidParse(DeDuperUtil.toString(args, " "), "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")");
+			}
+		}
 		return c;
 	}
 
