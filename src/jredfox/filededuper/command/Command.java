@@ -215,7 +215,7 @@ public abstract class Command<T>{
 			System.arraycopy(args, 1, actualArgs, 0, actualArgs.length);
 			return actualArgs;
 		}
-		return args;
+		return new String[]{""};
 	}
 
 	/**
