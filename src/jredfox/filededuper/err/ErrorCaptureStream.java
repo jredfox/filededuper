@@ -1,8 +1,10 @@
 package jredfox.filededuper.err;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,17 +13,25 @@ public class ErrorCaptureStream extends PrintStream {
 	/**
 	 * the current error. If it's not empty this means something printed to the error stream
 	 */
-	public volatile Map<Thread, String> errMap = new HashMap<>();
+	public volatile Map<Thread, List<String>> errMap = new HashMap<>();
 	/**
 	 * whitelist of threads to listen to for errors
 	 */
 	public volatile Set<Thread> captures = new HashSet<>(1);
-	public PrintStream old;
+	/**
+	 * the child or wrapped PrintStream object
+	 */
+	public PrintStream child;
+	
+	public ErrorCaptureStream()
+	{
+		this(System.err);
+	}
 	
 	public ErrorCaptureStream(PrintStream out) 
 	{
 		super(out);
-		this.old = out;
+		this.child = out;
 	}
 	
     @Override
@@ -76,7 +86,13 @@ public class ErrorCaptureStream extends PrintStream {
     	Thread t = Thread.currentThread();
     	if(this.captures.contains(t))
     	{
-    		this.errMap.put(t, str);
+    		List<String> builder = this.errMap.get(t);
+    		if(builder == null)
+    		{
+    			builder = new ArrayList<>();
+    			this.errMap.put(t, builder);
+    		}
+    		builder.add(str);
     	}
     }
     
@@ -91,7 +107,7 @@ public class ErrorCaptureStream extends PrintStream {
 		this.errMap.remove(t);
 	}
 	
-	public boolean hasErr() 
+	public boolean hasErr()
 	{
 		return !this.errMap.isEmpty();
 	}

@@ -264,6 +264,7 @@ public abstract class Command<T> {
 		{
 			capture.stop();
 			errored = capture.hasError;
+			System.gc();//cleanup the garbage from the ErrorCapture and any data from the running command
 		}
 		if(!(command instanceof CommandInvalid))
 			System.out.println("finished:" + command.name + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
