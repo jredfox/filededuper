@@ -2,6 +2,9 @@ package jredfox.filededuper.err;
 
 import java.util.Set;
 
+/**
+ * this class allows you to detect if an error was handled and printed the stacktrace
+ */
 public class ErrorCapture {
 	
 	public ErrorCaptureStream stream;
