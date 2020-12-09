@@ -1,5 +1,6 @@
 package jredfox.filededuper.err;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,24 +26,29 @@ public class ErrorCapture {
 	
 	public void stop()
 	{
-		this.hasError = !this.stream.currentErr.isEmpty();
+		this.hasError = this.stream.hasErr();
 		System.setErr(this.stream.old);
 		this.stream = null;
 	}
 	
 	public void addCapture(Thread t)
 	{
-		this.stream.captures.add(t);
+		this.stream.addCapture(t);
 	}
 	
 	public void removeCapture(Thread t)
 	{
-		this.stream.captures.remove(t);
+		this.stream.removeCapture(t);
 	}
 	
 	public Set<Thread> getCaptures()
 	{
 		return this.stream.captures;
+	}
+	
+	public Map<Thread, String> getErrMap()
+	{
+		return this.stream.errMap;
 	}
 
 }
