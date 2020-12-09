@@ -1,6 +1,5 @@
-package jredfox.filededuper;
+package jredfox.filededuper.err;
 
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,13 +14,12 @@ public class ErrorCaptureStream extends PrintStream {
 	 * whitelist of threads to listen to for errors
 	 */
 	public volatile Set<Thread> captures = new HashSet<>(1);
-	public OutputStream old;
+	public PrintStream old;
 	
-	public ErrorCaptureStream(OutputStream out) 
+	public ErrorCaptureStream(PrintStream out) 
 	{
 		super(out);
 		this.old = out;
-		this.captures.add(Thread.currentThread());
 	}
 	
     @Override

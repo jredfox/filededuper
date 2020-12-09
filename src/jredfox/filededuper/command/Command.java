@@ -1,7 +1,6 @@
 package jredfox.filededuper.command;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-import jredfox.filededuper.ErrorCaptureStream;
+import jredfox.filededuper.err.ErrorCapture;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
 
@@ -21,7 +20,6 @@ public abstract class Command<T> {
 	public List<String> names;
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	public ParamList<T> params;
-	public boolean err;
 	
 	public Command(String... ids)
 	{
@@ -52,13 +50,11 @@ public abstract class Command<T> {
 	{
 		try
 		{
-			this.setErr(false);
 			T[] params = this.parse(args);
 			this.params = new ParamList(params);
 		}
 		catch(Exception e)
 		{
-			this.setErr(true);
 			throw new CommandParseException(e);
 		}
 	}
@@ -76,16 +72,6 @@ public abstract class Command<T> {
 	public boolean isAliases(String compareId)
 	{
 		return this.ids.indexOf(compareId) > 0;
-	}
-	
-	public boolean isErr()
-	{
-		return this.err;
-	}
-	
-	public void setErr(boolean err)
-	{
-		this.err = err;
 	}
 	
 	public static Scanner getScanner()
@@ -187,9 +173,7 @@ public abstract class Command<T> {
 		Commands.load();
 		Command<?> fetched = cmds.get(id);//the hashing algorithm will make it faster
 		Command<?> cmd = fetched != null ? fetched : getByAliases(id);
-		Command<?> actual = cmd != null ? cmd : new CommandInvalid(id);
-		actual.setErr(false);
-		return actual;
+		return cmd != null ? cmd : new CommandInvalid(id);
 	}
 
 	public static Command<?> getByAliases(String id)
@@ -265,29 +249,24 @@ public abstract class Command<T> {
 	public static void run(Command<?> command)
 	{
 		long ms = System.currentTimeMillis();
-		PrintStream old = System.err;
-		ErrorCaptureStream errTst = new ErrorCaptureStream(System.err);
-		System.setErr(errTst);
+		ErrorCapture capture = new ErrorCapture();
+		capture.start();
 		boolean errored = false;
 		try
 		{
 			command.run();
-			errored = command.isErr();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-//			errored = true;//no longer needed since I have the error capture stream
 		}
 		finally
 		{
-			if(!errTst.currentErr.isEmpty())
-				errored = true;
-			System.setErr(old);
+			capture.stop();
+			errored = capture.hasError;
 		}
 		if(!(command instanceof CommandInvalid))
 			System.out.println("finished:" + command.name + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
-		command.setErr(false);
 	}
 
 }
