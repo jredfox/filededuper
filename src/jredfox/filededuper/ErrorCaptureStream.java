@@ -14,14 +14,14 @@ public class ErrorCaptureStream extends PrintStream {
 	/**
 	 * whitelist of threads to listen to for errors
 	 */
-	public volatile Set<Thread> captureThreads = new HashSet<>(1);
+	public volatile Set<Thread> captures = new HashSet<>(1);
 	public OutputStream old;
 	
 	public ErrorCaptureStream(OutputStream out) 
 	{
 		super(out);
 		this.old = out;
-		this.captureThreads.add(Thread.currentThread());
+		this.captures.add(Thread.currentThread());
 	}
 	
     @Override
@@ -73,7 +73,7 @@ public class ErrorCaptureStream extends PrintStream {
 
     public void notifyListener(String str) 
     {
-    	if(this.captureThreads.contains(Thread.currentThread()))
+    	if(this.captures.contains(Thread.currentThread()))
     		this.currentErr = str;
     }
 

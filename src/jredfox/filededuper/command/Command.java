@@ -13,7 +13,7 @@ import jredfox.filededuper.ErrorCaptureStream;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
 
-public abstract class Command<T>{
+public abstract class Command<T> {
 	
 	public String id;//ids are lowercased enforced
 	public String name;
@@ -47,16 +47,6 @@ public abstract class Command<T>{
 		this.run(this.params);
 	}
 	
-	public void setErr(boolean err)
-	{
-		this.err = err;
-	}
-	
-	public boolean isErr()
-	{
-		return this.err;
-	}
-	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void parseParamList(String[] args) throws CommandParseException
 	{
@@ -86,6 +76,16 @@ public abstract class Command<T>{
 	public boolean isAliases(String compareId)
 	{
 		return this.ids.indexOf(compareId) > 0;
+	}
+	
+	public boolean isErr()
+	{
+		return this.err;
+	}
+	
+	public void setErr(boolean err)
+	{
+		this.err = err;
 	}
 	
 	public static Scanner getScanner()
