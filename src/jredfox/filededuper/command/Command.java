@@ -1,6 +1,7 @@
 package jredfox.filededuper.command;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
+import jredfox.filededuper.ErrorCaptureStream;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
 
@@ -42,7 +44,6 @@ public abstract class Command<T>{
 	
 	public void run()
 	{
-		this.setErr(false);
 		this.run(this.params);
 	}
 	
@@ -61,11 +62,13 @@ public abstract class Command<T>{
 	{
 		try
 		{
+			this.setErr(false);
 			T[] params = this.parse(args);
 			this.params = new ParamList(params);
 		}
 		catch(Exception e)
 		{
+			this.setErr(true);
 			throw new CommandParseException(e);
 		}
 	}
@@ -262,6 +265,9 @@ public abstract class Command<T>{
 	public static void run(Command<?> command)
 	{
 		long ms = System.currentTimeMillis();
+		PrintStream old = System.err;
+		ErrorCaptureStream errTst = new ErrorCaptureStream(System.err);
+		System.setErr(errTst);
 		boolean errored = false;
 		try
 		{
@@ -272,6 +278,14 @@ public abstract class Command<T>{
 		{
 			e.printStackTrace();
 			errored = true;
+		}
+		finally
+		{
+			if(!errTst.currentErr.isEmpty())
+			{
+				errored = true;
+			}
+			System.setErr(old);
 		}
 		if(!(command instanceof CommandInvalid))
 			System.out.println("finished:" + command.name + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");

@@ -307,7 +307,6 @@ public class Commands {
 			}
 			catch(Exception e)
 			{
-				this.setErr(true);
 				e.printStackTrace();
 			}
 		}
@@ -421,7 +420,6 @@ public class Commands {
 			}
 			catch(Exception e)
 			{
-				this.setErr(true);
 				e.printStackTrace();
 			}
 		}
@@ -471,7 +469,6 @@ public class Commands {
 			}
 			catch(Exception e)
 			{
-				this.setErr(true);
 				e.printStackTrace();
 			}
 		}
@@ -524,7 +521,6 @@ public class Commands {
 			}
 			catch(Exception e)
 			{
-				this.setErr(true);
 				e.printStackTrace();
 			}
 		}
@@ -607,9 +603,8 @@ public class Commands {
 			}
 			catch (IOException e) 
 			{
-				this.setErr(true);
 				e.printStackTrace();
-				System.out.println("unable to reboot");
+				System.err.println("unable to reboot");
 			}
 		}
 	};
