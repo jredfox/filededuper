@@ -277,18 +277,17 @@ public abstract class Command<T>{
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			errored = true;
+//			errored = true;//no longer needed since I have the error capture stream
 		}
 		finally
 		{
 			if(!errTst.currentErr.isEmpty())
-			{
 				errored = true;
-			}
 			System.setErr(old);
 		}
 		if(!(command instanceof CommandInvalid))
 			System.out.println("finished:" + command.name + " command " + (errored ? "with errors" : "successfully") + " in:" + (System.currentTimeMillis() - ms) + "ms");
+		command.setErr(false);
 	}
 
 }

@@ -439,14 +439,6 @@ public class DeDuperUtil {
 
 	public static void genHashes(File dir, File file, Set<String> hashes, List<String> list)
 	{
-		try
-		{
-			Integer.parseInt("a");
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
 		String hash = DeDuperUtil.getCompareHash(file);
 		if(hashes.contains(hash))
 			return;
