@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.exe.ExeBuilder;
 import jredfox.selfcmd.jconsole.JConsole;
@@ -25,7 +26,7 @@ import jredfox.selfcmd.util.OSUtil;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "2.0.2";
+	public static final String VERSION = "2.0.3";
 	public static final String INVALID = "\"'`,";
 	public static final File selfcmd = new File(OSUtil.getAppData(), "SelfCommandPrompt");
 	public static final Scanner scanner = new Scanner(System.in);
@@ -35,6 +36,7 @@ public class SelfCommandPrompt {
 	public static String[] wrappedAppArgs;
 	public static boolean wrappedPause;
 	public static JConsole jconsole;
+	public static String testArgs;
 	
 	static
 	{
@@ -47,12 +49,14 @@ public class SelfCommandPrompt {
 	@SuppressWarnings("resource")
 	public static void main(String[] args)
 	{
+		testArgs = DeDuperUtil.toString(args, " ");
 		boolean shouldPause = Boolean.parseBoolean(args[0]);
 		
 		try
 		{
 			Class<?> mainClass = Class.forName(args[1]);
 			wrappedAppClass = mainClass;
+			System.out.println("wrapped in main:" + wrappedAppClass);
 			String[] programArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, programArgs, 0, programArgs.length);
 			Method method = mainClass.getMethod("main", String[].class);
@@ -97,6 +101,18 @@ public class SelfCommandPrompt {
 		jconsole = console;
 		System.out.println("JCONSOLE isn't working yet. Please check back in a future version ;)");
 		return jconsole;
+	}
+	
+	/**
+	 * ensure your program boots up with a command prompt terminal either a native configurable os terminal or JConsole.
+	 * If you hard code your main class it won't support wrappers like eclipe's jar in jar loader.
+	 * if you have connections in jvm args close them before reboot if {@link SelfCommandPrompt#hasJConsole()} returns false
+	 * @Since 2.0.3
+	 */
+	public static void runWithCMD(String[] args)
+	{
+		String appId = suggestAppId(getMainClassName());
+		runWithCMD(appId, appId, args);
 	}
 	
 	/**
@@ -191,6 +207,7 @@ public class SelfCommandPrompt {
 		}
 		else
 		{
+			System.out.println(mainClass + "," + wrappedAppClass + "," + getMainClass());
 			rebootWithTerminal(appId, appName, mainClass, args, pause);
 		}
 	}
@@ -285,9 +302,8 @@ public class SelfCommandPrompt {
 	 */	
 	public static String[] wrapWithCMD(String msg, String[] argsInit)
 	{
-		Class<?> mainClass = getMainClass();
-		String appId = mainClass.getName().replaceAll("\\.", "/");
-		return wrapWithCMD(msg, appId, appId, mainClass, argsInit);
+		String appId = suggestAppId();
+		return wrapWithCMD(msg, appId, appId, argsInit);
 	}
 	
 	/**
@@ -336,6 +352,30 @@ public class SelfCommandPrompt {
 				arr.add(arg);
 		}
 		return toArray(arr, String.class);
+	}
+	
+	/**
+	 * return the suggested appId based on the main class name
+	 */
+	public static String suggestAppId()
+	{
+		return suggestAppId(getMainClassName());
+	}
+	
+	/**
+	 * return the suggested appId based on the main class name
+	 */
+	public static String suggestAppId(Class<?> clazz)
+	{
+		return suggestAppId(clazz.getName());
+	}
+	
+	/**
+	 * return the suggested appId based on the main class name
+	 */
+	public static String suggestAppId(String name)
+	{
+		return name.replaceAll("\\.", "/");
 	}
 
 	public static void shutdown()
@@ -492,11 +532,13 @@ public class SelfCommandPrompt {
 	
 	public static void cacheApp(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) 
 	{
+//		System.out.println("cacheApp:" + mainClass + " wrapped:" + wrappedAppClass);
 		wrappedAppId = appId;
 		wrappedAppName = appName;
 		wrappedAppClass = SelfCommandPrompt.class.equals(mainClass) ? wrappedAppClass : mainClass;
 		wrappedAppArgs = args;
 		wrappedPause = pause;
+//		System.out.println(mainClass + "," + wrappedAppClass + "," + SelfCommandPrompt.class.equals(mainClass));
 	}
 
 	//End APP VARS_________________________________
