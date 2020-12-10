@@ -3,9 +3,9 @@ package jredfox.filededuper.command;
 public class CommandInvalidParse extends CommandInvalid{
 	
 	public String msg;
-	public CommandInvalidParse(String cmd, String msg)
+	public CommandInvalidParse(String id, String msg)
 	{
-		super(cmd);
+		super("parsingException_" + id);
 		this.msg = msg;
 	}
 	

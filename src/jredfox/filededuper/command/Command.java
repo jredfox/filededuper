@@ -217,7 +217,7 @@ public abstract class Command<T> {
 				c.parseParamList(getCmdArgs(args));
 			}
 			catch(CommandParseException e) {
-				return new CommandInvalidParse("parsingException_" + c.id, "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")");
+				return new CommandInvalidParse(c.id, "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")");
 			}
 		}
 		return c;

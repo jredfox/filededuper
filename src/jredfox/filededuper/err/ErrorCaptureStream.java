@@ -17,7 +17,7 @@ public class ErrorCaptureStream extends PrintStream {
 	/**
 	 * whitelist of threads to listen to for errors
 	 */
-	public volatile Set<Thread> captures = new HashSet<>(1);
+	public volatile Set<Thread> captures = new HashSet<>(2);
 	/**
 	 * the child or wrapped PrintStream object
 	 */

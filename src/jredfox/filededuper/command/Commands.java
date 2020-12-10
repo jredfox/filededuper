@@ -289,25 +289,17 @@ public class Commands {
 		@Override
 		public void run(ParamList<File> params)
 		{
-			try
+			File jar = params.get(0);
+			File orgJar = params.get(1);
+			if(jar.equals(orgJar))
 			{
-				File jar = params.get(0);
-				File orgJar = params.get(1);
-				
-				if(jar.equals(orgJar))
-				{
-					if(JarUtil.dumpJarMod(jar))
-						System.out.println("Dumped jarMod");
-				}
-				else
-				{
-					if(JarUtil.dumpJarMod(jar, orgJar))
-						System.out.println("Dumped jarMod");
-				}
+				if(JarUtil.dumpJarMod(jar))
+					System.out.println("Dumped jarMod");
 			}
-			catch(Exception e)
+			else
 			{
-				e.printStackTrace();
+				if(JarUtil.dumpJarMod(jar, orgJar))
+					System.out.println("Dumped jarMod");
 			}
 		}
 
@@ -452,7 +444,7 @@ public class Commands {
 				File file = params.get(0);
 				ZipFile zip = new ZipFile(file);
 				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-				long timestamp = JarUtil.getCompileTime(entries);
+				long timestamp = JarUtil.getCompileTime(file, entries);
 				boolean consistent = true;
 				for(ZipEntry e : entries)
 				{
@@ -501,7 +493,7 @@ public class Commands {
 				File file = params.get(0);
 				ZipFile zip = new ZipFile(file);
 				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-				long timestamp = JarUtil.getCompileTime(entries);
+				long timestamp = JarUtil.getCompileTime(file, entries);
 				boolean consistent = false;
 				for(ZipEntry e : entries)
 				{

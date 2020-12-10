@@ -490,9 +490,9 @@ public class DeDuperUtil {
 	{
 		Zip jar = JarUtil.getZipFile(file);
 		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
-		long compileTime = JarUtil.getCompileTime(entries);
+		long compileTime = JarUtil.getCompileTime(file, entries);
 		boolean modified = JarUtil.isJarModded(jar.file, entries, Main.checkJarSigned);
-		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(entries);
+		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(file, entries);
 		IOUtils.close(jar, true);
 		return compileTime + "," + modified + "," + consistency;
 	}

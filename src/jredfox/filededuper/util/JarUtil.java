@@ -100,7 +100,7 @@ public class JarUtil {
 	/**
 	 * @return if the jar was modded and dumped
 	 */
-	public static boolean dumpJarMod(File file) throws IOException
+	public static boolean dumpJarMod(File file)
 	{
 		ZipFile zip = null;
 		try
@@ -163,8 +163,8 @@ public class JarUtil {
 	 */
 	public static List<ArchiveEntry> getModdedFiles(ZipFile zip, List<ZipEntry> entries)
 	{
-		List<ArchiveEntry> entriesOut = new ArrayList();
-		long compileTime = getCompileTime(entries);
+		List<ArchiveEntry> entriesOut = new ArrayList<>();
+		long compileTime = getCompileTime(getFile(zip), entries);
 		long minTime = getMinTime(compileTime);
 		long maxTime = getMaxTime(compileTime);
 		
@@ -178,6 +178,11 @@ public class JarUtil {
 		return entriesOut;
 	}
 	
+	public static File getFile(ZipFile zip) 
+	{
+		return new File(zip.getName());
+	}
+
 	public static boolean isEntryModified(ZipEntry entry, long compileTime, long minTime, long maxTime)
 	{
 		long time = entry.getTime();
@@ -248,7 +253,7 @@ public class JarUtil {
 		try
 		{
 			zip = new ZipFile(file);
-			return getCompileTime(JarUtil.getZipEntries(zip));
+			return getCompileTime(file, JarUtil.getZipEntries(zip));
 		} 
 		catch (IOException e) 
 		{
@@ -261,9 +266,9 @@ public class JarUtil {
 		return -1;
 	}
 	
-	public static long getCompileTime(List<ZipEntry> entries)
+	public static long getCompileTime(File zipFile, List<ZipEntry> entries)
 	{
-		return Main.compileTimePoints ? getCompileTimePoints(entries) : getCompileTimeLeast(entries);
+		return Main.compileTimePoints ? getCompileTimePoints(zipFile, entries) : getCompileTimeLeast(entries);
 	}
 	
 	/**
@@ -288,7 +293,7 @@ public class JarUtil {
 	/**
 	 * gets compile time based on program dir points
 	 */
-	public static long getCompileTimePoints(List<ZipEntry> entries)
+	public static long getCompileTimePoints(File zipFile, List<ZipEntry> entries)
 	{
 		List<PointTimeEntry> points = new ArrayList<>();
 		//compile times in an arraylist of ranges
@@ -326,7 +331,7 @@ public class JarUtil {
 				}
 				);
 		if(points.isEmpty())
-			throw new RuntimeException("Program Directory for DeDuperUtil#getCompileTimePoints() is not found. Add one to the config");
+			throw new RuntimeException("JarUtil#getCompileTimePoints() couldn't find program dir add one to the config:" + zipFile.getAbsolutePath());
 		PointTimeEntry point = points.get(0);
 		long ms = point.getPointEntry().getKey();
 		return ms;
@@ -538,7 +543,7 @@ public class JarUtil {
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> hashes = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha-1, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
-			long compileTime = JarUtil.getCompileTime(entries);
+			long compileTime = JarUtil.getCompileTime(f, entries);
 			long minTime = JarUtil.getMinTime(compileTime);
 			long maxTime = JarUtil.getMaxTime(compileTime);
 			
@@ -593,12 +598,12 @@ public class JarUtil {
 	 * {@link Consistencies#none} if the jar's resources are inconsistent with compile time not all classes are matching and no resources are matching.
 	 * this isn't a boolean for is modded just an enum for how the compiler/obfuscator/jar signer works.
 	 */
-	public static Consistencies getConsistentcy(List<ZipEntry> entries) 
+	public static Consistencies getConsistentcy(File f, List<ZipEntry> entries) 
 	{
 		try
 		{
 			Set<Consistencies> cs = new HashSet<>(4);
-			long compileTime = JarUtil.getCompileTime(entries);
+			long compileTime = JarUtil.getCompileTime(f, entries);
 			for(ZipEntry e : entries)
 			{
 				if(e.isDirectory())
