@@ -36,7 +36,6 @@ public class SelfCommandPrompt {
 	public static String[] wrappedAppArgs;
 	public static boolean wrappedPause;
 	public static JConsole jconsole;
-	public static String testArgs;
 	
 	static
 	{
@@ -49,14 +48,12 @@ public class SelfCommandPrompt {
 	@SuppressWarnings("resource")
 	public static void main(String[] args)
 	{
-		testArgs = DeDuperUtil.toString(args, " ");
 		boolean shouldPause = Boolean.parseBoolean(args[0]);
 		
 		try
 		{
+			System.setProperty("selfcmd.mainclass", args[1]);//because eclipse's jar in jar loader sets a class loader it wipes static fields set a system property instead
 			Class<?> mainClass = Class.forName(args[1]);
-			wrappedAppClass = mainClass;
-			System.out.println("wrapped in main:" + wrappedAppClass);
 			String[] programArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, programArgs, 0, programArgs.length);
 			Method method = mainClass.getMethod("main", String[].class);
@@ -111,7 +108,7 @@ public class SelfCommandPrompt {
 	 */
 	public static void runWithCMD(String[] args)
 	{
-		String appId = suggestAppId(getMainClassName());
+		String appId = suggestAppId();
 		runWithCMD(appId, appId, args);
 	}
 	
@@ -207,7 +204,6 @@ public class SelfCommandPrompt {
 		}
 		else
 		{
-			System.out.println(mainClass + "," + wrappedAppClass + "," + getMainClass());
 			rebootWithTerminal(appId, appName, mainClass, args, pause);
 		}
 	}
@@ -486,6 +482,15 @@ public class SelfCommandPrompt {
 	
 	//Start APP VARS_____________________________
 	
+	public static void cacheApp(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) 
+	{
+		wrappedAppId = appId;
+		wrappedAppName = appName;
+		wrappedAppClass = SelfCommandPrompt.class.equals(mainClass) ? getClass(System.getProperty("selfcmd.mainclass")) : mainClass;
+		wrappedAppArgs = args;
+		wrappedPause = pause;
+	}
+	
 	/**
 	 * @return if the main class is SelfCommandPrompt
 	 * @Since 2.0.0-rc.6
@@ -528,17 +533,6 @@ public class SelfCommandPrompt {
     	
     	useJConsole= cfg.get("useJConsole", false);//if user prefers JConsole over natives
     	cfg.save();
-	}
-	
-	public static void cacheApp(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) 
-	{
-//		System.out.println("cacheApp:" + mainClass + " wrapped:" + wrappedAppClass);
-		wrappedAppId = appId;
-		wrappedAppName = appName;
-		wrappedAppClass = SelfCommandPrompt.class.equals(mainClass) ? wrappedAppClass : mainClass;
-		wrappedAppArgs = args;
-		wrappedPause = pause;
-//		System.out.println(mainClass + "," + wrappedAppClass + "," + SelfCommandPrompt.class.equals(mainClass));
 	}
 
 	//End APP VARS_________________________________
@@ -664,5 +658,18 @@ public class SelfCommandPrompt {
 			}
 		}
 		return false;
+	}
+	
+	public static Class<?> getClass(String name) 
+	{
+		try 
+		{
+			return Class.forName(name);
+		} 
+		catch (Throwable t) 
+		{
+			t.printStackTrace();
+		}
+		return null;
 	}
 }
