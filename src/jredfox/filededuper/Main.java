@@ -9,7 +9,7 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.15.0";//err handling update
+	public static final String VERSION = "0.15.1";
 	public static final String appName = "File De-Duper " + VERSION;
 	public static final String appId = "File-De-Duper";
 	

@@ -50,5 +50,10 @@ public class ErrorCapture {
 	{
 		return this.stream.errMap;
 	}
+	
+	public boolean hasErr()
+	{
+		return this.hasError;
+	}
 
 }
