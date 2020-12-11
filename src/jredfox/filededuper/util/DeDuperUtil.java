@@ -96,10 +96,10 @@ public class DeDuperUtil {
 	
 	public static String getRealtivePath(File dir, File file) 
 	{
-		if(!dir.isAbsolute() || !file.isAbsolute())
-			throw new IllegalArgumentException("directorty & file must be abosolute!");
-		String fpath = file.getPath();
-		return fpath.substring(dir.getPath().indexOf(dir.getPath()) + dir.getPath().length() + 1, fpath.length());
+		String path = file.getPath();
+		String dirPath = dir.getPath();
+		boolean plus1 = path.contains(File.separator);
+		return path.substring(path.indexOf(dirPath) + dirPath.length() + (plus1 ? 1 : 0));
 	}
 
 	public static Set<String> getHashes(File dir)
