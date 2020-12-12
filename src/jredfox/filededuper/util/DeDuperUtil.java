@@ -424,7 +424,7 @@ public class DeDuperUtil {
 		return isExtEqual(orgExt, exts);
 	}
 
-	public static boolean isExtEqual(String orgExt, String[] exts)
+	public static boolean isExtEqual(String orgExt, String... exts)
 	{
 		orgExt = orgExt.toLowerCase();
 		for(String ext : exts)
