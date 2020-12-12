@@ -414,28 +414,28 @@ public class JarUtil {
 	}
 	
 	private static ZipEntry getSF(JarFile jar) {
-		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".sf"), 0);
+		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", "sf"), 0);
 	}
 	
 	private static ZipEntry getRSA(JarFile jar) {
-		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".rsa"), 0);
+		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", "rsa"), 0);
 	}
 
 	private static ZipEntry getDSA(JarFile jar) {
-		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", ".dsa"), 0);
+		return DeDuperUtil.getSafley(getEntriesFromDir(jar, "META-INF/", "dsa"), 0);
 	}
 	
 	public static List<ZipEntry> getEntriesFromDir(ZipFile file, String path, String ext)
 	{
 		ext = ext.toLowerCase();
-		List<ZipEntry> list = new ArrayList(2);
+		List<ZipEntry> list = new ArrayList<>(2);
 		List<ZipEntry> entries = getZipEntries(file);
 		for(ZipEntry e : entries)
 		{
 			if(e.isDirectory())
 				continue;
 			String name = e.getName();
-			if(name.startsWith(path) && name.toLowerCase().endsWith(ext))
+			if(name.startsWith(path) && DeDuperUtil.isFileExt(name, ext))
 			{
 				list.add(e);
 			}
@@ -448,7 +448,7 @@ public class JarUtil {
 		if(zip == null)
 			return null;
 		List<ZipEntry> entryList = new ArrayList<>(150);
-		Enumeration entries = zip.entries();
+		Enumeration<?> entries = zip.entries();
 		while(entries.hasMoreElements())
 		{
 			ZipEntry entry = (ZipEntry) entries.nextElement();
@@ -472,7 +472,7 @@ public class JarUtil {
 	
 	public static List<ArchiveEntry> getArchiveEntries(ZipFile zip, List<ZipEntry> entries)
 	{
-		List<ArchiveEntry> archs = new ArrayList(entries.size());
+		List<ArchiveEntry> archs = new ArrayList<>(entries.size());
 		for(ZipEntry e : entries)
 			archs.add(new ArchiveEntry(zip, e));
 		return archs;

@@ -410,15 +410,15 @@ public class DeDuperUtil {
 		return null;
 	}
 	
-	public static boolean isProgramExt(String name)
+	public static boolean isProgramExt(String filename)
 	{
-		return DeDuperUtil.isExt(name, Main.programExts);
+		return DeDuperUtil.isFileExt(filename, Main.programExts);
 	}
 	
 	/**
 	 * input the filename.extension here with a list of extensions to return from
 	 */
-	public static boolean isExt(String filename, String... exts) 
+	public static boolean isFileExt(String filename, String... exts) 
 	{
 		String orgExt = getExtension(filename);
 		return isExtEqual(orgExt, exts);
@@ -426,12 +426,10 @@ public class DeDuperUtil {
 
 	public static boolean isExtEqual(String orgExt, String[] exts)
 	{
-		if(exts[0].equals("*"))
-			return true;
 		orgExt = orgExt.toLowerCase();
 		for(String ext : exts)
 		{
-			if(orgExt.equals(ext))
+			if(ext.equals("*") || orgExt.isEmpty() && ext.equals("noextension") || orgExt.equals(ext))
 				return true;
 		}
 		return false;
@@ -473,17 +471,7 @@ public class DeDuperUtil {
 	private static String[] pluginExts = new String[]{"jar"};
 	private static String getPlugin(String ext, File file) 
 	{
-		return Main.skipGenPluginData || !contains(ext, pluginExts) ? "" : genJarData(file);
-	}
-
-	public static <T extends Object> boolean contains(T obj, T[] exts)
-	{
-		for(T compare : exts)
-		{
-			if(obj.equals(compare))
-				return true;
-		}
-		return false;
+		return Main.skipGenPluginData || !isExtEqual(ext, pluginExts) ? "" : genJarData(file);
 	}
 
 	private static String genJarData(File file)

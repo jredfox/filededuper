@@ -43,7 +43,7 @@ public class Commands {
 			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
 			if(!dir.exists() || files.isEmpty())
 			{
-				System.err.println("ERR file not found:" + dir);
+				System.err.println("Error file not found:" + dir);
 				return;
 			}
 			List<String> index = new ArrayList<>(files.size());
@@ -84,7 +84,7 @@ public class Commands {
 			List<File> files = DeDuperUtil.getDirFiles(dir, "jar", "zip");
 			if(!dir.exists() || files.isEmpty())
 			{
-				System.err.println("ERR file not found:" + dir);
+				System.err.println("Error file not found:" + dir);
 				return;
 			}
 			File outDir = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
@@ -145,7 +145,7 @@ public class Commands {
 			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genDupesExt);
 			if(!dir.exists() || files.isEmpty())
 			{
-				System.err.println("ERR file not found:" + dir);
+				System.err.println("Error file not found:" + dir);
 				return;
 			}
 			List<String> index = new ArrayList<>(files.size());
@@ -199,7 +199,7 @@ public class Commands {
 			{
 				String hash = line[compareIndex].toLowerCase();
 				DeDuperUtil.validateHash(hash);
-				if(!hashes.contains(hash) && DeDuperUtil.isExt(line[0], Main.compareExt))
+				if(!hashes.contains(hash) && DeDuperUtil.isFileExt(line[0], Main.compareExt))
 				{
 					line[1] = DeDuperUtil.caseString(line[1], Main.lowercaseHash);
 					line[2] = DeDuperUtil.caseString(line[2], Main.lowercaseHash);
