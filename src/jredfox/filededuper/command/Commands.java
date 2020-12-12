@@ -43,7 +43,7 @@ public class Commands {
 			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genExt);
 			if(!dir.exists() || files.isEmpty())
 			{
-				System.out.println("ERR file not found:" + dir);
+				System.err.println("ERR file not found:" + dir);
 				return;
 			}
 			List<String> index = new ArrayList<>(files.size());
@@ -83,7 +83,10 @@ public class Commands {
 			File dir = params.get(0);
 			List<File> files = DeDuperUtil.getDirFiles(dir, "jar", "zip");
 			if(!dir.exists() || files.isEmpty())
+			{
+				System.err.println("ERR file not found:" + dir);
 				return;
+			}
 			File outDir = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
 			File outArchive = new File(outDir, "archives");
 			outArchive.mkdirs();
@@ -142,7 +145,7 @@ public class Commands {
 			List<File> files = DeDuperUtil.getDirFiles(dir, Main.genDupesExt);
 			if(!dir.exists() || files.isEmpty())
 			{
-				System.out.println("ERR file not found:" + dir);
+				System.err.println("ERR file not found:" + dir);
 				return;
 			}
 			List<String> index = new ArrayList<>(files.size());

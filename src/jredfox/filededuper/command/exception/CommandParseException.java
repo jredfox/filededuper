@@ -1,4 +1,4 @@
-package jredfox.filededuper.command;
+package jredfox.filededuper.command.exception;
 
 public class CommandParseException extends RuntimeException{
 	

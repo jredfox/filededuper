@@ -3,7 +3,7 @@ package jredfox.filededuper;
 import java.io.IOException;
 
 import jredfox.filededuper.err.ErrorCapture;
-import jredfox.filededuper.err.ErrorCaptureStream.ErrBuilder;
+import jredfox.filededuper.err.ErrorCaptureStream.ErrorBuilder;
 
 public class DebugCode {
 	
@@ -23,7 +23,7 @@ public class DebugCode {
 		System.err.print("b\n");
 		capture.stop();
 		System.out.println();
-		for(ErrBuilder b : capture.getErrMap().values())
+		for(ErrorBuilder b : capture.getErrMap().values())
 		{
 			for(String s : b.getLines())
 			{

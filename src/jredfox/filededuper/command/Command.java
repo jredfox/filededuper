@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
+import jredfox.filededuper.command.exception.CommandParseException;
 import jredfox.filededuper.err.ErrorCapture;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
@@ -18,8 +19,10 @@ public abstract class Command<T> {
 	public String name;
 	public List<String> ids;
 	public List<String> names;
-	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	public ParamList<T> params;
+	public boolean hasError;
+	
+	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	
 	public Command(String... ids)
 	{
@@ -42,6 +45,7 @@ public abstract class Command<T> {
 	
 	public void run()
 	{
+		this.setError(false);
 		this.run(this.params);
 	}
 	
@@ -52,6 +56,7 @@ public abstract class Command<T> {
 		{
 			T[] params = this.parse(args);
 			this.params = new ParamList(params);
+			this.setError(false);
 		}
 		catch(Exception e)
 		{
@@ -72,6 +77,16 @@ public abstract class Command<T> {
 	public boolean isAliases(String compareId)
 	{
 		return this.ids.indexOf(compareId) > 0;
+	}
+	
+	public boolean hasError()
+	{
+		return this.hasError;
+	}
+	
+	public void setError(boolean err)
+	{
+		this.hasError = err;
 	}
 	
 	public static Scanner getScanner()
@@ -255,6 +270,7 @@ public abstract class Command<T> {
 		try
 		{
 			command.run();
+			errored = command.hasError();
 		}
 		catch(Exception e)
 		{
@@ -263,7 +279,8 @@ public abstract class Command<T> {
 		finally
 		{
 			capture.stop();
-			errored = capture.hasError;
+			if(capture.hasError)
+				errored = true;
 			System.gc();//cleanup the garbage from the ErrorCapture and any data from the running command
 		}
 		if(!(command instanceof CommandInvalid))

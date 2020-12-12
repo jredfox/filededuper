@@ -5,7 +5,7 @@ public class CommandInvalidParse extends CommandInvalid{
 	public String msg;
 	public CommandInvalidParse(String id, String msg)
 	{
-		super("parsingException_" + id);
+		super("parsingMalformed_" + id);
 		this.msg = msg;
 	}
 	
