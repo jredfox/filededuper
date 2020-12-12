@@ -1,8 +1,9 @@
 package jredfox.filededuper.err;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import jredfox.filededuper.err.ErrorCaptureStream.ErrBuilder;
 
 /**
  * this class allows you to detect if an error was handled and printed the stacktrace
@@ -46,7 +47,7 @@ public class ErrorCapture {
 		return this.stream.captures;
 	}
 	
-	public Map<Thread, List<String>> getErrMap()
+	public Map<Thread, ErrBuilder> getErrMap()
 	{
 		return this.stream.errMap;
 	}
