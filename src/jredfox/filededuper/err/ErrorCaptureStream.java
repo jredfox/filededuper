@@ -182,6 +182,7 @@ public class ErrorCaptureStream extends PrintStream {
 	{
 		protected StringBuilder builder = new StringBuilder();
 		protected List<String> lines = new ArrayList<>();
+		protected boolean endLineFeed;
 		
 		public ErrBuilder()
 		{
@@ -198,10 +199,12 @@ public class ErrorCaptureStream extends PrintStream {
 					String built = this.builder.toString();
 					this.lines.add(built);
 					this.builder = new StringBuilder();
+					this.endLineFeed = true;
 				}
 				else
 				{
 					this.builder.append(s);
+					this.endLineFeed = false;
 				}
 			}
 		}
@@ -216,7 +219,7 @@ public class ErrorCaptureStream extends PrintStream {
 			{
 				currentLines.add(s);
 			}
-			if(!this.builder.toString().isEmpty())
+			if(!this.builder.toString().isEmpty() || this.endLineFeed)
 			{
 				currentLines.add(this.builder.toString());
 			}

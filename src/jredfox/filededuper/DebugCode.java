@@ -14,15 +14,13 @@ public class DebugCode {
 		try
 		{
 			Integer.parseInt("a");
-//			System.err.println("ab");
-//			System.err.println("cd");
 		}
 		catch(NumberFormatException e)
 		{
 			e.printStackTrace();
 		}
 		System.err.print("a");
-		System.err.print("b");
+		System.err.print("b\n");
 		capture.stop();
 		System.out.println();
 		for(ErrBuilder b : capture.getErrMap().values())
