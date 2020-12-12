@@ -13,7 +13,7 @@ public class ErrorCaptureStream extends PrintStream {
 	/**
 	 * the current error. If it's not empty this means something printed to the error stream
 	 */
-	public volatile Map<Thread, ErrBuilder> errMap = new HashMap<>();
+	public volatile Map<Thread, ErrorBuilder> errMap = new HashMap<>();
 	/**
 	 * whitelist of threads to listen to for errors
 	 */
@@ -152,10 +152,10 @@ public class ErrorCaptureStream extends PrintStream {
     	Thread t = Thread.currentThread();
     	if(this.captures.contains(t))
     	{
-    		ErrBuilder builder = this.errMap.get(t);
+    		ErrorBuilder builder = this.errMap.get(t);
     		if(builder == null)
     		{
-    			builder = new ErrBuilder();
+    			builder = new ErrorBuilder();
     			this.errMap.put(t, builder);
     		}
     		builder.append(str);
@@ -178,13 +178,13 @@ public class ErrorCaptureStream extends PrintStream {
 		return !this.errMap.isEmpty();
 	}
 	
-	public static class ErrBuilder 
+	public static class ErrorBuilder 
 	{
 		protected StringBuilder builder = new StringBuilder();
 		protected List<String> lines = new ArrayList<>();
 		protected boolean endLineFeed;
 		
-		public ErrBuilder()
+		public ErrorBuilder()
 		{
 			
 		}
