@@ -46,8 +46,9 @@ public class Main {
 	public static long compileTimeOffset;
 	public static boolean checkJarSigned;
 	public static boolean consistentCheckJar;
-	public static String[] programExts;
 	public static String[] programDirs;
+	public static String[] programExts;
+	public static String[] libDirs;
 	
 	public static void loadConfigs() 
 	{
@@ -68,8 +69,9 @@ public class Main {
 		compileTimeOffset = jarCheck.get("compileTimeOffset", 30);//amount of minuets is allowed since the compile time before it's considered a mod
 		checkJarSigned = jarCheck.get("checkJarSigned", true);
 		consistentCheckJar = jarCheck.get("consistentCheckJar", false);
-		programExts = jarCheck.get("programExts", "class,rsa,dsa,mf,sf,js,java,py,kt").toLowerCase().replace("\\.", "").split(",");
-		programDirs = getProgramDirs(jarCheck);
+		programDirs = getProgramDirs(jarCheck.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/mojang,com/a,jredfox/filededuper").split(","));
+		programExts = getProgramDirs(jarCheck.get("programExts", "class,rsa,dsa,mf,sf,js,java,py,kt").toLowerCase().replace("\\.", "").split(","));
+		libDirs = jarCheck.get("libDirs", "org/eclipse,org/apache,org/json,com/google,com/ibm,com/paulscode,io/netty,it/unimi,javax/vecmath,LZMA,org/jline,org/lwjgl,org/objectweb,oshi,tv/twitch").split(",");
 		jarCheck.save();
 	}
 	
@@ -98,9 +100,8 @@ public class Main {
 		}
 	}
 	
-	private static String[] getProgramDirs(MapConfig jarCheck) 
+	private static String[] getProgramDirs(String[] dirs) 
 	{
-		String[] dirs = jarCheck.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/mojang,com/a,jredfox/filededuper").split(",");
 		int index = 0;
 		for(String s : dirs)
 			dirs[index++] = s.trim();//repair for user friendliness
