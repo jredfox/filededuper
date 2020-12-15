@@ -41,7 +41,7 @@ public class JarUtil {
 		inconsistentClass(),
 		inconsistentResource(),
 		matchingClasses(),
-		none(),
+		none();
 	}
 	
 	/**
@@ -219,7 +219,7 @@ public class JarUtil {
 	public static List<ArchiveEntry> getModdedFiles(ZipFile zip, ZipFile orgZip)
 	{
 		List<ZipEntry> entries = getZipEntries(zip);
-		List<ArchiveEntry> entriesOut = new ArrayList();
+		List<ArchiveEntry> entriesOut = new ArrayList<>();
 		for(ZipEntry entry : entries)
 		{
 			ZipEntry orgEntry = orgZip.getEntry(entry.getName());
@@ -252,8 +252,7 @@ public class JarUtil {
 		ZipFile zip = null;
 		try
 		{
-			zip = new ZipFile(file);
-			return getCompileTime(file, JarUtil.getZipEntries(zip));
+			return getCompileTime(file, JarUtil.getZipEntries(new ZipFile(file)));
 		} 
 		catch (IOException e) 
 		{
@@ -268,18 +267,19 @@ public class JarUtil {
 	
 	public static long getCompileTime(File zipFile, List<ZipEntry> entries)
 	{
-		return Main.compileTimePoints ? getCompileTimePoints(zipFile, entries) : getCompileTimeLeast(entries);
+		return Main.compileTimePoints ? getCompileTimePoints(zipFile, entries) : getCompileTimeLeast(zipFile, entries, Main.programDirs);
 	}
 	
 	/**
 	 * gets the most likely compiledTime based on lowest date modified of the class file
 	 */
-	public static long getCompileTimeLeast(List<ZipEntry> entries)
+	public static long getCompileTimeLeast(File zipFile, List<ZipEntry> entries, String[] dirs)
 	{
 		long ms = -1;
 		for(ZipEntry e : entries)
 		{
-			if(!e.getName().endsWith(".class"))
+			String name = e.getName();
+			if(!name.endsWith(".class") || !isDir(name, dirs))
 				continue;
 			long time = e.getTime();
 			if(time < ms || ms == -1)
@@ -287,9 +287,24 @@ public class JarUtil {
 				ms = time;
 			}
 		}
+		if(ms == -1)
+			throw new RuntimeException("JarUtil#getCompileTimePoints() couldn't find program dir add one to the config:" + zipFile.getAbsolutePath());
 		return ms;
 	}
 	
+	/**
+	 * @return true if it is the right program directory
+	 */
+	public static boolean isDir(String name, String[] dirs)
+	{
+		for(String dir : dirs)
+		{
+			if(name.startsWith(dir))
+				return true;
+		}
+		return false;
+	}
+
 	/**
 	 * gets compile time based on program dir points
 	 */
@@ -300,7 +315,7 @@ public class JarUtil {
 		for(ZipEntry entry : entries)
 		{
 			String name = entry.getName();
-			if(!name.endsWith(".class"))
+			if(!name.endsWith(".class") || !isDir(name, Main.programDirs))
 				continue;
 			long time = entry.getTime();
 			boolean added = false;
@@ -639,5 +654,16 @@ public class JarUtil {
 		}
 		return null;
 	}
+	
+	public static boolean isLibrary(String name)
+	{
+		for(String lib : Main.libDirs)
+		{
+			if(name.startsWith(lib))
+				return true;
+		}
+		return false;
+	}
+
 
 }
