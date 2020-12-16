@@ -15,7 +15,7 @@ public class Main {
 	
 	public static void main(String[] args)
 	{
-		SelfCommandPrompt.runWithCMD(appId, appName, args);
+		args = SelfCommandPrompt.runWithCMD(appId, appName, args);
 		loadConfigs();
 		System.out.println("Starting " + appName);
 		if(args.length != 0)
