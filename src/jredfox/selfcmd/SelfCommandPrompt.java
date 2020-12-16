@@ -144,7 +144,7 @@ public class SelfCommandPrompt {
 	{
 		cacheApp(appId, appName, mainClass, args, pause);
 		//run in the background if ordered to by an external process
-		if(args.length != 0 && args[0].equals("background"))
+		if(args.length != 0 && (args[0].equals("background") || args[0].equalsIgnoreCase("runInBackground")))
 		{
 			String[] newArgs = new String[args.length - 1];
 			System.arraycopy(args, 1, newArgs, 0, newArgs.length);
