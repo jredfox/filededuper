@@ -22,7 +22,7 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Commands {
 	
-	public static final String hashHeader = "#name, md5, sha-1, sha-256, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
+	public static final String hashHeader = "#name, md5, sha-1, sha-256, size, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
 	
 	public static Command<File> genHashes = new Command<File>("genHashes", "genSpreadsheet")
 	{

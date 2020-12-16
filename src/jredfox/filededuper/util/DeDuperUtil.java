@@ -462,10 +462,11 @@ public class DeDuperUtil {
 		String md5 = Main.compareHash == HashType.MD5 ? hash : DeDuperUtil.getMD5(file);
 		String sha1 = Main.compareHash == HashType.SHA1 ? hash : DeDuperUtil.getSHA1(file);
 		String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(file);
+		long size = file.length();
 		long time = file.lastModified();
 		String plugin = getPlugin(DeDuperUtil.getExtension(file), file);
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
-		return name + "," + md5 + "," + sha1 + "," + sha256 + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path;
+		return name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path;
 	}
 
 	private static String[] pluginExts = new String[]{"jar"};

@@ -26,16 +26,16 @@ import jredfox.selfcmd.util.OSUtil;
  */
 public class SelfCommandPrompt {
 	
-	public static final String VERSION = "2.1.0";
-	public static final String INVALID = "\"'`,";
+	public static final String VERSION = "2.1.1";
+	public static final String INVALID = OSUtil.getQuote() + "'`,";
 	public static final File selfcmd = new File(OSUtil.getAppData(), "SelfCommandPrompt");
 	public static final Scanner scanner = new Scanner(System.in);
+	public static JConsole jconsole;
 	public static String wrappedAppId;
 	public static String wrappedAppName;
 	public static Class<?> wrappedAppClass;
 	public static String[] wrappedAppArgs;
 	public static boolean wrappedPause;
-	public static JConsole jconsole;
 	
 	static
 	{
@@ -144,7 +144,7 @@ public class SelfCommandPrompt {
 	{
 		cacheApp(appId, appName, mainClass, args, pause);
 		//run in the background if ordered to by an external process
-		if(args.length != 0 && (args[0].equals("background") || args[0].equalsIgnoreCase("runInBackground")))
+		if(args.length != 0 && (args[0].equals("background") || args[0].equalsIgnoreCase("runInBackground") || args[0].equalsIgnoreCase("runInTheBackground")))
 		{
 			String[] newArgs = new String[args.length - 1];
 			System.arraycopy(args, 1, newArgs, 0, newArgs.length);
@@ -196,24 +196,37 @@ public class SelfCommandPrompt {
 	public static void reboot(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{
 		syncConfig();
-		ExeBuilder builder = new ExeBuilder();
 		if(hasJConsole())
 		{
-			builder.addCommand("java");
-			builder.addCommand(getJVMArgs());
-			builder.addCommand("-cp");
-			String q = OSUtil.getQuote();
-			builder.addCommand(q + System.getProperty("java.class.path") + q);//doesn't need to check parsing chars cause this is a generic reboot and if it reboots with terminal it will catch the error on boot
-			builder.addCommand(mainClass.getName());
-			builder.addCommand(programArgs(args));
-			String command = builder.toString();
-			runInTerminal(command);
-			shutdown();
+			rebootNormally(mainClass, args);
 		}
 		else
 		{
 			rebootWithTerminal(appId, appName, mainClass, args, pause);
 		}
+	}
+
+	/**
+	 * reboot a java application normally with original args
+	 * @since 2.1.1
+	 */
+	public static void rebootNormally(Class<?> mainClass, String[] args) throws IOException 
+	{
+        String libs = System.getProperty("java.class.path");
+        if(containsAny(libs, INVALID))
+        	throw new RuntimeException("one or more LIBRARIES contains illegal parsing characters:(" + libs + "), invalid:" + INVALID);
+        
+		ExeBuilder builder = new ExeBuilder();
+		builder.addCommand("java");
+		builder.addCommand(getJVMArgs());
+		builder.addCommand("-cp");
+		String q = OSUtil.getQuote();
+		builder.addCommand(q + libs + q);//doesn't need to check parsing chars cause this is a generic reboot and if it reboots with terminal it will catch the error on boot
+		builder.addCommand(mainClass.getName());
+		builder.addCommand(programArgs(args));
+		String command = builder.toString();
+		runInTerminal(command);
+		shutdown();
 	}
 
 	/**

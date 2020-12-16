@@ -526,7 +526,7 @@ public class JarUtil {
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> hashes = new HashSet<>(entries.size());
-			csv.add("#name, md5, sha-1, sha256, date-modified, path");
+			csv.add("#name, md5, sha-1, sha256, size, date-modified, path");
 			for(ZipEntry entry : entries)
 			{
 				if(entry.isDirectory())
@@ -538,9 +538,10 @@ public class JarUtil {
 				String md5 = Main.compareHash == HashType.MD5 ? hash : DeDuperUtil.getMD5(zip, entry);
 				String sha1 = Main.compareHash == HashType.SHA1 ? hash : DeDuperUtil.getSHA1(zip, entry);
 				String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(zip, entry);
+				long size = entry.getSize();
 				long time = entry.getTime();
 				String path = entry.getName();
-				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + time + "," + path);
+				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + "," + path);
 				hashes.add(hash);
 			}
 		}
@@ -557,7 +558,7 @@ public class JarUtil {
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> hashes = new HashSet<>(entries.size());
-			csv.add("#name, md5, sha-1, sha256, date-modified, compileTime, boolean modified, enum consistency, path");
+			csv.add("#name, md5, sha-1, sha256, size, date-modified, compileTime, boolean modified, enum consistency, path");
 			long compileTime = JarUtil.getCompileTime(f, entries);
 			long minTime = JarUtil.getMinTime(compileTime);
 			long maxTime = JarUtil.getMaxTime(compileTime);
@@ -581,10 +582,11 @@ public class JarUtil {
 				String md5 = Main.compareHash == HashType.MD5 ? hash : DeDuperUtil.getMD5(zip, entry);
 				String sha1 = Main.compareHash == HashType.SHA1 ? hash : DeDuperUtil.getSHA1(zip, entry);
 				String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(zip, entry);
+				long size = entry.getSize();
 				long time = entry.getTime();
 				Consistencies consistencies = getConsistency(entry, compileTime, time);
 				String path = entry.getName();
-				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + time + "," + compileTime + "," + modified + "," + consistencies + "," + path);
+				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + "," + compileTime + "," + modified + "," + consistencies + "," + path);
 				hashes.add(md5);
 			}
 		}
