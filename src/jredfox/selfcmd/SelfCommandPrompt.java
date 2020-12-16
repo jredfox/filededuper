@@ -317,17 +317,17 @@ public class SelfCommandPrompt {
 	 */		
 	public static String[] wrapWithCMD(String msg, String appId, String appName, String[] argsInit)
 	{
-		return wrapWithCMD(msg, appId, appName, getMainClass(), argsInit);
+		return wrapWithCMD(msg, appId, appName, argsInit, false, true);
 	}
 	
 	/**
 	 * execute your command line jar without redesigning your program to use java.util.Scanner to take input.
 	 * escape sequences are \char to have actual quotes in the jvm args cross platform
-	 * @since 2.0.0
+	 * @since 2.1.0
 	 */	
-	public static String[] wrapWithCMD(String msg, String appId, String appName, Class<?> mainClass, String[] argsInit)
+	public static String[] wrapWithCMD(String msg, String appId, String appName, String[] argsInit, boolean onlyCompiled, boolean pause)
 	{
-		return wrapWithCMD(msg, appId, appName, mainClass, argsInit, false, true);
+		return wrapWithCMD(msg, appId, appName, getMainClass(), argsInit, onlyCompiled, pause);
 	}
 	
 	/**
