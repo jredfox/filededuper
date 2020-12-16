@@ -36,6 +36,8 @@ public class SelfCommandPrompt {
 	public static Class<?> wrappedAppClass;
 	public static String[] wrappedAppArgs;
 	public static boolean wrappedPause;
+	public static String background;
+	public static boolean sameWindow;
 	
 	static
 	{
@@ -52,8 +54,9 @@ public class SelfCommandPrompt {
 		
 		try
 		{
-			System.setProperty("selfcmd.mainclass", args[1]);//because eclipse's jar in jar loader sets a class loader it wipes static fields set a system property instead
-			Class<?> mainClass = Class.forName(args[1]);
+			String className = args[1];
+			System.setProperty("selfcmd.mainclass", className);//because eclipse's jar in jar loader sets a class loader it wipes static fields set a system property instead
+			Class<?> mainClass = Class.forName(className);
 			String[] programArgs = new String[args.length - 2];
 			System.arraycopy(args, 2, programArgs, 0, programArgs.length);
 			Method method = mainClass.getMethod("main", String[].class);
@@ -85,7 +88,7 @@ public class SelfCommandPrompt {
 	public static JConsole startJConsole(String appId, String appName)
 	{	
 		if(jconsole != null)
-			throw new RuntimeException("jconsole has already started!");
+			return jconsole;
 		JConsole console = new JConsole(appName)
 		{
 			@Override
@@ -143,16 +146,20 @@ public class SelfCommandPrompt {
 	public static String[] runWithCMD(String appId, String appName, Class<?> mainClass, String[] args, boolean onlyCompiled, boolean pause) 
 	{
 		cacheApp(appId, appName, mainClass, args, pause);
+		String bg = args.length != 0 ? args[0] : "";
 		//run in the background if ordered to by an external process
-		if(args.length != 0 && (args[0].equals("background") || args[0].equalsIgnoreCase("runInBackground") || args[0].equalsIgnoreCase("runInTheBackground")))
+		if(isBackground(bg))
 		{
+			background = bg;
+			sameWindow = true;
 			String[] newArgs = new String[args.length - 1];
 			System.arraycopy(args, 1, newArgs, 0, newArgs.length);
 			return newArgs;
 		}
 		boolean compiled = isCompiled(mainClass);
-		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || isWrapped() || jconsole != null)
+		if(!compiled && onlyCompiled || compiled && System.console() != null || isDebugMode() || isWrapped())
 		{
+			sameWindow = true;
 			return args;
 		}
 		
@@ -196,7 +203,7 @@ public class SelfCommandPrompt {
 	public static void reboot(String appId, String appName, Class<?> mainClass, String[] args, boolean pause) throws IOException
 	{
 		syncConfig();
-		if(hasJConsole())
+		if(hasJConsole() || sameWindow)
 		{
 			rebootNormally(mainClass, args);
 		}
@@ -474,6 +481,14 @@ public class SelfCommandPrompt {
 	
 	public static String[] programArgs(String[] args) 
 	{
+		//append the background arg if it doesn't exist
+		if(background != null && (args.length == 0 || !isBackground(args[0])) )
+		{
+			String[] newArgs = new String[args.length + 1];
+			newArgs[0] = background;
+			System.arraycopy(args, 0, newArgs, 1, args.length);
+			args = newArgs;
+		}
 		String q = OSUtil.getQuote();
 		String esc = OSUtil.getEsc();
 		for(int i=0;i<args.length; i++)
@@ -481,6 +496,11 @@ public class SelfCommandPrompt {
 		return args;
 	}
 	
+	public static boolean isBackground(String arg)
+	{
+		return arg.equals("background") || arg.equalsIgnoreCase("runInBackground") || arg.equalsIgnoreCase("runInTheBackground");
+	}
+
 	/**
 	 * incompatible with eclipse's jar in jar loader. Use this to enforce your program's directory is synced with your jar after calling runWithCMD
 	 */
@@ -531,7 +551,7 @@ public class SelfCommandPrompt {
 	
 	public static boolean hasJConsole() 
 	{
-		return useJConsole || OSUtil.isUnsupported();
+		return useJConsole || OSUtil.isUnsupported() || jconsole != null;
 	}
 
 	public static String terminal;
