@@ -95,9 +95,13 @@ public class Commands {
 			Set<String> hashes = new HashSet<>(files.size());
 			for(File file : files)
 			{
-				DeDuperUtil.genHashes(dir, file, hashes, index);
 				String hash = DeDuperUtil.getCompareHash(file);
-				CSV csv = new CSV(new File(outArchive, DeDuperUtil.getTrueName(file) + "-" + hash + ".csv"));
+				if(hashes.contains(hash))
+				{
+					continue;
+				}
+				DeDuperUtil.genHashes(dir, file, hashes, index);
+				CSV csv = new CSV(new File(outArchive, file.getName() + "-" + hash + ".csv"));
 				boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
 				if(isJar)
 				{
@@ -150,7 +154,7 @@ public class Commands {
 			}
 			List<String> index = new ArrayList<>(files.size());
 			index.add(hashHeader + ", duplicated with");
-			Map<String, String> hashes = new HashMap<>(files.size());
+			Map<String, File> hashes = new HashMap<>(files.size());
 			for(File file : files)
 			{
 				DeDuperUtil.genDupeHashes(dir, file, hashes, index);

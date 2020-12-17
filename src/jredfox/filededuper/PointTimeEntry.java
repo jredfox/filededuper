@@ -1,9 +1,8 @@
 package jredfox.filededuper;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
 
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.JarUtil;
@@ -14,31 +13,34 @@ public class PointTimeEntry {
 	public long minMs;
 	public long maxMs;
 	public long startMs;
+	public String[] dirs;
 	public Map<Long, Integer> times = new HashMap<>();//ConsistentMS, count
 	public static final String defaultDir = "default";
 	
-	public PointTimeEntry(String dir, long time)
+	public PointTimeEntry(String[] dirs, ZipEntry entry, long time)
 	{
-		this(dir, JarUtil.getMinTime(time), JarUtil.getMaxTime(time) ,time);
+		this(dirs, entry, JarUtil.getMinTime(time), JarUtil.getMaxTime(time) ,time);
 	}
 	
-	public PointTimeEntry(String programDir, long min, long max, long time)
+	public PointTimeEntry(String[] dirs, ZipEntry entry, long min, long max, long time)
 	{
-		this.programDir = this.fixProgramDir(programDir);
+		this.dirs = dirs;
+		this.programDir = this.fixProgramDir(entry);
 		this.minMs = min;
 		this.maxMs = max;
 		this.startMs = time;
-		this.add(programDir, time);
+		this.add(entry, time);
 	}
 	
-	public String fixProgramDir(String dir) 
+	public String fixProgramDir(ZipEntry entry) 
 	{
-		if(!dir.contains("/"))
-			dir = defaultDir;
+		String name = entry.getName();
+		if(!name.contains("/") && !entry.isDirectory())
+			name = defaultDir;
 		String fixedDir = null;
-		for(String s : Main.programDirs) 
+		for(String s : this.dirs)
 		{
-			if(dir.startsWith(s))
+			if(name.startsWith(s))
 			{
 				fixedDir = s;
 			}
@@ -46,9 +48,9 @@ public class PointTimeEntry {
 		return fixedDir;
 	}
 	
-	public boolean add(String programDir, long num)
+	public boolean add(ZipEntry entry, long num)
 	{
-		if(this.isWithinRange(programDir, num))
+		if(this.isWithinRange(entry, num))
 		{
 			int count = this.times.containsKey(num) ? this.times.get(num) : 0;
 			this.times.put(num, count + 1);
@@ -57,12 +59,12 @@ public class PointTimeEntry {
 		return false;
 	}
 
-	public boolean isWithinRange(String programDir, long num)
+	public boolean isWithinRange(ZipEntry entry, long num)
 	{
-		programDir = this.fixProgramDir(programDir);
-		if(programDir == null)
+		String pdir = this.fixProgramDir(entry);
+		if(pdir == null)
 			return false;
-		return programDir.startsWith(this.programDir) && DeDuperUtil.isWithinRange(this.minMs, this.maxMs, num);
+		return pdir.startsWith(this.programDir) && DeDuperUtil.isWithinRange(this.minMs, this.maxMs, num);
 	}
 	
 	public int getPoints()

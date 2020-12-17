@@ -444,15 +444,15 @@ public class DeDuperUtil {
 		hashes.add(hash);
 	}
 	
-	public static void genDupeHashes(File dir, File file, Map<String, String> hashes, List<String> list)
+	public static void genDupeHashes(File dir, File file, Map<String, File> hashes, List<String> list)
 	{
 		String hash = DeDuperUtil.getCompareHash(file);
 		if(!hashes.containsKey(hash))
 		{
-			hashes.put(hash, file.getPath());
+			hashes.put(hash, file);
 			return;
 		}
-		list.add(genHashes(dir, file, hash) + "," + hashes.get(hash));
+		list.add(genHashes(dir, file, hash) + "," + DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), hashes.get(hash)) );
 	}
 
 	private static String genHashes(File dir, File file, String hash) 
