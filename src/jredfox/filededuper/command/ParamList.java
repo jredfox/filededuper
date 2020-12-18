@@ -11,7 +11,7 @@ public class ParamList<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <K extends Object> K get(int index)
+	public <K> K get(int index)
 	{
 		return (K) this.args[index];
 	}

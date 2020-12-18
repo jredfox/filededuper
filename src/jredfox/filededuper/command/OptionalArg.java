@@ -1,41 +1,82 @@
 package jredfox.filededuper.command;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import jredfox.filededuper.util.DeDuperUtil;
 
 public class OptionalArg {
 	
+	public String dash;
 	public String id;
 	public String value;
+	protected Set<String> flags = new HashSet<>();
 	
-	private OptionalArg(char c)
+	public OptionalArg(char c)
 	{
-		this("" + c);
+		this("-" + c);
 	}
 	
-	private OptionalArg(String str)
+	public OptionalArg(String arg)
 	{
-		this.id = str;
-		if(str.contains("="))
-			this.value = DeDuperUtil.splitFirst(str, '=')[1];
-	}
-	
-	public List<OptionalArg> parse(String str)
-	{
-		List<OptionalArg> options = new ArrayList<>();
-		if(str.contains("-"))
+		if(!arg.contains("--"))
 		{
-			str = str.substring(1);
-			for(char c : str.toCharArray())
-				options.add(new OptionalArg(c));
+			this.dash = "-";
+			arg = arg.substring(1);
+			for(int i=0;i<arg.length();i++)
+			{
+				String c = arg.substring(i, i + 1);
+				if(c.equals(" "))
+					throw new IllegalArgumentException("whitespace isn't allowed in flags");
+				else if(c.equals("="))
+					break;
+				this.flags.add("" + c);
+			}
+		}
+		else if(arg.contains("--"))
+		{
+			this.dash = "--";
+			arg = arg.substring(2);
+			this.flags.add(arg);
 		}
 		else
 		{
-			options.add(new OptionalArg(str.substring(2)));
+			throw new IllegalArgumentException("Optional Arg must contain a \"-\" input:\"" + arg + "\"");
 		}
-		return options;
+		
+		if(arg.contains("="))
+		{
+			if(this.flags.size() > 1)
+				throw new IllegalArgumentException("multiple flags cannot be assigned to one value");
+			String[] args = DeDuperUtil.splitFirst(arg, '=');
+			this.id = args[0];
+			this.value = args[1];
+		}
+		else
+		{
+			this.id = arg;
+		}
+	}
+	
+	public boolean hasFlag(String key)
+	{
+		return this.flags.contains(key);
+	}
+	
+	public boolean hasValue() 
+	{
+		return this.value != null;
+	}
+	
+	public String getValue()
+	{
+		return this.value;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return this.dash + this.id + (this.value != null ? "=" + this.value : "");
 	}
 
 }
