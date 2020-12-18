@@ -83,7 +83,7 @@ public class Commands {
 		public void run(ParamList<File> params)
 		{
 			File dir = params.get(0);
-			List<File> files = DeDuperUtil.getDirFiles(dir, "jar", "zip");
+			List<File> files = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
 			if(!dir.exists() || files.isEmpty())
 			{
 				System.err.println("Error file not found:" + dir);
@@ -634,7 +634,7 @@ public class Commands {
 			try
 			{
 				File dir = params.get(0);
-				List<File> files = DeDuperUtil.getDirFiles(dir, "zip", "jar");
+				List<File> files = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
 				for(File file : files)
 				{
 					JarUtil.deepUnzip(file);
@@ -647,7 +647,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> printArchiveMatches = new Command<File>("printArchiveMatches")
+	public static Command<File> printMatchingArchives = new Command<File>("printMatchingArchives")
 	{
 		@Override
 		public String[] displayArgs() 

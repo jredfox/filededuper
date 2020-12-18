@@ -705,16 +705,11 @@ public class JarUtil {
 			File dumped = new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile), entry.getName());
 			String ext = DeDuperUtil.getExtension(dumped);
 			unzip(zip, entry, dumped);
-			if(isArchiveExt(ext))
+			if(DeDuperUtil.isExtEqual(ext, Main.archiveExt))
 			{
 				deepUnzip(dumped);
 			}
 		}
-	}
-
-	public static boolean isArchiveExt(String ext) 
-	{
-		return ext.equals("zip") || ext.equals("jar");
 	}
 
 	public static void unzip(ZipFile zip, ZipEntry entry, File file) throws IOException 
