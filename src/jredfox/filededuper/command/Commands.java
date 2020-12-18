@@ -631,8 +631,12 @@ public class Commands {
 		{
 			try
 			{
-				File file = params.get(0);
-				DeDuperUtil.deepUnzip(file);
+				File dir = params.get(0);
+				List<File> files = DeDuperUtil.getDirFiles(dir, "zip", "jar");
+				for(File file : files)
+				{
+					DeDuperUtil.deepUnzip(file);
+				}
 			} 
 			catch (IOException e) 
 			{

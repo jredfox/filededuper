@@ -136,7 +136,10 @@ public class DeDuperUtil {
 		if(!dir.isDirectory())
 		{
 			List<File> li = new ArrayList<>(1);
-			li.add(dir);
+			String ext = getExtension(dir);
+			boolean isType = blackList ? !isExtEqual(ext, exts) : isExtEqual(ext, exts);
+			if(isType)
+				li.add(dir);
 			return li;
 		}
 		List<File> list = new ArrayList<>(dir.listFiles().length + 10);
