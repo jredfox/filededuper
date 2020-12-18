@@ -1,5 +1,6 @@
 package jredfox.filededuper.util;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +18,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -597,6 +599,38 @@ public class DeDuperUtil {
 			}
 		}
 		return false;
+	}
+
+	public static void deepUnzip(File zipFile) throws IOException
+	{
+		ZipFile zip = new ZipFile(zipFile);
+		List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+		for(ZipEntry entry : entries)
+		{
+			File dumped = new File(zipFile.getParent() + "/" + getTrueName(zipFile), entry.getName());
+			String ext = getExtension(dumped);
+			unzip(zip, entry, dumped);
+			if(isArchiveExt(ext))
+			{
+				deepUnzip(dumped);
+			}
+		}
+	}
+
+	public static boolean isArchiveExt(String ext) 
+	{
+		return ext.equals("zip") || ext.equals("jar");
+	}
+
+	public static void unzip(ZipFile zip, ZipEntry entry, File file) throws IOException 
+	{
+		file.getParentFile().mkdirs();
+		FileOutputStream out = new FileOutputStream(file);
+		ZipEntry newEntry = new ZipEntry(entry.getName());
+		newEntry.setTime(entry.getTime());
+		IOUtils.copy(zip.getInputStream(newEntry), out);
+		out.close();
+		file.setLastModified(entry.getTime());
 	}
 	
 }

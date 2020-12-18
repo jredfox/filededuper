@@ -608,6 +608,39 @@ public class Commands {
 		}
 	};
 	
+	public static Command<File> deepUnzip = new Command<File>("deepUnzip", "deepUnarchive")
+	{
+		@Override
+		public String[] displayArgs() 
+		{
+			return new String[]{"Archive-File"};
+		}
+
+		@Override
+		public File[] parse(String... inputs)
+		{
+			if(this.hasScanner(inputs))
+			{
+				return new File[]{this.nextFile("input archive file:")};
+			}
+			return new File[]{DeDuperUtil.newFile(inputs[0])};
+		}
+
+		@Override
+		public void run(ParamList<File> params) 
+		{
+			try
+			{
+				File file = params.get(0);
+				DeDuperUtil.deepUnzip(file);
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+		}
+	};
+	
 	/**
 	 * get a command based on it's id
 	 */
