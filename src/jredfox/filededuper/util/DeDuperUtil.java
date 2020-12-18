@@ -472,16 +472,24 @@ public class DeDuperUtil {
 	private static String[] pluginExts = new String[]{"jar"};
 	private static String getPlugin(String ext, File file) 
 	{
-		return Main.skipGenPluginData || !isExtEqual(ext, pluginExts) ? "" : genJarData(file);
+		try
+		{
+			return Main.skipGenPluginData || !isExtEqual(ext, pluginExts) ? "" : genJarData(file);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return "exception_" + e.getClass().getName();
+		}
 	}
 
 	private static String genJarData(File file)
 	{
 		Zip jar = JarUtil.getZipFile(file);
 		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
-		long compileTime = JarUtil.getCompileTime(file, entries);
+		long compileTime = JarUtil.getCompileTimeSafley(file, entries);
 		boolean modified = JarUtil.isJarModded(jar.file, entries, Main.checkJarSigned);
-		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(file, entries);
+		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(file, entries, compileTime);
 		IOUtils.close(jar, true);
 		return compileTime + "," + modified + "," + consistency;
 	}
@@ -590,5 +598,5 @@ public class DeDuperUtil {
 		}
 		return false;
 	}
-
+	
 }

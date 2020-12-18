@@ -9,7 +9,7 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.15.5";
+	public static final String VERSION = "0.16.0";
 	public static final String appName = "File De-Duper " + VERSION;
 	public static final String appId = "File-De-Duper";
 	
@@ -71,7 +71,7 @@ public class Main {
 		consistentCheckJar = jarCheck.get("consistentCheckJar", false);
 		programDirs = getProgramDirs(jarCheck.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/mojang,com/a,jredfox/filededuper").split(","));
 		programExts = getProgramDirs(jarCheck.get("programExts", "class,rsa,dsa,mf,sf,js,java,py,kt").toLowerCase().replace("\\.", "").split(","));
-		libDirs = jarCheck.get("libDirs", "org/eclipse,org/apache,org/json,com/google,com/ibm,com/paulscode,io/netty,it/unimi,javax/vecmath,LZMA,org/jline,org/lwjgl,org/objectweb,oshi,tv/twitch").split(",");
+		libDirs = jarCheck.get("libDirs", "org/eclipse,org/apache,org/json,com/google,com/ibm,paulscode,com/paulscode,io/netty,it/unimi,javax/vecmath,LZMA,org/jline,org/lwjgl,org/objectweb,oshi,tv/twitch").split(",");
 		jarCheck.save();
 	}
 	

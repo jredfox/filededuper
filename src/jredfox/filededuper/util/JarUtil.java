@@ -29,6 +29,7 @@ import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.archive.Zip;
 import jredfox.filededuper.config.csv.CSV;
+import jredfox.filededuper.exception.CompileTimeException;
 
 public class JarUtil {
 	
@@ -265,7 +266,20 @@ public class JarUtil {
 		return -1;
 	}
 	
-	public static long getCompileTime(File zipFile, List<ZipEntry> entries)
+	public static long getCompileTimeSafley(File zipFile, List<ZipEntry> entries)
+	{
+		try
+		{
+			return getCompileTime(zipFile, entries);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
+	public static long getCompileTime(File zipFile, List<ZipEntry> entries) throws CompileTimeException
 	{
 		return Main.compileTimePoints ? getCompileTimePoints(zipFile, entries, Main.programDirs, Main.libDirs) : getCompileTimeLeast(zipFile, entries, Main.programDirs, Main.libDirs);
 	}
@@ -290,7 +304,7 @@ public class JarUtil {
 			}
 		}
 		if(ms == -1)
-			throw new RuntimeException("JarUtil#getCompileTimeLeast() couldn't find program dir add one to the config:" + zipFile.getAbsolutePath());
+			throw new CompileTimeException("JarUtil#getCompileTimeLeast() couldn't find program dir add one to the config:" + zipFile.getAbsolutePath());
 		return ms;
 	}
 	
@@ -373,7 +387,7 @@ public class JarUtil {
 				}
 				);
 		if(points.isEmpty())
-			throw new RuntimeException("JarUtil#getCompileTimePoints() couldn't find program dir add one to the config:" + zipFile.getAbsolutePath());
+			throw new CompileTimeException("JarUtil#getCompileTimePoints() couldn't find program dir add one to the config:" + zipFile.getAbsolutePath());
 		PointTimeEntry point = points.get(0);
 		long ms = point.getPointEntry().getKey();
 		return ms;
@@ -586,7 +600,7 @@ public class JarUtil {
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> hashes = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha-1, sha256, size, date-modified, compileTime, boolean modified, enum consistency, path");
-			long compileTime = JarUtil.getCompileTime(f, entries);
+			long compileTime = JarUtil.getCompileTimeSafley(f, entries);
 			long minTime = JarUtil.getMinTime(compileTime);
 			long maxTime = JarUtil.getMaxTime(compileTime);
 			
@@ -642,12 +656,11 @@ public class JarUtil {
 	 * {@link Consistencies#none} if the jar's resources are inconsistent with compile time not all classes are matching and no resources are matching.
 	 * this isn't a boolean for is modded just an enum for how the compiler/obfuscator/jar signer works.
 	 */
-	public static Consistencies getConsistentcy(File f, List<ZipEntry> entries) 
+	public static Consistencies getConsistentcy(File f, List<ZipEntry> entries, long compileTime) 
 	{
 		try
 		{
 			Set<Consistencies> cs = new HashSet<>(4);
-			long compileTime = JarUtil.getCompileTime(f, entries);
 			for(ZipEntry e : entries)
 			{
 				if(e.isDirectory())
