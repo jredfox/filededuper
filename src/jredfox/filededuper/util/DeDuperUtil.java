@@ -91,9 +91,10 @@ public class DeDuperUtil {
 	public static String getTrueName(File file)
 	{
 		String name = file.getName();
-		if(file.isDirectory() || !name.contains("."))
+		if(file.isDirectory())
 			return name;
-		return name.substring(0, name.toLowerCase().indexOf(getExtension(file)) - 1);//name must be lower case in case the extension is actually uppercase inside the filename
+		int index = name.lastIndexOf('.');
+		return index != -1 ? name.substring(0, index) : name;
 	}
 	
 	public static String getRealtivePath(File dir, File file) 
