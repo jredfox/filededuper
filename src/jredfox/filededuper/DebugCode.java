@@ -9,7 +9,7 @@ public class DebugCode {
 	
 	public static void main(String[] args) throws IOException
 	{
-		System.out.println(DeDuperUtil.getTrueName(new File("ziptest.cfg").getAbsoluteFile()));
+		
 	}
 
 }

@@ -155,8 +155,7 @@ public class JarUtil {
 	
 	public static List<ArchiveEntry> getModdedFiles(ZipFile zip)
 	{
-		List<ZipEntry> entries = getZipEntries(zip);
-		return getModdedFiles(zip, entries);
+		return getModdedFiles(zip, getZipEntries(zip));
 	}
 	
 	/**
@@ -695,6 +694,38 @@ public class JarUtil {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static void deepUnzip(File zipFile) throws IOException
+	{
+		ZipFile zip = new ZipFile(zipFile);
+		List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+		for(ZipEntry entry : entries)
+		{
+			File dumped = new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile), entry.getName());
+			String ext = DeDuperUtil.getExtension(dumped);
+			unzip(zip, entry, dumped);
+			if(isArchiveExt(ext))
+			{
+				deepUnzip(dumped);
+			}
+		}
+	}
+
+	public static boolean isArchiveExt(String ext) 
+	{
+		return ext.equals("zip") || ext.equals("jar");
+	}
+
+	public static void unzip(ZipFile zip, ZipEntry entry, File file) throws IOException 
+	{
+		file.getParentFile().mkdirs();
+		FileOutputStream out = new FileOutputStream(file);
+		ZipEntry newEntry = new ZipEntry(entry.getName());
+		newEntry.setTime(entry.getTime());
+		IOUtils.copy(zip.getInputStream(newEntry), out);
+		out.close();
+		file.setLastModified(entry.getTime());
 	}
 
 }

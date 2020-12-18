@@ -21,6 +21,7 @@ public abstract class Command<T> {
 	public List<String> names;
 	public ParamList<T> params;
 	public boolean hasError;
+	public List<OptionalArg> options = new ArrayList<>();
 	
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	
@@ -40,8 +41,8 @@ public abstract class Command<T> {
 	}
 
 	public abstract String[] displayArgs();
-	public abstract T[] parse(String... args);
-	public abstract void run(ParamList<T> args);
+	public abstract T[] parse(String... inputs);
+	public abstract void run(ParamList<T> params);
 	
 	public void run()
 	{

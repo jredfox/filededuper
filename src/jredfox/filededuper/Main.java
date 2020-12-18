@@ -9,7 +9,7 @@ import jredfox.selfcmd.SelfCommandPrompt;
 
 public class Main {
 	
-	public static final String VERSION = "0.16.3";
+	public static final String VERSION = "0.16.4";
 	public static final String appName = "File De-Duper " + VERSION;
 	public static final String appId = "File-De-Duper";
 	
@@ -36,6 +36,7 @@ public class Main {
 	public static String[] genExt;
 	public static String[] genDupesExt;
 	public static String[] compareExt;
+	public static String[] archiveExt;
 	public static HashType compareHash;
 	public static boolean lowercaseHash;
 	public static boolean skipGenPluginData;
@@ -60,6 +61,7 @@ public class Main {
 		lowercaseHash = mainCfg.get("lowercaseHash", false);
 		skipGenPluginData = mainCfg.get("skipGenPluginData", false);
 		compareHash = HashType.getByName(mainCfg.get("compareHash", "MD5").toLowerCase().replace("-", ""));//options are MD5, SHA1, SHA256
+		archiveExt = trimDirs(mainCfg.get("archiveExt", "zip,jar").split(","));
 		mainCfg.save();
 		
 		MapConfig jarCheck = new MapConfig(new File(getProgramDir(), "checkJar.cfg"));

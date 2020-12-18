@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import com.google.common.io.Files;
 
 import jredfox.filededuper.Main;
+import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
@@ -635,13 +637,55 @@ public class Commands {
 				List<File> files = DeDuperUtil.getDirFiles(dir, "zip", "jar");
 				for(File file : files)
 				{
-					DeDuperUtil.deepUnzip(file);
+					JarUtil.deepUnzip(file);
 				}
-			} 
+			}
 			catch (IOException e) 
 			{
 				e.printStackTrace();
 			}
+		}
+	};
+	
+	public static Command<File> printArchiveMatches = new Command<File>("printArchiveMatches")
+	{
+		@Override
+		public String[] displayArgs() 
+		{
+			return new String[]{"Archive-File","Archive-File || Dir"};
+		}
+
+		@Override
+		public File[] parse(String... inputs) 
+		{
+			if(this.hasScanner(inputs))
+			{
+				return new File[]{this.nextFile("input archive:"), this.nextFile("input dir/archive to compare with:")};
+			}
+			return new File[]{DeDuperUtil.newFile(inputs[0]), DeDuperUtil.newFile(inputs[1])};
+		}
+
+		@Override
+		public void run(ParamList<File> params) 
+		{
+			File file = params.get(0);
+			ZipFile zip = JarUtil.getZipFile(file);
+			File dir = params.get(1);
+			List<File> files = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
+			boolean match = false;
+			for(File f : files)
+			{
+				ZipFile zipCheck = JarUtil.getZipFile(f);
+				boolean vanilla = JarUtil.getModdedFiles(zip, zipCheck).isEmpty();
+				if(vanilla)
+				{
+					System.out.println("input Archive:" + file + " matched archive:" + f);
+					match = true;
+					break;
+				}
+			}
+			if(!match)
+				System.out.println("NO MATCHES FOUND:" + file);
 		}
 	};
 	
