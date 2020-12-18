@@ -9,7 +9,7 @@ public class DebugCode {
 	{
 		String cmd = "cd -a=\"v a l u e\"";
 		String[] line = SelfCommandPrompt.parseCommandLine(cmd);
-		OptionalArg arg = new OptionalArg("--v a l u e");
+		OptionalArg arg = new OptionalArg("-std");
 		System.out.println(arg);
 	}
 

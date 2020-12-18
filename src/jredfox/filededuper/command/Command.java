@@ -21,7 +21,7 @@ public abstract class Command<T> {
 	public List<String> names;
 	public ParamList<T> params;
 	public boolean hasError;
-	public List<OptionalArg> options = new ArrayList<>();
+	public List<OptionalArg> acceptedOptionalArgs = new ArrayList<>();
 	
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	

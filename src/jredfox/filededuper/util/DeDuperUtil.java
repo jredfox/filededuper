@@ -273,27 +273,6 @@ public class DeDuperUtil {
 		return num >= min && num <= max;
 	}
 	
-	/**
-	 * an optimized way to split a string from it's first instanceof a char
-	 */
-	public static String[] splitFirst(String s, char reg)
-	{
-		String[] parts = new String[2];
-		for(int i=0;i<s.length();i++)
-		{
-			char c = s.charAt(i);
-			if(c == reg)
-			{
-				parts[0] = s.substring(0, i);
-				parts[1] = s.substring(i + 1, s.length());
-				break;
-			}
-		}
-		if(parts[0] == null)
-			return new String[]{s};
-		return parts;
-	}
-	
 	public static String parseQuotes(String s, char lq, char rq) 
 	{
 		return parseQuotes(s, 0, lq, rq);
@@ -535,21 +514,41 @@ public class DeDuperUtil {
 		return b.toString();
 	}
 	
+	public static String[] splitFirst(String str, char sep, char lquote, char rquote)
+	{
+		return split(str, 1, sep, lquote, rquote);
+	}
+	
+	public static String[] split(String str, char sep, char lquote, char rquote) 
+	{
+		return split(str, -1, sep, lquote, rquote);
+	}
+	
 	/**
 	 * split with quote ignoring support
+	 * @param limit is the amount of times it will attempt to split
 	 */
-	public static String[] split(String str, char sep, char lquote, char rquote) 
+	public static String[] split(String str, int limit, char sep, char lquote, char rquote) 
 	{
 		if(str.isEmpty())
 			return new String[]{str};
 		List<String> list = new ArrayList<>();
 		boolean inside = false;
+		int count = 0;
 		for(int i = 0; i < str.length(); i += 1)
 		{
+			if(limit != -1 && count >= limit)
+				break;
 			String a = str.substring(i, i + 1);
-			String prev = i == 0 ? "a" : str.substring(i-1, i);
-			boolean escape = prev.charAt(0) ==  '\\';
-			if(a.equals("" + lquote) && !escape || a.equals("" + rquote) && !escape)
+			char firstChar = a.charAt(0);
+			char prev = i == 0 ? 'a' : str.substring(i-1, i).charAt(0);
+			boolean escape = prev == '\\';
+			if(firstChar == '\\' && prev == '\\')
+			{
+				prev = '/';
+				firstChar = '/';//escape the escape
+			}
+			if(!escape && (a.equals("" + lquote) || a.equals("" + rquote)))
 			{
 				inside = !inside;
 			}
@@ -557,8 +556,9 @@ public class DeDuperUtil {
 			{
 				String section = str.substring(0, i);
 				list.add(section);
-				str = str.substring(i + ("" + sep).length(), str.length());
+				str = str.substring(i + ("" + sep).length());
 				i = -1;
+				count++;
 			}
 		}
 		list.add(str);//add the rest of the string

@@ -23,6 +23,7 @@ public class OptionalArg {
 		{
 			this.dash = "-";
 			arg = arg.substring(1);
+			StringBuilder b = new StringBuilder();
 			for(int i=0;i<arg.length();i++)
 			{
 				String c = arg.substring(i, i + 1);
@@ -30,31 +31,38 @@ public class OptionalArg {
 					throw new IllegalArgumentException("whitespace isn't allowed in flags");
 				else if(c.equals("="))
 					break;
+				b.append(c);
 				this.flags.add("" + c);
 			}
+			this.id = b.toString();
 		}
 		else if(arg.contains("--"))
 		{
 			this.dash = "--";
 			arg = arg.substring(2);
-			this.flags.add(arg);
+			StringBuilder b = new StringBuilder();
+			for(int i=0;i<arg.length();i++)
+			{
+				String c = arg.substring(i, i + 1);
+				if(c.equals(" "))
+					throw new IllegalArgumentException("whitespace isn't allowed in flags");
+				else if(c.equals("="))
+					break;
+				b.append(c);
+			}
+			this.id = b.toString();
+			this.flags.add(this.id);
 		}
 		else
 		{
-			throw new IllegalArgumentException("Optional Arg must contain a \"-\" input:\"" + arg + "\"");
+			throw new IllegalArgumentException("Optional Arg must be parsed with \"-\" or \"--\" input:\"" + arg + "\"");
 		}
 		
 		if(arg.contains("="))
 		{
 			if(this.flags.size() > 1)
 				throw new IllegalArgumentException("multiple flags cannot be assigned to one value");
-			String[] args = DeDuperUtil.splitFirst(arg, '=');
-			this.id = args[0];
-			this.value = args[1];
-		}
-		else
-		{
-			this.id = arg;
+			this.value = DeDuperUtil.splitFirst(arg, '=', '"', '"')[1];
 		}
 	}
 	
