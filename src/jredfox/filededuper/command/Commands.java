@@ -269,7 +269,7 @@ public class Commands {
 			for(Command c : Command.cmds.values())
 			{
 				String names = DeDuperUtil.toString(c.names, ", ");
-				System.out.println(names + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")" + (c.options.isEmpty() ? "" : ", OptionalParams:(" + DeDuperUtil.toString(c.options, ", ") + ")") );
+				System.out.println(names + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")" + (c.options.isEmpty() ? "" : ", OptionalParams:(" + Command.getOArgsString(c.options, ", ") + ")") );
 			}
 		}
 
@@ -687,6 +687,27 @@ public class Commands {
 			}
 			if(!match)
 				System.out.println("NO MATCHES FOUND:" + file);
+		}
+	};
+	
+	public static Command<Object> test = new Command<Object>(new String[]{"-cd","--stacktrace", "--mainClass="}, "test")
+	{
+
+		@Override
+		public String[] displayArgs() {
+			return new String[]{""};
+		}
+
+		@Override
+		public Object[] parse(String... inputs) 
+		{
+			return null;
+		}
+
+		@Override
+		public void run(ParamList<Object> params)
+		{
+			System.out.println(params.hasFlag('c') + " " + "\"" + params.getValue("mainClass") + "\"");
 		}
 	};
 	

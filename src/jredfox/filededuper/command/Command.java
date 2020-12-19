@@ -300,10 +300,26 @@ public abstract class Command<T> {
 				c.parseParamList(args);
 			}
 			catch(CommandParseException e) {
-				return new CommandInvalidParse(c.id, "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")");
+				return new CommandInvalidParse(c.id, "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")" + (c.options.isEmpty() ? "" : ", OptionalParams:(" + Command.getOArgsString(c.options, ", ") + ")"));
 			}
 		}
 		return c;
+	}
+	
+
+	public static String getOArgsString(List<CommandOption> options, String sep) 
+	{
+		if(options == null)
+			return null;
+		StringBuilder b = new StringBuilder();
+		int index = 0;
+		for(CommandOption option : options)
+		{
+			String s = option.toFancyString();
+			b.append(index + 1 != options.size() ? s + sep : s);
+			index++;
+		}
+		return b.toString();
 	}
 
 	/**

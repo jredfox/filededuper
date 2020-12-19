@@ -131,4 +131,17 @@ public class CommandOption {
 		b.append(value);
 		return b.toString();
 	}
+
+	public String toFancyString() 
+	{
+		String value = (this.value != null ? ("=" + (this.value.isEmpty() ? "value" : this.value) ) : "");
+		if(this.id.length() > 1)
+			return "--" + this.id + value;
+		StringBuilder b = new StringBuilder();
+		b.append("-" + this.id);
+		for(CommandOption o : this.subs)
+			b.append(", -" + o.id);
+		b.append(value);
+		return b.toString();
+	}
 }
