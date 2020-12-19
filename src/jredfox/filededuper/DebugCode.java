@@ -9,8 +9,8 @@ public class DebugCode {
 	{
 		String cmd = "cd -a=\"v a l u e\"";
 		String[] line = SelfCommandPrompt.parseCommandLine(cmd);
-		CmdOption arg = new CmdOption("--stacktrace");
-		System.out.println(arg.hasFlag("stacktrace"));
+		CmdOption arg = new CmdOption("-sa");
+		System.out.println(arg);
 	}
 
 }

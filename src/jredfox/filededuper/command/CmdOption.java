@@ -29,8 +29,14 @@ public class CmdOption {
 			for(int i=1; i < id.length(); i++)
 			{
 				String s = id.substring(i, i + 1);
-				if(s.equals("=") && !this.subs.isEmpty())
-					throw new IllegalArgumentException("combined flags cannot be assigned a value!");
+				if(s.equals("="))
+				{
+					if(!this.subs.isEmpty())
+						throw new IllegalArgumentException("combined flags cannot be assigned a value!");
+					break;
+				}
+				else if(this.hasFlag(s))
+					throw new IllegalArgumentException("duplicate flag:\"" + s + "\"");
 				this.subs.add(new CmdOption("-" + s));
 			}
 		}
@@ -95,12 +101,14 @@ public class CmdOption {
 	@Override
 	public String toString()
 	{
+		String value = (this.value != null ? ("=" + this.value) : "");
 		if(this.id.length() > 1)
-			return "--" + this.id + (this.value != null ? ("=" + this.value) : "");
+			return "--" + this.id + value;
 		StringBuilder b = new StringBuilder();
 		b.append("-" + this.id);
 		for(CmdOption o : this.subs)
 			b.append(o.id);
+		b.append(value);
 		return b.toString();
 	}
 
