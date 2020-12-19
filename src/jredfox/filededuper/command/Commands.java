@@ -690,27 +690,6 @@ public class Commands {
 		}
 	};
 	
-	public static Command<Object> test = new Command<Object>(new String[]{"-cd","--stacktrace", "--mainClass="}, "test")
-	{
-
-		@Override
-		public String[] displayArgs() {
-			return new String[]{""};
-		}
-
-		@Override
-		public Object[] parse(String... inputs) 
-		{
-			return null;
-		}
-
-		@Override
-		public void run(ParamList<Object> params)
-		{
-			System.out.println(params.hasFlag('c') + " " + "\"" + params.getValue("mainClass") + "\"");
-		}
-	};
-	
 	/**
 	 * get a command based on it's id
 	 */

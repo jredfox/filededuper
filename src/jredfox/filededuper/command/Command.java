@@ -3,7 +3,6 @@ package jredfox.filededuper.command;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,16 +22,21 @@ public abstract class Command<T> {
 	public List<String> names;
 	public ParamList<T> params;
 	public boolean hasError;
-	public List<CommandOption> allowedOptions = new ArrayList<>(0);
-	
+	/**
+	 * a list of all allowed optional arguments for the command specified here
+	 */
+	public List<CommandOption> options = new ArrayList<>(0);
+	/**
+	 * the command registry
+	 */
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	
 	public Command(String[] options, String... ids)
 	{
 		this(ids);
-		this.allowedOptions = new ArrayList<>(options.length);
+		this.options = new ArrayList<>(options.length);
 		for(String s : options)
-			this.allowedOptions.add(new CommandOption(s));
+			this.options.add(new CommandOption(s));
 	}
 	
 	public Command(String... ids)
@@ -87,7 +91,7 @@ public abstract class Command<T> {
 	
 	public boolean isOptionValid(CommandOption option)
 	{
-		for(CommandOption o : this.allowedOptions)
+		for(CommandOption o : this.options)
 		{
 			if(o.hasFlag(option) && (o.hasValue() == option.hasValue()))
 			{
@@ -130,7 +134,7 @@ public abstract class Command<T> {
 	
 	public List<CommandOption> getOptions()
 	{
-		return this.allowedOptions;
+		return this.options;
 	}
 	
 	public boolean isCommand(String compareId)
