@@ -3,6 +3,8 @@ package jredfox.filededuper.command;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -21,9 +23,17 @@ public abstract class Command<T> {
 	public List<String> names;
 	public ParamList<T> params;
 	public boolean hasError;
-	public List<CommandOption> acceptedOptions = new ArrayList<>();
+	public List<CommandOption> allowedOptions = new ArrayList<>(0);
 	
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
+	
+	public Command(String[] options, String... ids)
+	{
+		this(ids);
+		this.allowedOptions = new ArrayList<>(options.length);
+		for(String s : options)
+			this.allowedOptions.add(new CommandOption(s));
+	}
 	
 	public Command(String... ids)
 	{
@@ -55,19 +65,73 @@ public abstract class Command<T> {
 	{
 		try
 		{
-			T[] params = this.parse(args);
-			this.params = new ParamList(params);
+			String[] paramArgs = this.getParamArgs(args);
+			String[] optionArgs = this.getOptionalArgs(args);
+			List<CommandOption> options = new ArrayList(optionArgs.length);
+			for(String o : optionArgs)
+			{
+				CommandOption option = new CommandOption(o);
+				if(!this.isOptionValid(option))
+					throw new CommandParseException("optional command argument is maulformed or invalid:" + option);
+				options.add(option);
+			}
+			T[] params = this.parse(paramArgs);
+			this.params = new ParamList(options, params);
 			this.setError(false);
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			throw new CommandParseException(e);
 		}
 	}
 	
+	public boolean isOptionValid(CommandOption option)
+	{
+		for(CommandOption o : this.allowedOptions)
+		{
+			if(o.hasFlag(option) && (o.hasValue() == option.hasValue()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public String[] getOptionalArgs(String[] args) 
+	{
+		List<String> list = new ArrayList<>(2);
+		for(String s : args)
+		{
+			if(s.startsWith("-"))
+				list.add(s);
+		}
+		return DeDuperUtil.toArray(list, String.class);
+	}
+	
+	public String[] getParamArgs(String[] args) 
+	{
+		List<String> list = DeDuperUtil.asList(args);
+		if(list.get(0).equalsIgnoreCase(this.id))
+			list.remove(0);
+		Iterator<String> it = list.iterator();
+		while(it.hasNext())
+		{
+			String s = it.next();
+			if(s.startsWith("-"))
+				it.remove();
+		}
+		return DeDuperUtil.toArray(list, String.class);
+	}
+
 	protected void register() 
 	{
 		cmds.put(this.id, this);
+	}
+	
+	public List<CommandOption> getOptions()
+	{
+		return this.allowedOptions;
 	}
 	
 	public boolean isCommand(String compareId)
@@ -230,24 +294,13 @@ public abstract class Command<T> {
 		if(c != null) 
 		{
 			try {
-				c.parseParamList(getCmdArgs(args));
+				c.parseParamList(args);
 			}
 			catch(CommandParseException e) {
 				return new CommandInvalidParse(c.id, "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")");
 			}
 		}
 		return c;
-	}
-
-	protected static String[] getCmdArgs(String[] args)
-	{
-		if(args.length > 0)
-		{
-			String[] actualArgs = new String[args.length - 1];
-			System.arraycopy(args, 1, actualArgs, 0, actualArgs.length);
-			return actualArgs;
-		}
-		return new String[]{""};
 	}
 
 	/**

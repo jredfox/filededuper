@@ -604,5 +604,13 @@ public class DeDuperUtil {
 		}
 		return false;
 	}
+
+	public static <T> List<T> asList(T[] args) 
+	{
+		ArrayList<T> list = new ArrayList<>(args.length);
+		for(T obj : args)
+			list.add(obj);
+		return list;
+	}
 	
 }

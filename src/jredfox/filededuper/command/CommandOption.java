@@ -8,8 +8,8 @@ import jredfox.filededuper.util.DeDuperUtil;
 
 public class CommandOption {
 	
-	public String id;
-	public String value;
+	protected String id;
+	protected String value;
 	protected Set<CommandOption> subs = new HashSet<>(0);
 	
 	public CommandOption(char c)
@@ -60,7 +60,7 @@ public class CommandOption {
 		}
 	}
 	
-	protected int getDashes(String str) 
+	public static int getDashes(String str) 
 	{
 		int count = 0;
 		for(char c : str.toCharArray())
@@ -82,6 +82,11 @@ public class CommandOption {
 	{
 		return this.id.equalsIgnoreCase(k) || this.hasSubFlags(k);
 	}
+	
+	public boolean hasFlag(CommandOption option) 
+	{
+		return this.hasFlag(option.id) || this.hasSubFlags(option);
+	}
 
 	protected boolean hasSubFlags(String k) 
 	{
@@ -92,10 +97,25 @@ public class CommandOption {
 		}
 		return false;
 	}
+
+	protected boolean hasSubFlags(CommandOption option) 
+	{
+		for(CommandOption o : option.subs)
+		{
+			if(this.hasFlag(o.id))
+				return true;
+		}
+		return false;
+	}
 	
 	public String getValue()
 	{
 		return this.value;
+	}
+	
+	public boolean hasValue()
+	{
+		return this.value != null;
 	}
 	
 	@Override
@@ -111,5 +131,4 @@ public class CommandOption {
 		b.append(value);
 		return b.toString();
 	}
-
 }

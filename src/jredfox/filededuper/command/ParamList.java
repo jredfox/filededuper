@@ -6,20 +6,20 @@ import java.util.List;
 public class ParamList<T> {
 	
 	public T[] params;
-	public List<CommandOption> options = new ArrayList<>(1);
+	public List<CommandOption> options;
 	
 	@SuppressWarnings("unchecked")
 	public ParamList(T... params)
 	{
-		this(new String[0], params);
+		this.params = params;
+		this.options = new ArrayList<>(0);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ParamList(String[] oargs, T... params)
+	public ParamList(List<CommandOption> options, T... params)
 	{
 		this.params = params;
-		for(String o : oargs)
-			this.options.add(new CommandOption(o));
+		this.options = options != null ? options : new ArrayList<>(0);
 	}
 	
 	@SuppressWarnings("unchecked")
