@@ -1,6 +1,6 @@
 package jredfox.filededuper;
 
-import jredfox.filededuper.command.CmdOption;
+import jredfox.filededuper.command.CommandOption;
 import jredfox.selfcmd.SelfCommandPrompt;
 
 public class DebugCode {
@@ -9,7 +9,7 @@ public class DebugCode {
 	{
 		String cmd = "cd -a=\"v a l u e\"";
 		String[] line = SelfCommandPrompt.parseCommandLine(cmd);
-		CmdOption arg = new CmdOption("-sa");
+		CommandOption arg = new CommandOption("-sa");
 		System.out.println(arg);
 	}
 

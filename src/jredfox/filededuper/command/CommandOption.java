@@ -6,18 +6,18 @@ import java.util.Set;
 import jredfox.filededuper.command.exception.CommandParseException;
 import jredfox.filededuper.util.DeDuperUtil;
 
-public class CmdOption {
+public class CommandOption {
 	
 	public String id;
 	public String value;
-	protected Set<CmdOption> subs = new HashSet<>(0);
+	protected Set<CommandOption> subs = new HashSet<>(0);
 	
-	public CmdOption(char c)
+	public CommandOption(char c)
 	{
 		this("" + c);
 	}
 	
-	public CmdOption(String id)
+	public CommandOption(String id)
 	{
 		int dashes = this.getDashes(id);
 		if(dashes == 0)
@@ -37,7 +37,7 @@ public class CmdOption {
 				}
 				else if(this.hasFlag(s))
 					throw new IllegalArgumentException("duplicate flag:\"" + s + "\"");
-				this.subs.add(new CmdOption("-" + s));
+				this.subs.add(new CommandOption("-" + s));
 			}
 		}
 		else if(dashes == 2)
@@ -85,7 +85,7 @@ public class CmdOption {
 
 	protected boolean hasSubFlags(String k) 
 	{
-		for(CmdOption o : this.subs)
+		for(CommandOption o : this.subs)
 		{
 			if(o.id.equalsIgnoreCase(k))
 				return true;
@@ -106,7 +106,7 @@ public class CmdOption {
 			return "--" + this.id + value;
 		StringBuilder b = new StringBuilder();
 		b.append("-" + this.id);
-		for(CmdOption o : this.subs)
+		for(CommandOption o : this.subs)
 			b.append(o.id);
 		b.append(value);
 		return b.toString();

@@ -6,7 +6,7 @@ import java.util.List;
 public class ParamList<T> {
 	
 	public T[] params;
-	public List<CmdOption> options = new ArrayList<>(1);
+	public List<CommandOption> options = new ArrayList<>(1);
 	
 	@SuppressWarnings("unchecked")
 	public ParamList(T... params)
@@ -19,7 +19,7 @@ public class ParamList<T> {
 	{
 		this.params = params;
 		for(String o : oargs)
-			this.options.add(new CmdOption(o));
+			this.options.add(new CommandOption(o));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -31,9 +31,9 @@ public class ParamList<T> {
 	/**
 	 * may return null if the option doesn't exist
 	 */
-	public CmdOption getOption(String id) 
+	public CommandOption getOption(String id) 
 	{
-		for(CmdOption o : this.options)
+		for(CommandOption o : this.options)
 			if(o.hasFlag(id))
 				return o;
 		return null;
@@ -41,7 +41,7 @@ public class ParamList<T> {
 	
 	public boolean hasFlag(String key)
 	{
-		for(CmdOption o : this.options)
+		for(CommandOption o : this.options)
 			if(o.hasFlag(key))
 				return true;
 		return false;
@@ -49,7 +49,7 @@ public class ParamList<T> {
 	
 	public String getValue(String id)
 	{
-		CmdOption o = this.getOption(id);
+		CommandOption o = this.getOption(id);
 		return o != null ? o.getValue() : "";
 	}
 
