@@ -60,19 +60,6 @@ public class CommandOption {
 		}
 	}
 	
-	public static int getDashes(String str) 
-	{
-		int count = 0;
-		for(char c : str.toCharArray())
-		{
-			if(c == '-')
-				count++;
-			else
-				break;
-		}
-		return count;
-	}
-	
 	public boolean hasFlag(char c)
 	{
 		return this.hasFlag("" + c);
@@ -86,6 +73,29 @@ public class CommandOption {
 	public boolean hasFlag(CommandOption option) 
 	{
 		return this.hasFlag(option.id) || this.hasSubFlags(option);
+	}
+	
+	public String getValue()
+	{
+		return this.value;
+	}
+	
+	public boolean hasValue()
+	{
+		return this.value != null;
+	}
+	
+	protected int getDashes(String str) 
+	{
+		int count = 0;
+		for(char c : str.toCharArray())
+		{
+			if(c == '-')
+				count++;
+			else
+				break;
+		}
+		return count;
 	}
 
 	protected boolean hasSubFlags(String k) 
@@ -106,16 +116,6 @@ public class CommandOption {
 				return true;
 		}
 		return false;
-	}
-	
-	public String getValue()
-	{
-		return this.value;
-	}
-	
-	public boolean hasValue()
-	{
-		return this.value != null;
 	}
 	
 	@Override

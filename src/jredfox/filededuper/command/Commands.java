@@ -1,3 +1,4 @@
+
 package jredfox.filededuper.command;
 
 import java.io.File;
@@ -706,7 +707,7 @@ public class Commands {
 		@Override
 		public void run(ParamList<Object> params)
 		{
-			System.out.println(params.hasFlag('c') + " " + params.hasFlag('d'));
+			System.out.println(params.hasFlag('c') + " " + "\"" + params.getValue("mainClass") + "\"");
 		}
 	};
 	

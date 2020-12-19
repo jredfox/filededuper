@@ -81,7 +81,6 @@ public abstract class Command<T> {
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
 			throw new CommandParseException(e);
 		}
 	}
