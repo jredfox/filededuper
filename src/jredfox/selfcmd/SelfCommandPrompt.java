@@ -293,6 +293,7 @@ public class SelfCommandPrompt {
         	cmds.add(command);//actual command
         	IOUtils.saveFileLines(cmds, sh, true);//save the file
         	IOUtils.makeExe(sh);//make it executable
+        	System.out.println(terminal + " " + OSUtil.getExeAndClose() + " osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
         	Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath() + "\\\"\"");
         }
         else if(OSUtil.isLinux())
@@ -364,18 +365,73 @@ public class SelfCommandPrompt {
 		
 		return shouldScan ? parseCommandLine(scanner.nextLine()) : argsInit;
 	}
-
-	public static String[] parseCommandLine(String line) 
+	
+	public static String[] parseCommandLine(String line)
 	{
-		String[] args = split(line, ' ', '"', '"');
-		List<String> arr = new ArrayList<>(args.length);
-		for(String s : args)
+		return parseCommandLine(line, '\\', '"');
+	}
+
+	public static String[] parseCommandLine(String line, char esq, char q)
+	{
+		List<String> args = new ArrayList<>();
+		StringBuilder builder = new StringBuilder();
+		String previous = "";
+		boolean quoted = false;
+		String replaceEsq = esq == '\\' ? "\\\\" : "" + esq;
+		for(int index = 0; index < line.length(); index++)
 		{
-			String arg = parseQuotes(s.trim(), '"', '"');
-			if(!arg.isEmpty())
-				arr.add(arg);
+			String character = line.substring(index, index + 1);
+			String compare = character;
+			
+			//escape the escape sequence
+			if(previous.equals("" + esq) && compare.equals("" + esq))
+			{
+				previous = "aa";
+				compare = "aa";
+			}
+			
+			boolean escaped = previous.equals("" + esq);
+			
+			if(!escaped && compare.equals("" + q))
+				quoted = !quoted;
+			
+			if(!quoted && compare.equals(" "))
+			{
+				args.add(replaceAll(builder.toString(), q, "", esq).replaceAll(replaceEsq + q, "" + q));
+				builder = new StringBuilder();
+				previous = compare;
+				continue;
+			}
+			builder.append(character);
+			previous = compare;
 		}
-		return toArray(arr, String.class);
+		if(!builder.toString().isEmpty())
+			args.add(replaceAll(builder.toString(), q, "", esq).replaceAll(replaceEsq + q, "" + q));
+		
+		return DeDuperUtil.toArray(args, String.class);
+	}
+
+	public static String replaceAll(String str, char what, String with, char esq)
+	{
+		if(what == '§')
+			throw new IllegalArgumentException("unsupported opperend:" + what);
+		StringBuilder builder = new StringBuilder();
+		String previous = "";
+		for(int index = 0; index < str.length(); index++)
+		{
+			String character = str.substring(index, index + 1);
+			if(previous.equals("" + esq) && character.equals("" + esq))
+			{
+				previous = "§";
+				character = "§";
+			}
+			boolean escaped = previous.equals("" + esq);
+			previous = character;
+			if(!escaped && character.equals("" + what))
+				character = with;
+			builder.append(character);
+		}
+		return builder.toString();
 	}
 	
 	/**
@@ -578,72 +634,6 @@ public class SelfCommandPrompt {
 
 	//End APP VARS_________________________________
 	
-	/**
-	 * get a file extension. Note directories do not have file extensions
-	 */
-	public static String getExtension(File file) 
-	{
-		String name = file.getName();
-		int index = name.lastIndexOf('.');
-		return index != -1 && !file.isDirectory() ? name.substring(index + 1) : "";
-	}
-	
-	public static File getProgramDir()
-	{
-		return new File(System.getProperty("user.dir"));
-	}
-	
-	public static String[] splitFirst(String str, char sep, char lquote, char rquote)
-	{
-		return split(str, 1, sep, lquote, rquote);
-	}
-	
-	public static String[] split(String str, char sep, char lquote, char rquote) 
-	{
-		return split(str, -1, sep, lquote, rquote);
-	}
-	
-	/**
-	 * split with quote ignoring support
-	 * @param limit is the amount of times it will attempt to split
-	 */
-	public static String[] split(String str, int limit, char sep, char lquote, char rquote) 
-	{
-		if(str.isEmpty())
-			return new String[]{str};
-		List<String> list = new ArrayList<>();
-		boolean inside = false;
-		int count = 0;
-		for(int i = 0; i < str.length(); i += 1)
-		{
-			if(limit != -1 && count >= limit)
-				break;
-			String a = str.substring(i, i + 1);
-			char firstChar = a.charAt(0);
-			char prev = i == 0 ? 'a' : str.substring(i-1, i).charAt(0);
-			boolean escape = prev == '\\';
-			if(firstChar == '\\' && prev == '\\')
-			{
-				prev = '/';
-				firstChar = '/';//escape the escape
-			}
-			if(!escape && (a.equals("" + lquote) || a.equals("" + rquote)))
-			{
-				inside = !inside;
-			}
-			if(a.equals("" + sep) && !inside)
-			{
-				String section = str.substring(0, i);
-				list.add(section);
-				str = str.substring(i + ("" + sep).length());
-				i = -1;
-				count++;
-			}
-		}
-		list.add(str);//add the rest of the string
-		return toArray(list, String.class);
-	}
-	
 	public static String parseQuotes(String s, char lq, char rq) 
 	{
 		return parseQuotes(s, 0, lq, rq);
@@ -692,6 +682,21 @@ public class SelfCommandPrompt {
 			prev = c;
 		}
 		return false;
+	}
+	
+	/**
+	 * get a file extension. Note directories do not have file extensions
+	 */
+	public static String getExtension(File file) 
+	{
+		String name = file.getName();
+		int index = name.lastIndexOf('.');
+		return index != -1 && !file.isDirectory() ? name.substring(index + 1) : "";
+	}
+	
+	public static File getProgramDir()
+	{
+		return new File(System.getProperty("user.dir"));
 	}
 	
 	public static <T> T[] toArray(Collection<T> col, Class<T> clazz)

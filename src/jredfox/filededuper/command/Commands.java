@@ -692,9 +692,9 @@ public class Commands {
 	
 	public static Command<Object> test = new Command<Object>(new String[]{"-cd","--stacktrace", "--mainClass="}, "test")
 	{
-
 		@Override
-		public String[] displayArgs() {
+		public String[] displayArgs() 
+		{
 			return new String[]{""};
 		}
 
