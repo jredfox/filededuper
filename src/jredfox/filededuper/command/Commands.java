@@ -1,7 +1,7 @@
-
 package jredfox.filededuper.command;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,13 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import com.google.common.io.Files;
 
 import jredfox.filededuper.Main;
-import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
@@ -234,23 +232,57 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deDupe = new Command<File>("deDupe")
+	public static Command<File> deDupe = new Command<File>(new String[]{"--flat"}, "deDupe")
 	{
 		@Override
-		public File[] parse(String... inputs) {
-			// TODO Auto-generated method stub
-			return null;
+		public String[] displayArgs()
+		{
+			return new String[]{"Dir"};
+		}
+		
+		@Override
+		public File[] parse(String... inputs) 
+		{
+			if(this.hasScanner(inputs))
+			{
+				return new File[]{this.nextFile("input directory to de-dupe:")};
+			}
+			return new File[]{DeDuperUtil.newFile(inputs[0])};
 		}
 
 		@Override
-		public void run(ParamList<File> params) {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public String[] displayArgs() {
-			// TODO Auto-generated method stub
-			return null;
+		public void run(ParamList<File> params) 
+		{
+			File dir = params.get(0);
+			deepUnzip.run(new ParamList<File>(new File[]{dir}));
+			List<File> files = DeDuperUtil.getDirFiles(dir);
+			Set<String> hashes = new HashSet<>(files.size());
+			File output = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
+			boolean flat = params.hasFlag("flat");
+			for(File file : files)
+			{
+				String hash = DeDuperUtil.getCompareHash(file);
+				if(!hashes.add(hash))
+				{
+					System.out.println("skipping duplicate file:" + hash + " " + file);
+					continue;
+				}
+				try
+				{
+					if(flat)
+					{
+						DeDuperUtil.copy(file, new File(output, DeDuperUtil.getTrueName(file) + "-" + hash + DeDuperUtil.getExtensionFull(file)));
+					}
+					else
+					{
+						DeDuperUtil.copy(file, new File(output, DeDuperUtil.getRealtivePath(dir, file)));
+					}
+				}
+				catch (Exception e) 
+				{
+					e.printStackTrace();
+				}
+			}
 		}
 	};
 	
