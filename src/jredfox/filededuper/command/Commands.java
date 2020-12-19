@@ -269,7 +269,7 @@ public class Commands {
 			for(Command c : Command.cmds.values())
 			{
 				String names = DeDuperUtil.toString(c.names, ", ");
-				System.out.println(names + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")");
+				System.out.println(names + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")" + (c.options.isEmpty() ? "" : ", OptionalParams:(" + DeDuperUtil.toString(c.options, ", ") + ")") );
 			}
 		}
 
