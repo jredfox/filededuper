@@ -3,26 +3,23 @@ package jredfox.filededuper.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import jredfox.filededuper.command.exception.CommandParseException;
-
 public class ParamList<T> {
 	
 	public T[] params;
-	public List<OptionalArg> oparams;
-	
-	@SuppressWarnings("unchecked")
-	public ParamList(String[] oargs, T... params) throws CommandParseException
-	{
-		this(params);
-		this.oparams = new ArrayList<>();
-		for(String oarg : oargs) 
-			this.oparams.add(new OptionalArg(oarg));
-	}
+	public List<CmdOption> options = new ArrayList<>(1);
 	
 	@SuppressWarnings("unchecked")
 	public ParamList(T... params)
 	{
+		this(new String[0], params);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ParamList(String[] oargs, T... params)
+	{
 		this.params = params;
+		for(String o : oargs)
+			this.options.add(new CmdOption(o));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -31,23 +28,39 @@ public class ParamList<T> {
 		return (K) this.params[index];
 	}
 	
-	public OptionalArg get(String key)
+	/**
+	 * may return null if the option doesn't exist
+	 */
+	public CmdOption getOption(String id) 
 	{
-		for(OptionalArg o : this.oparams)
-		{
-			
-		}
-		return null;//TODO:
+		for(CmdOption o : this.options)
+			if(o.hasFlag(id))
+				return o;
+		return null;
 	}
 	
-	public boolean getFlag(String key)
+	public boolean hasFlag(String key)
 	{
-		return false;//TODO:
+		for(CmdOption o : this.options)
+			if(o.hasFlag(key))
+				return true;
+		return false;
 	}
 	
-	public boolean getFlag(char c)
+	public String getValue(String id)
 	{
-		return false;//TODO:
+		CmdOption o = this.getOption(id);
+		return o != null ? o.getValue() : "";
+	}
+
+	public String getValue(char c)
+	{
+		return this.getValue("" + c);
+	}
+	
+	public boolean hasFlag(char c)
+	{
+		return this.hasFlag("" + c);
 	}
 
 }
