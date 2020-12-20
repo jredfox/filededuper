@@ -202,7 +202,7 @@ public class IOUtils {
 	            	deleteDirectory(f);
 	    
 	    if(!file.delete())
-	    	System.out.println("unable to delete file:" + file);
+	    	System.err.println("unable to delete file:" + file);
 	}
 
 }

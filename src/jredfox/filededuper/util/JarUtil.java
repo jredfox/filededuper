@@ -716,6 +716,7 @@ public class JarUtil {
 				deepUnzip(dumped);
 			}
 		}
+		zip.close();
 	}
 
 	public static void unzip(ZipFile zip, ZipEntry entry, File file) throws IOException 
