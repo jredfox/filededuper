@@ -194,6 +194,8 @@ public class IOUtils {
 
 	public static void deleteDirectory(File file)
 	{
+		if(!file.exists())
+			return;
 	    if(file.isDirectory())
 	        for(File f : file.listFiles()) 
 	            if(!Files.isSymbolicLink(f.toPath())) 
