@@ -778,6 +778,12 @@ public class SelfCommandPrompt {
 		return false;
 	}
 	
+	public static String inject(String str, char before, char toInject)
+	{
+		int index = str.indexOf(before);
+		return index != -1 ? str.substring(0, index) + toInject + str.substring(index) : str;
+	}
+	
 	public static Class<?> getClass(String name) 
 	{
 		try 

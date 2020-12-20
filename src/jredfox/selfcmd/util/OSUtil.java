@@ -192,7 +192,7 @@ public class OSUtil {
 			while(fpath != null)
 			{
 				String fileName = FileUtils.getTrueName(fpath);
-				String filtered = isReserved(fileName) ? ( (fileName.contains(".") ? inject(fileName, '.', '_') : fileName + "_") + DeDuperUtil.getExtensionFull(fpath)) : (fpath.getParent() != null ? fpath.getName() : fpath.getPath());
+				String filtered = isReserved(fileName) ? ( (fileName.contains(".") ? SelfCommandPrompt.inject(fileName, '.', '_') : fileName + "_") + DeDuperUtil.getExtensionFull(fpath)) : (fpath.getParent() != null ? fpath.getName() : fpath.getPath());
 				paths.add(filtered);
 				fpath = fpath.getParentFile();
 			}
@@ -205,12 +205,6 @@ public class OSUtil {
 			return new File(builder.toString());
 		}
 		return file;
-	}
-
-	private static String inject(String str, char before, char toInject)
-	{
-		int index = str.indexOf(before);
-		return index != -1 ? str.substring(0, index) + toInject + str.substring(index) : str;
 	}
 
 	/**
