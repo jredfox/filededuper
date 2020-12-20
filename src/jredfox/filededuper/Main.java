@@ -5,7 +5,9 @@ import java.io.File;
 
 import jredfox.filededuper.command.Command;
 import jredfox.filededuper.config.simple.MapConfig;
+import jredfox.filededuper.util.IOUtils;
 import jredfox.selfcmd.SelfCommandPrompt;
+import jredfox.selfcmd.util.OSUtil;
 
 public class Main {
 	
@@ -17,6 +19,7 @@ public class Main {
 	{
 		args = SelfCommandPrompt.runWithCMD(appId, appName, args);
 		loadConfigs();
+		deleteTmp();
 		System.out.println("Starting " + appName);
 		if(args.length != 0)
 		{
@@ -30,6 +33,12 @@ public class Main {
 			}
 			while(true);
 		}
+	}
+
+	public static void deleteTmp() 
+	{
+		File tmp = new File(OSUtil.getAppData(), Main.appId + "/tmp");
+		IOUtils.deleteFile(tmp);
 	}
 
 	//file deduper config

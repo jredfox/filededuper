@@ -14,11 +14,13 @@ import java.util.zip.ZipFile;
 import com.google.common.io.Files;
 
 import jredfox.filededuper.Main;
+import jredfox.filededuper.command.exception.CommandRuntimeException;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.filededuper.util.JarUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
+import jredfox.selfcmd.util.OSUtil;
 
 public class Commands {
 	
@@ -253,8 +255,23 @@ public class Commands {
 		public void run(ParamList<File> params) 
 		{
 			File dir = params.get(0);
-			deepUnzip.run(new ParamList<File>(new File[]{dir}));
+			//deepunzip the files to the appdata so it doesn't screw with your working directory
+			File tmp = new File(OSUtil.getAppData(), Main.appId + "/tmp");
+			List<File> archives = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
+			for(File archive : archives)
+			{
+				try 
+				{
+					JarUtil.deepUnzip(archive, new File(tmp, DeDuperUtil.getTrueName(archive)));
+				} 
+				catch (IOException e) 
+				{
+					e.printStackTrace();
+				}
+			}
+			
 			List<File> files = DeDuperUtil.getDirFiles(dir);
+			files.addAll(DeDuperUtil.getDirFiles(tmp));//add the archive unzipped data here
 			Set<String> hashes = new HashSet<>(files.size());
 			File output = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
 			boolean flat = params.hasFlag("flat");
@@ -263,7 +280,7 @@ public class Commands {
 				String hash = DeDuperUtil.getCompareHash(file);
 				if(!hashes.add(hash))
 				{
-					System.out.println("skipping duplicate file:" + hash + " " + file);
+					System.out.println("skipping duplicate file:" + hash);
 					continue;
 				}
 				try
@@ -282,6 +299,7 @@ public class Commands {
 					e.printStackTrace();
 				}
 			}
+			IOUtils.deleteFile(tmp);
 		}
 	};
 	
@@ -663,18 +681,18 @@ public class Commands {
 		@Override
 		public void run(ParamList<File> params) 
 		{
-			try
+			File dir = params.get(0);
+			List<File> files = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
+			for(File file : files)
 			{
-				File dir = params.get(0);
-				List<File> files = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
-				for(File file : files)
+				try
 				{
 					JarUtil.deepUnzip(file);
 				}
-			}
-			catch (IOException e) 
-			{
-				e.printStackTrace();
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 	};

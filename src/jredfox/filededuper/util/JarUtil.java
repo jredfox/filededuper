@@ -698,11 +698,16 @@ public class JarUtil {
 	
 	public static void deepUnzip(File zipFile) throws IOException
 	{
+		deepUnzip(zipFile, new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile)));
+	}
+	
+	public static void deepUnzip(File zipFile, File outDir) throws IOException
+	{
 		ZipFile zip = new ZipFile(zipFile);
 		List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 		for(ZipEntry entry : entries)
 		{
-			File dumped = new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile), entry.getName());
+			File dumped = new File(outDir, entry.getName());
 			String ext = DeDuperUtil.getExtension(dumped);
 			unzip(zip, entry, dumped);
 			if(DeDuperUtil.isExtEqual(ext, Main.archiveExt))

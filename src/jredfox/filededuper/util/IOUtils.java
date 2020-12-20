@@ -191,4 +191,9 @@ public class IOUtils {
 		return new BufferedReader(new InputStreamReader(IOUtils.class.getClassLoader().getResourceAsStream(input)));
 	}
 
+	public static void deleteFile(File tmp) 
+	{
+		// TODO Auto-generated method stub
+	}
+
 }
