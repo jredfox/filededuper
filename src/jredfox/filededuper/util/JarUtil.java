@@ -30,6 +30,7 @@ import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.archive.Zip;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.exception.CompileTimeException;
+import jredfox.selfcmd.util.OSUtil;
 
 public class JarUtil {
 	
@@ -719,6 +720,7 @@ public class JarUtil {
 
 	public static void unzip(ZipFile zip, ZipEntry entry, File file) throws IOException 
 	{
+		file = OSUtil.toWindowsFile(file);
 		file.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(file);
 		ZipEntry newEntry = new ZipEntry(entry.getName());

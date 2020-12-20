@@ -172,5 +172,29 @@ public class OSUtil {
 	{
 		throw new RuntimeException("Unsupported Check back in a future version!");
 	}
+	
+	public static File toWindowsFile(File file)
+	{
+		String name = FileUtils.getTrueName(file);
+		String ext = FileUtils.getExtensionFull(file);
+		return isReserved(name) ? new File(file.getParentFile(), name + "_" + ext) : file;
+	}
+
+	public static final String[] winReserved = new String[] 
+	{
+		"CON", "PRN", "AUX", "NUL",
+		"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+		"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+	};
+	
+	public static boolean isReserved(String name)
+	{
+		for(String r : winReserved)
+		{
+			if(name.equalsIgnoreCase(r))
+				return true;
+		}
+		return false;
+	}
 
 }

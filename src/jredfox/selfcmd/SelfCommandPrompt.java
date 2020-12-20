@@ -711,6 +711,57 @@ public class SelfCommandPrompt {
 	    return li;
 	}
 	
+	public static String[] splitFirst(String str, char sep, char lquote, char rquote)
+	{
+		return split(str, 1, sep, lquote, rquote);
+	}
+	
+	public static String[] split(String str, char sep, char lquote, char rquote) 
+	{
+		return split(str, -1, sep, lquote, rquote);
+	}
+	
+	/**
+	 * split with quote ignoring support
+	 * @param limit is the amount of times it will attempt to split
+	 */
+	public static String[] split(String str, int limit, char sep, char lquote, char rquote) 
+	{
+		if(str.isEmpty())
+			return new String[]{str};
+		List<String> list = new ArrayList<>();
+		boolean inside = false;
+		int count = 0;
+		for(int i = 0; i < str.length(); i += 1)
+		{
+			if(limit != -1 && count >= limit)
+				break;
+			String a = str.substring(i, i + 1);
+			char firstChar = a.charAt(0);
+			char prev = i == 0 ? 'a' : str.substring(i-1, i).charAt(0);
+			boolean escape = prev == '\\';
+			if(firstChar == '\\' && prev == '\\')
+			{
+				prev = '/';
+				firstChar = '/';//escape the escape
+			}
+			if(!escape && (a.equals("" + lquote) || a.equals("" + rquote)))
+			{
+				inside = !inside;
+			}
+			if(a.equals("" + sep) && !inside)
+			{
+				String section = str.substring(0, i);
+				list.add(section);
+				str = str.substring(i + ("" + sep).length());
+				i = -1;
+				count++;
+			}
+		}
+		list.add(str);//add the rest of the string
+		return toArray(list, String.class);
+	}
+	
 	public static boolean containsAny(String string, String invalid) 
 	{
 		if(string.isEmpty())
