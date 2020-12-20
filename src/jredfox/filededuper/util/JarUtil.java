@@ -20,6 +20,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
@@ -697,6 +698,52 @@ public class JarUtil {
 		return null;
 	}
 	
+	public static void deepNonAppUnzip(List<File> files, File zipFile) throws IOException
+	{
+		deepNonAppUnzip(files, zipFile, new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile)));
+	}
+	
+	/**
+	 * avoids unzipping app archives such as jars or jar mod. populates a list of files that are program files
+	 */
+	public static void deepNonAppUnzip(List<File> apps, File zipFile, File outDir) throws ZipException, IOException
+	{
+		ZipFile zip = new ZipFile(zipFile);
+		List<ZipEntry> entries = JarUtil.getZipEntries(zip);
+		if(isApp(entries))
+		{
+			apps.add(zipFile);
+			return;
+		}
+		for(ZipEntry entry : entries)
+		{
+			File dumped = new File(outDir, entry.getName());
+			String ext = DeDuperUtil.getExtension(dumped);
+			unzip(zip, entry, dumped);
+			if(DeDuperUtil.isExtEqual(ext, Main.archiveExt))
+			{
+				deepNonAppUnzip(apps, dumped, outDir);
+			}
+		}
+		zip.close();
+	}
+	
+	/**
+	 * returns if the specified zip file contains app/program files
+	 */
+	public static boolean isApp(List<ZipEntry> entries)
+	{
+		for(ZipEntry entry : entries)
+		{
+			String name = entry.getName();
+			if(DeDuperUtil.isProgramExt(name))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static void deepUnzip(File zipFile) throws IOException
 	{
 		deepUnzip(zipFile, new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile)));

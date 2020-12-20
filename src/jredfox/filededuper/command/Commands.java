@@ -233,7 +233,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--normalJarCheck"}, "deDupe")
+	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipdeepUnzip"}, "deDupe")
 	{
 		@Override
 		public String[] displayArgs()
@@ -258,20 +258,25 @@ public class Commands {
 			//deepunzip the files to the appdata so it doesn't screw with your working directory
 			File tmp = new File(OSUtil.getAppData(), Main.appId + "/tmp");
 			List<File> archives = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
-			for(File archive : archives)
+			List<File> apps = new ArrayList<>();
+			if(!params.hasFlag("skipdeepUnzip"))
 			{
-				try 
+				for(File archive : archives)
 				{
-					JarUtil.deepUnzip(archive, new File(tmp, DeDuperUtil.getTrueName(archive)));
-				} 
-				catch (IOException e) 
-				{
-					e.printStackTrace();
+					try 
+					{
+						JarUtil.deepNonAppUnzip(apps, archive, new File(tmp, DeDuperUtil.getTrueName(archive)));
+					} 
+					catch (IOException e) 
+					{
+						e.printStackTrace();
+					}
 				}
 			}
 			
-			List<File> files = DeDuperUtil.getDirFiles(dir);
-			files.addAll(DeDuperUtil.getDirFiles(tmp));//add the archive unzipped data here
+			List<File> files = DeDuperUtil.getDirFiles(dir, Main.archiveExt, true);
+			files.addAll(apps);//add the archive unzipped data here
+			files.addAll(DeDuperUtil.getDirFiles(dir, Main.archiveExt, true));//populate non archive files
 			Set<String> hashes = new HashSet<>(files.size());
 			File output = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
 			boolean flat = params.hasFlag("flat");
@@ -280,7 +285,7 @@ public class Commands {
 				String hash = DeDuperUtil.getCompareHash(file);
 				if(!hashes.add(hash))
 				{
-					System.out.println("skipping duplicate file:" + hash);
+					System.out.println("skipping duplicate file:" + hash + ", " + file);
 					continue;
 				}
 				try
