@@ -13,9 +13,10 @@ public class DebugCode {
 //		String quoted = "cd -a=\"\\\"a quoted string\\\"\"";
 //		for(String s : SelfCommandPrompt.parseCommandLine(quoted, '\\', '"'))
 //			System.out.println(s);
-		File invalid = new File("an invalid path\\*/<>?\":|\\/t*e*s*t.cfg").getAbsoluteFile();
-		File tst2 = new File("LPT0.png.txt").getAbsoluteFile();
-		System.out.println(OSUtil.toOSFile(invalid) + "\n" + OSUtil.toOSFile(tst2));
+		File tst1 = OSUtil.toOSFile(new File("an invalid path\\*/<>?\":|\\/t*e*s*t.cfg\\\\")).getAbsoluteFile();
+		File tst2 = OSUtil.toOSFile(new File("LPT0/LPT0.png.txt")).getAbsoluteFile();
+		File tst3 = OSUtil.toOSFile(new File("LPT0/config.cfg").getAbsoluteFile());
+		System.out.println(tst1 + "\n" + tst2 + "\n" + tst3);
 	}
 
 }

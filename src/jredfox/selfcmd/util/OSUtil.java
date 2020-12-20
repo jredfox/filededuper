@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
 import jredfox.selfcmd.thread.ShutdownThread;
 
@@ -184,8 +185,32 @@ public class OSUtil {
 	 */
 	public static File toWindowsFile(File file)
 	{
-		String name = FileUtils.getTrueName(file);
-		return isReserved(name) ? new File(file.getParentFile(), name + "_" + FileUtils.getExtensionFull(file)) : file;
+		if(possiblyReserved(file))
+		{
+			List<String> paths = new ArrayList<>(15);
+			File fpath = file;
+			while(fpath != null)
+			{
+				String fileName = FileUtils.getTrueName(fpath);
+				String filtered = isReserved(fileName) ? ( (fileName.contains(".") ? inject(fileName, '.', '_') : fileName + "_") + DeDuperUtil.getExtensionFull(fpath)) : (fpath.getParent() != null ? fpath.getName() : fpath.getPath());
+				paths.add(filtered);
+				fpath = fpath.getParentFile();
+			}
+			StringBuilder builder = new StringBuilder();
+			for(int i=paths.size() - 1; i >= 0; i--)
+			{
+				String s = paths.get(i);
+				builder.append(s + (i == 0 ? "" : "/"));
+			}
+			return new File(builder.toString());
+		}
+		return file;
+	}
+
+	private static String inject(String str, char before, char toInject)
+	{
+		int index = str.indexOf(before);
+		return index != -1 ? str.substring(0, index) + toInject + str.substring(index) : str;
 	}
 
 	/**
@@ -193,9 +218,12 @@ public class OSUtil {
 	 */
 	public static File toOSFile(File file)
 	{
-		String invalid =  "*/<>?\":|" + "\\";
-		File fixed = filter(file, invalid);
-		return toWindowsFile(fixed);
+		String invalid = "*/<>?\":|";//java replaces trailing "\" or "/" and you can't get a file name with "/\" in java so don't check it
+		if(SelfCommandPrompt.containsAny(file.getPath(), invalid))
+		{
+			file = filter(file, invalid);
+		}
+		return toWindowsFile(file);
 	}
 
 	public static File filter(File file, String invalid) 
@@ -205,9 +233,9 @@ public class OSUtil {
 		while(fpath != null)
 		{
 			File newPath = fpath.getParentFile();
-			boolean flag = newPath == null;
-			String filtered = flag ? filter(fpath.getPath(), "\\") : filter(fpath.getName(), invalid);
-			if(!filtered.isEmpty() || flag)
+			boolean startPath = newPath == null;
+			String filtered = startPath ? filter(fpath.getPath(), "\\") : filter(fpath.getName(), invalid);
+			if(!filtered.isEmpty() || startPath)
 				paths.add(filtered);
 			fpath = newPath;
 		}
@@ -243,7 +271,18 @@ public class OSUtil {
 	{
 		for(String r : winReserved)
 		{
-			if(name.equalsIgnoreCase(r))
+			if(name.equalsIgnoreCase(r) || name.startsWith(r + "."))
+				return true;
+		}
+		return false;
+	}
+	
+	public static boolean possiblyReserved(File file) 
+	{
+		String path = file.getPath();
+		for(String s : winReserved)
+		{
+			if(path.contains(s))
 				return true;
 		}
 		return false;
