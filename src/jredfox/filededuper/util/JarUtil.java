@@ -713,7 +713,7 @@ public class JarUtil {
 			unzip(zip, entry, dumped);
 			if(DeDuperUtil.isExtEqual(ext, Main.archiveExt))
 			{
-				deepUnzip(dumped);
+				deepUnzip(dumped, outDir);
 			}
 		}
 		zip.close();
