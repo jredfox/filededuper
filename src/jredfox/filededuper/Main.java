@@ -45,7 +45,6 @@ public class Main {
 	public static boolean archiveDir;
 	public static boolean compileTimePoints;
 	public static long compileTimeOffset;
-	public static boolean checkJarSigned;
 	public static boolean consistentCheckJar;
 	public static String[] programDirs;
 	public static String[] programExts;
@@ -69,7 +68,6 @@ public class Main {
 		archiveDir = jarCheck.get("archiveDir", false);
 		compileTimePoints = jarCheck.get("compileTimePoints", true);//getCompile time based on maximum points based on the program dir then the lowest one in there
 		compileTimeOffset = jarCheck.get("compileTimeOffset", 30);//amount of minuets is allowed since the compile time before it's considered a mod
-		checkJarSigned = jarCheck.get("checkJarSigned", true);
 		consistentCheckJar = jarCheck.get("consistentCheckJar", false);
 		programDirs = trimDirs(jarCheck.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/mojang,com/a,jredfox/filededuper").split(","));
 		programExts = trimDirs(jarCheck.get("programExts", "class,rsa,dsa,mf,sf,js,java,py,kt").toLowerCase().replace("\\.", "").split(","));

@@ -67,9 +67,11 @@ public class CommandOption {
 
 	public boolean hasFlag(String k)
 	{
+		if(id.startsWith("-"))
+			throw new IllegalArgumentException("do not input unparsed command option keys:" + id);
 		return this.id.equalsIgnoreCase(k) || this.hasSubFlags(k);
 	}
-	
+
 	public boolean hasFlag(CommandOption option) 
 	{
 		return this.hasFlag(option.id) || this.hasSubFlags(option);

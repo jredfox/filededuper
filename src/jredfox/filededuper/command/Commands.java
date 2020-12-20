@@ -1,7 +1,6 @@
 package jredfox.filededuper.command;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +24,7 @@ public class Commands {
 	
 	public static final String hashHeader = "#name, md5, sha-1, sha-256, size, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
 	
-	public static Command<File> genHashes = new Command<File>("genHashes", "genSpreadsheet")
+	public static Command<File> genHashes = new Command<File>(new String[]{"--normalJarCheck"}, "genHashes", "genSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -52,7 +51,7 @@ public class Commands {
 			Set<String> hashes = new HashSet<>(files.size());
 			for(File file : files)
 			{
-				DeDuperUtil.genHashes(dir, file, hashes, index);
+				DeDuperUtil.genHashes(params, dir, file, hashes, index);
 			}
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + ".csv");
 			IOUtils.saveFileLines(index, outputFile, true);
@@ -65,7 +64,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genArchiveHashes = new Command<File>("genArchiveHashes", "genArchiveSpreadsheet")
+	public static Command<File> genArchiveHashes = new Command<File>(new String[]{"--normalJarCheck"}, "genArchiveHashes", "genArchiveSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -101,7 +100,7 @@ public class Commands {
 				{
 					continue;
 				}
-				DeDuperUtil.genHashes(dir, file, hashes, index);
+				DeDuperUtil.genHashes(params, dir, file, hashes, index);
 				CSV csv = new CSV(new File(outArchive, file.getName() + "-" + hash + ".csv"));
 				boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
 				if(isJar)
@@ -125,7 +124,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genDupeHashes = new Command<File>("genDupeHashes")
+	public static Command<File> genDupeHashes = new Command<File>(new String[]{"--normalJarCheck"}, "genDupeHashes")
 	{
 		@Override
 		public String[] displayArgs() 
@@ -158,7 +157,7 @@ public class Commands {
 			Map<String, File> hashes = new HashMap<>(files.size());
 			for(File file : files)
 			{
-				DeDuperUtil.genDupeHashes(dir, file, hashes, index);
+				DeDuperUtil.genDupeHashes(params, dir, file, hashes, index);
 			}
 			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-dupes.csv");
 			IOUtils.saveFileLines(index, outputFile, true);
@@ -232,7 +231,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deDupe = new Command<File>(new String[]{"--flat"}, "deDupe")
+	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--normalJarCheck"}, "deDupe")
 	{
 		@Override
 		public String[] displayArgs()

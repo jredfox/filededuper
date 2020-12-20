@@ -27,6 +27,7 @@ import com.google.common.io.Files;
 import jredfox.filededuper.Main;
 import jredfox.filededuper.Main.HashType;
 import jredfox.filededuper.archive.Zip;
+import jredfox.filededuper.command.ParamList;
 
 public class DeDuperUtil {
 	
@@ -420,16 +421,16 @@ public class DeDuperUtil {
 		return false;
 	}
 
-	public static void genHashes(File dir, File file, Set<String> hashes, List<String> list)
+	public static void genHashes(ParamList<?> params, File dir, File file, Set<String> hashes, List<String> list)
 	{
 		String hash = DeDuperUtil.getCompareHash(file);
 		if(hashes.contains(hash))
 			return;
-		list.add(genHashes(dir, file, hash));
+		list.add(genHashes(params, dir, file, hash));
 		hashes.add(hash);
 	}
 	
-	public static void genDupeHashes(File dir, File file, Map<String, File> hashes, List<String> list)
+	public static void genDupeHashes(ParamList<?> params, File dir, File file, Map<String, File> hashes, List<String> list)
 	{
 		String hash = DeDuperUtil.getCompareHash(file);
 		if(!hashes.containsKey(hash))
@@ -437,10 +438,10 @@ public class DeDuperUtil {
 			hashes.put(hash, file);
 			return;
 		}
-		list.add(genHashes(dir, file, hash) + "," + DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), hashes.get(hash)) );
+		list.add(genHashes(params, dir, file, hash) + "," + DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), hashes.get(hash)) );
 	}
 
-	private static String genHashes(File dir, File file, String hash) 
+	private static String genHashes(ParamList<?> params, File dir, File file, String hash) 
 	{
 		String name = file.getName();
 		//recycle the comparing hash so it doesn't generate it twice especially for the sha's hashes
@@ -449,17 +450,17 @@ public class DeDuperUtil {
 		String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(file);
 		long size = file.length();
 		long time = file.lastModified();
-		String plugin = getPlugin(DeDuperUtil.getExtension(file), file);
+		String plugin = getPlugin(params, DeDuperUtil.getExtension(file), file);
 		String path = DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), file);
 		return name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path;
 	}
 
 	private static String[] pluginExts = new String[]{"jar"};
-	private static String getPlugin(String ext, File file) 
+	private static String getPlugin(ParamList<?> params, String ext, File file) 
 	{
 		try
 		{
-			return Main.skipGenPluginData || !isExtEqual(ext, pluginExts) ? "" : genJarData(file);
+			return Main.skipGenPluginData || !isExtEqual(ext, pluginExts) ? "" : genJarData(params, file);
 		}
 		catch(Exception e)
 		{
@@ -468,12 +469,13 @@ public class DeDuperUtil {
 		}
 	}
 
-	private static String genJarData(File file)
+	private static String genJarData(ParamList<?> params, File file)
 	{
+		boolean checkSigned = !params.hasFlag("normalJarCheck");
 		Zip jar = JarUtil.getZipFile(file);
 		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
 		long compileTime = JarUtil.getCompileTimeSafley(file, entries);
-		boolean modified = JarUtil.isJarModded(jar.file, entries, Main.checkJarSigned);
+		boolean modified = JarUtil.isJarModded(jar.file, entries, checkSigned);
 		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(file, entries, compileTime);
 		IOUtils.close(jar, true);
 		return compileTime + "," + modified + "," + consistency;

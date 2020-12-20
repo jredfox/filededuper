@@ -33,6 +33,8 @@ public class ParamList<T> {
 	 */
 	public CommandOption getOption(String id) 
 	{
+		if(id.startsWith("-"))
+			throw new IllegalArgumentException("do not input unparsed command option keys:" + id);
 		for(CommandOption o : this.options)
 			if(o.hasFlag(id))
 				return o;
