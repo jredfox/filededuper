@@ -1,6 +1,11 @@
 package jredfox.selfcmd.util;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import jredfox.selfcmd.SelfCommandPrompt;
 import jredfox.selfcmd.thread.ShutdownThread;
@@ -184,34 +189,47 @@ public class OSUtil {
 	}
 
 	/**
-	 * converts the file to a cross platform file if needed. Re-written from Evil Notch Lib/
-	 * doesn't take out ":" or "\" from the files parent path as sometimes they are valid such as C://
+	 * converts the file to a cross platform file if needed. Re-written from Evil Notch Lib
 	 */
 	public static File toOSFile(File file)
 	{
-		String invalidPath = "*/<>?\"|";
-		String invalid = invalidPath + ":\\";
-		String path = file.getParent();
-		String name = file.getName();
-		
-		if(SelfCommandPrompt.containsAny(path, invalidPath) || SelfCommandPrompt.containsAny(name, invalid))
+		String invalid =  "*/<>?\":|" + "\\";
+		File fixed = filter(file, invalid);
+		return toWindowsFile(fixed);
+	}
+
+	public static File filter(File file, String invalid) 
+	{
+		List<String> paths = new ArrayList<>(15);
+		File fpath = file;
+		while(fpath != null)
 		{
-			StringBuilder b = new StringBuilder();
-			for(int pindex = 0; pindex < path.length(); pindex++)
-			{
-				String c = path.substring(pindex, pindex + 1);
-				if(!invalidPath.contains(c))
-					b.append(c);
-			}
-			for(int nameIndex = 0; nameIndex < name.length(); nameIndex++)
-			{
-				String c = name.substring(nameIndex, nameIndex + 1);
-				if(!invalid.contentEquals(c))
-					b.append(c);
-			}
-			file = new File(b.toString());
+			File newPath = fpath.getParentFile();
+			boolean flag = newPath == null;
+			String filtered = flag ? filter(fpath.getPath(), "\\") : filter(fpath.getName(), invalid);
+			if(!filtered.isEmpty() || flag)
+				paths.add(filtered);
+			fpath = newPath;
 		}
-		return toWindowsFile(file);
+		StringBuilder builder = new StringBuilder();
+		for(int i=paths.size() - 1; i >= 0; i--)
+		{
+			String s = paths.get(i);
+			builder.append(s + (i == 0 ? "" : "/"));
+		}
+		return new File(builder.toString());
+	}
+
+	public static String filter(String name, String invalid) 
+	{
+		StringBuilder b = new StringBuilder();
+		for(int i = 0; i < name.length(); i++)
+		{
+			String c = name.substring(i, i + 1);
+			if(!invalid.contains(c))
+				b.append(c);
+		}
+		return b.toString();
 	}
 
 	public static final String[] winReserved = new String[] 
