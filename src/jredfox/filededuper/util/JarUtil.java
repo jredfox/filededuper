@@ -721,7 +721,7 @@ public class JarUtil {
 
 	public static void unzip(ZipFile zip, ZipEntry entry, File file) throws IOException 
 	{
-		file = OSUtil.toWindowsFile(file);
+		file = OSUtil.toWinFile(file);
 		file.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(file);
 		ZipEntry newEntry = new ZipEntry(entry.getName());

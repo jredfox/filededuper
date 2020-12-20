@@ -183,7 +183,7 @@ public class OSUtil {
 	/**
 	 * doesn't call {@link OSUtil#toOSFile(File)} this is simply a method if you don't need the whole process. Re-written from Evil Notch Lib
 	 */
-	public static File toWindowsFile(File file)
+	public static File toWinFile(File file)
 	{
 		if(possiblyReserved(file))
 		{
@@ -197,10 +197,11 @@ public class OSUtil {
 				fpath = fpath.getParentFile();
 			}
 			StringBuilder builder = new StringBuilder();
-			for(int i=paths.size() - 1; i >= 0; i--)
+			int size = paths.size();
+			for(int i= size - 1; i >= 0; i--)
 			{
 				String s = paths.get(i);
-				builder.append(s + (i == 0 ? "" : "/"));
+				builder.append(s + (i == 0 || i == size - 1 ? "" : File.separator));
 			}
 			return new File(builder.toString());
 		}
@@ -217,7 +218,7 @@ public class OSUtil {
 		{
 			file = filter(file, invalid);
 		}
-		return toWindowsFile(file);
+		return toWinFile(file);
 	}
 
 	public static File filter(File file, String invalid) 
@@ -227,17 +228,17 @@ public class OSUtil {
 		while(fpath != null)
 		{
 			File newPath = fpath.getParentFile();
-			boolean startPath = newPath == null;
-			String filtered = startPath ? filter(fpath.getPath(), "\\") : filter(fpath.getName(), invalid);
-			if(!filtered.isEmpty() || startPath)
+			String filtered = newPath == null ? fpath.getPath() : filter(fpath.getName(), invalid);
+			if(!filtered.isEmpty())
 				paths.add(filtered);
 			fpath = newPath;
 		}
 		StringBuilder builder = new StringBuilder();
-		for(int i=paths.size() - 1; i >= 0; i--)
+		int size = paths.size();
+		for(int i=size - 1; i >= 0; i--)
 		{
 			String s = paths.get(i);
-			builder.append(s + (i == 0 ? "" : "/"));
+			builder.append(s + (i == 0 || i == size - 1 ? "" : File.separator));
 		}
 		return new File(builder.toString());
 	}
