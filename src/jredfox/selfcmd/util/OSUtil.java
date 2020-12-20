@@ -2,6 +2,7 @@ package jredfox.selfcmd.util;
 
 import java.io.File;
 
+import jredfox.selfcmd.SelfCommandPrompt;
 import jredfox.selfcmd.thread.ShutdownThread;
 
 public class OSUtil {
@@ -173,11 +174,44 @@ public class OSUtil {
 		throw new RuntimeException("Unsupported Check back in a future version!");
 	}
 	
+	/**
+	 * doesn't call {@link OSUtil#toOSFile(File)} this is simply a method if you don't need the whole process. Re-written from Evil Notch Lib
+	 */
 	public static File toWindowsFile(File file)
 	{
 		String name = FileUtils.getTrueName(file);
-		String ext = FileUtils.getExtensionFull(file);
-		return isReserved(name) ? new File(file.getParentFile(), name + "_" + ext) : file;
+		return isReserved(name) ? new File(file.getParentFile(), name + "_" + FileUtils.getExtensionFull(file)) : file;
+	}
+
+	/**
+	 * converts the file to a cross platform file if needed. Re-written from Evil Notch Lib/
+	 * doesn't take out ":" or "\" from the files parent path as sometimes they are valid such as C://
+	 */
+	public static File toOSFile(File file)
+	{
+		String invalidPath = "*/<>?\"|";
+		String invalid = invalidPath + ":\\";
+		String path = file.getParent();
+		String name = file.getName();
+		
+		if(SelfCommandPrompt.containsAny(path, invalidPath) || SelfCommandPrompt.containsAny(name, invalid))
+		{
+			StringBuilder b = new StringBuilder();
+			for(int pindex = 0; pindex < path.length(); pindex++)
+			{
+				String c = path.substring(pindex, pindex + 1);
+				if(!invalidPath.contains(c))
+					b.append(c);
+			}
+			for(int nameIndex = 0; nameIndex < name.length(); nameIndex++)
+			{
+				String c = name.substring(nameIndex, nameIndex + 1);
+				if(!invalid.contentEquals(c))
+					b.append(c);
+			}
+			file = new File(b.toString());
+		}
+		return toWindowsFile(file);
 	}
 
 	public static final String[] winReserved = new String[] 
