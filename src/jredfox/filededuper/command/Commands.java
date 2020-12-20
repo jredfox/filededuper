@@ -299,7 +299,7 @@ public class Commands {
 					e.printStackTrace();
 				}
 			}
-			IOUtils.deleteFile(tmp);
+			IOUtils.deleteDirectory(tmp);
 		}
 	};
 	

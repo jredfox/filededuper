@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -191,9 +192,21 @@ public class IOUtils {
 		return new BufferedReader(new InputStreamReader(IOUtils.class.getClassLoader().getResourceAsStream(input)));
 	}
 
-	public static void deleteFile(File tmp) 
+	public static void deleteDirectory(File file)
 	{
-		// TODO Auto-generated method stub
+	    File[] contents = file.listFiles();
+	    if (contents != null)
+	    {
+	        for (File f : contents) 
+	        {
+	            if (!Files.isSymbolicLink(f.toPath())) 
+	            {
+	            	deleteDirectory(f);
+	            }
+	        }
+	    }
+	    if(!file.delete())
+	    	System.out.println("unable to delete file:" + file);
 	}
 
 }

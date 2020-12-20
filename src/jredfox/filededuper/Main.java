@@ -11,7 +11,7 @@ import jredfox.selfcmd.util.OSUtil;
 
 public class Main {
 	
-	public static final String VERSION = "0.17.0";
+	public static final String VERSION = "0.18.0";
 	public static final String appName = "File De-Duper " + VERSION;
 	public static final String appId = "File-De-Duper";
 	
@@ -38,7 +38,7 @@ public class Main {
 	public static void deleteTmp() 
 	{
 		File tmp = new File(OSUtil.getAppData(), Main.appId + "/tmp");
-		IOUtils.deleteFile(tmp);
+		IOUtils.deleteDirectory(tmp);
 	}
 
 	//file deduper config
