@@ -194,17 +194,11 @@ public class IOUtils {
 
 	public static void deleteDirectory(File file)
 	{
-	    File[] contents = file.listFiles();
-	    if (contents != null)
-	    {
-	        for (File f : contents) 
-	        {
-	            if (!Files.isSymbolicLink(f.toPath())) 
-	            {
+	    if(file.isDirectory())
+	        for(File f : file.listFiles()) 
+	            if(!Files.isSymbolicLink(f.toPath())) 
 	            	deleteDirectory(f);
-	            }
-	        }
-	    }
+	    
 	    if(!file.delete())
 	    	System.out.println("unable to delete file:" + file);
 	}
