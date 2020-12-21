@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +119,14 @@ public class DeDuperUtil {
 		return hashes;
 	}
 	
+	/**
+	 * @return MD5, SHA1, SHA256
+	 */
+	public static String[] getAllHashes(String compareHash, File file)
+	{
+		return new String[]{Main.compareHash == HashType.MD5 ? compareHash : DeDuperUtil.getMD5(file), Main.compareHash == HashType.SHA1 ? compareHash : DeDuperUtil.getSHA1(file), Main.compareHash == HashType.SHA256 ? compareHash : DeDuperUtil.getSHA256(file)};
+	}
+	
 	public static List<File> getDirFiles(File dir)
 	{
 		return getDirFiles(dir, "*");
@@ -133,35 +143,37 @@ public class DeDuperUtil {
 	/**
 	 * get a list of files from a file or directory. has blacklist extension support
 	 */
-	public static List<File> getDirFiles(File dir, String[] exts, boolean blackList) 
+	public static List<File> getDirFiles(File dir, String[] exts, boolean blacklist) 
 	{
+		if(!dir.exists())
+			return Collections.emptyList();
 		if(!dir.isDirectory())
 		{
 			List<File> li = new ArrayList<>(1);
 			String ext = getExtension(dir);
-			boolean isType = blackList ? !isExtEqual(ext, exts) : isExtEqual(ext, exts);
+			boolean isType = blacklist ? !isExtEqual(ext, exts) : isExtEqual(ext, exts);
 			if(isType)
 				li.add(dir);
 			return li;
 		}
-		List<File> list = new ArrayList<>(dir.listFiles().length + 10);
-		getDirFiles(list, dir, exts, false);
+		List<File> list = new ArrayList<>(dir.listFiles().length);
+		getDirFiles(list, dir, exts, blacklist);
 		return list;
 	}
 	
-	protected static void getDirFiles(List<File> files, File dir, String[] exts, boolean blackList) 
+	protected static void getDirFiles(List<File> files, File dir, String[] exts, boolean blacklist) 
 	{
 	    for (File file : dir.listFiles()) 
 	    {
 	    	String extension = getExtension(file);
-	    	boolean isType = blackList ? !isExtEqual(extension, exts) : isExtEqual(extension, exts);
+	    	boolean isType = blacklist ? !isExtEqual(extension, exts) : isExtEqual(extension, exts);
 	        if (file.isFile() && isType)
 	        {
 	            files.add(file);
 	        }
 	        else if (file.isDirectory()) 
 	        {
-	        	getDirFiles(files, file, exts, blackList);
+	        	getDirFiles(files, file, exts, blacklist);
 	        }
 	    }
 	}

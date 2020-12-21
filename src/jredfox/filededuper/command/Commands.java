@@ -233,7 +233,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipdeepUnzip"}, "deDupe")
+	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipUnzip"}, "deDupe")
 	{
 		@Override
 		public String[] displayArgs()
@@ -255,12 +255,14 @@ public class Commands {
 		public void run(ParamList<File> params) 
 		{
 			File dir = params.get(0);
-			//deepunzip the files to the appdata so it doesn't screw with your working directory
 			File tmp = new File(OSUtil.getAppData(), Main.appId + "/tmp");
-			List<File> archives = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
-			List<File> apps = new ArrayList<>();
-			if(!params.hasFlag("skipdeepUnzip"))
+			List<File> files = DeDuperUtil.getDirFiles(dir);//populate main dir files
+			
+			//deepunzip the files to the appdata so it doesn't screw with your working directory
+			if(!params.hasFlag("skipUnzip"))
 			{
+				List<File> archives = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
+				List<File> apps = new ArrayList<>();
 				for(File archive : archives)
 				{
 					try 
@@ -272,11 +274,13 @@ public class Commands {
 						e.printStackTrace();
 					}
 				}
+				
+				for(File app : apps)
+					if(!files.contains(app))
+						files.add(app);
+				files.addAll(DeDuperUtil.getDirFiles(tmp, Main.archiveExt, true));//populate unzipped tmp files
 			}
-			
-			List<File> files = DeDuperUtil.getDirFiles(dir, Main.archiveExt, true);
-			files.addAll(apps);//add the archive unzipped data here
-			files.addAll(DeDuperUtil.getDirFiles(dir, Main.archiveExt, true));//populate non archive files
+
 			Set<String> hashes = new HashSet<>(files.size());
 			File output = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
 			boolean flat = params.hasFlag("flat");
@@ -292,7 +296,14 @@ public class Commands {
 				{
 					if(flat)
 					{
-						DeDuperUtil.copy(file, new File(output, DeDuperUtil.getTrueName(file) + "-" + hash + DeDuperUtil.getExtensionFull(file)));
+						String[] allHashes = DeDuperUtil.getAllHashes(hash, file);
+						String name = DeDuperUtil.getTrueName(file);
+						for(String checkHash : allHashes)
+						{
+							if(name.contains(checkHash))
+								name = name.replaceAll("-" + checkHash, "");
+						}
+						DeDuperUtil.copy(file, new File(output, name + "-" + hash + DeDuperUtil.getExtensionFull(file)));
 					}
 					else
 					{
