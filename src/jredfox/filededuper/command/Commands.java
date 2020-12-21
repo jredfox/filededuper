@@ -241,7 +241,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipUnzip"}, "deDupe")
+	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipUnzip", "--dumpJarMods"}, "deDupe")
 	{
 		@Override
 		public String[] displayArgs()
