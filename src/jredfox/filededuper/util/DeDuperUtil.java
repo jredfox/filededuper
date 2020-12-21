@@ -491,11 +491,10 @@ public class DeDuperUtil {
 
 	private static String genJarData(ParamList<?> params, File file)
 	{
-		boolean checkSigned = !params.hasFlag("normalJarCheck");
 		Zip jar = JarUtil.getZipFile(file);
 		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
 		long compileTime = JarUtil.getCompileTimeSafley(file, entries);
-		boolean modified = JarUtil.isJarModded(jar.file, entries, checkSigned);
+		boolean modified = JarUtil.isJarModded(jar.file, entries, !params.hasFlag("unSigned"));
 		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(file, entries, compileTime);
 		IOUtils.close(jar, true);
 		return compileTime + "," + modified + "," + consistency;

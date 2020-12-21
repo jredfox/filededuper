@@ -61,7 +61,7 @@ public class JarUtil {
 		}
 		catch(SecurityException e)
 		{
-			
+			modded = true;
 		}
 		catch(Exception e)
 		{

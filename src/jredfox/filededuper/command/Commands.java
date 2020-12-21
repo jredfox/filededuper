@@ -26,7 +26,7 @@ public class Commands {
 	
 	public static final String hashHeader = "#name, md5, sha-1, sha-256, size, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
 	
-	public static Command<File> genHashes = new Command<File>(new String[]{"--normalJarCheck"}, "genHashes", "genSpreadsheet")
+	public static Command<File> genHashes = new Command<File>(new String[]{"--unSigned"}, "genHashes", "genSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -66,7 +66,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genArchiveHashes = new Command<File>(new String[]{"--normalJarCheck"}, "genArchiveHashes", "genArchiveSpreadsheet")
+	public static Command<File> genArchiveHashes = new Command<File>(new String[]{"--unSigned"}, "genArchiveHashes", "genArchiveSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -127,7 +127,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genDupeHashes = new Command<File>(new String[]{"--normalJarCheck"}, "genDupeHashes")
+	public static Command<File> genDupeHashes = new Command<File>(new String[]{"--unSigned"}, "genDupeHashes")
 	{
 		@Override
 		public String[] displayArgs() 
