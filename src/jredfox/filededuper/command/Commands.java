@@ -310,7 +310,7 @@ public class Commands {
 					}
 					else
 					{
-						DeDuperUtil.copy(file, new File(output, DeDuperUtil.getRealtivePath(dir, file)));
+						DeDuperUtil.copy(file, new File(output, DeDuperUtil.fixPath(tmp, dir, file)));
 					}
 				}
 				catch (Exception e) 

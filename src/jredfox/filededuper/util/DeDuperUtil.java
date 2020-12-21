@@ -626,5 +626,14 @@ public class DeDuperUtil {
 			list.add(obj);
 		return list;
 	}
+
+	public static String fixPath(File tmp, File dir, File file) 
+	{
+		if(file.getAbsolutePath().startsWith(tmp.getAbsolutePath()))
+		{
+			return DeDuperUtil.getRealtivePath(tmp, file);
+		}
+		return DeDuperUtil.getRealtivePath(dir, file);
+	}
 	
 }
