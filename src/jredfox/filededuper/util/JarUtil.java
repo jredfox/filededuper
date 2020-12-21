@@ -724,7 +724,7 @@ public class JarUtil {
 			unzip(zip, entry, dumped);
 			if(DeDuperUtil.isExtEqual(ext, Main.archiveExt))
 			{
-				deepNonAppUnzip(apps, dumped, outDir);
+				deepNonAppUnzip(apps, dumped, new File(dumped.getParent(), DeDuperUtil.getTrueName(dumped)));
 			}
 		}
 		zip.close();
@@ -762,7 +762,7 @@ public class JarUtil {
 			unzip(zip, entry, dumped);
 			if(DeDuperUtil.isExtEqual(ext, Main.archiveExt))
 			{
-				deepUnzip(dumped, outDir);
+				deepUnzip(dumped, new File(dumped.getParent(), DeDuperUtil.getTrueName(dumped)));
 			}
 		}
 		zip.close();
