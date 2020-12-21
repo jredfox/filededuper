@@ -402,14 +402,12 @@ public class JarUtil {
 			ZipEntry rsa = getRSA(jar);
 			if(!checkSignature(jar, dsa) && !checkSignature(jar, rsa))
 			{
-//				System.out.println("failed on the DSA/RSA");
 				return false;
 			}
 			
 			ZipEntry sf = getSF(jar);
 			if(sf == null || !checkManifest(entries, new Manifest(jar.getInputStream(sf)), signed))
 			{
-//				System.out.println("failed on the SF manifest");
 				return false;
 			}
 		}
