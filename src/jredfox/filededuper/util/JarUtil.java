@@ -698,6 +698,9 @@ public class JarUtil {
 		return null;
 	}
 	
+	/**
+	 * avoids unzipping app archives such as jars or jar mod. populates a list of files that are program files
+	 */
 	public static void deepNonAppUnzip(List<File> files, File zipFile) throws IOException
 	{
 		deepNonAppUnzip(files, zipFile, new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile)));
@@ -713,6 +716,7 @@ public class JarUtil {
 		if(isApp(entries))
 		{
 			apps.add(zipFile);
+			zip.close();
 			return;
 		}
 		for(ZipEntry entry : entries)

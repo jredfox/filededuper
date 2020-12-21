@@ -113,7 +113,8 @@ public class Commands {
 				{
 					JarUtil.addZipEntries(file, csv);
 				}
-				csv.save();
+				if(csv.lines.size() > 1)
+					csv.save();
 			}
 			File outputIndex = new File(outDir, "index-" + DeDuperUtil.getTrueName(dir) + ".csv");
 			IOUtils.saveFileLines(index, outputIndex, true);
@@ -161,8 +162,15 @@ public class Commands {
 			{
 				DeDuperUtil.genDupeHashes(params, dir, file, hashes, index);
 			}
-			File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-dupes.csv");
-			IOUtils.saveFileLines(index, outputFile, true);
+			if(index.size() > 1)
+			{
+				File outputFile = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-dupes.csv");
+				IOUtils.saveFileLines(index, outputFile, true);
+			}
+			else
+			{
+				System.out.println("NO DUPE FILES FOUND");
+			}
 		}
 	};
 	
@@ -284,15 +292,15 @@ public class Commands {
 				files = DeDuperUtil.getDirFiles(dir);
 			}
 
-			Set<String> hashes = new HashSet<>(files.size());
 			File output = new File(dir.getParent(), DeDuperUtil.getTrueName(dir) + "-output");
+			Set<String> hashes = DeDuperUtil.getHashes(output);
 			boolean flat = params.hasFlag("flat");
 			for(File file : files)
 			{
 				String hash = DeDuperUtil.getCompareHash(file);
 				if(!hashes.add(hash))
 				{
-					System.out.println("skipping duplicate file:" + hash + ", " + file);
+					System.out.println("skipping:" + hash + ", " + DeDuperUtil.fixPath(tmp, dir, file));
 					continue;
 				}
 				try
@@ -303,8 +311,9 @@ public class Commands {
 						String name = DeDuperUtil.getTrueName(file);
 						for(String checkHash : allHashes)
 						{
+							checkHash = "-" + checkHash;
 							if(name.contains(checkHash))
-								name = name.replaceAll("-" + checkHash, "");
+								name = name.replaceAll(checkHash, "");
 						}
 						DeDuperUtil.copy(file, new File(output, name + "-" + hash + DeDuperUtil.getExtensionFull(file)));
 					}

@@ -122,6 +122,14 @@ public class DeDuperUtil {
 	/**
 	 * @return MD5, SHA1, SHA256
 	 */
+	public static String[] getAllHashes(File file)
+	{
+		return getAllHashes(getCompareHash(file), file);
+	}
+	
+	/**
+	 * @return MD5, SHA1, SHA256
+	 */
 	public static String[] getAllHashes(String compareHash, File file)
 	{
 		return new String[]{Main.compareHash == HashType.MD5 ? compareHash : DeDuperUtil.getMD5(file), Main.compareHash == HashType.SHA1 ? compareHash : DeDuperUtil.getSHA1(file), Main.compareHash == HashType.SHA256 ? compareHash : DeDuperUtil.getSHA256(file)};
