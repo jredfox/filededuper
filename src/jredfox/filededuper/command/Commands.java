@@ -256,7 +256,7 @@ public class Commands {
 		{
 			File dir = params.get(0);
 			File tmp = new File(OSUtil.getAppData(), Main.appId + "/tmp");
-			List<File> files = DeDuperUtil.getDirFiles(dir);//populate main dir files
+			List<File> files;
 			
 			//deepunzip the files to the appdata so it doesn't screw with your working directory
 			if(!params.hasFlag("skipUnzip"))
@@ -275,10 +275,13 @@ public class Commands {
 					}
 				}
 				
-				for(File app : apps)
-					if(!files.contains(app))
-						files.add(app);
+				files = DeDuperUtil.getDirFiles(dir, Main.archiveExt, true);
+				files.addAll(apps);
 				files.addAll(DeDuperUtil.getDirFiles(tmp, Main.archiveExt, true));//populate unzipped tmp files
+			}
+			else
+			{
+				files = DeDuperUtil.getDirFiles(dir);
 			}
 
 			Set<String> hashes = new HashSet<>(files.size());

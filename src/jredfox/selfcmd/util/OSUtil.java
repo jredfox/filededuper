@@ -26,7 +26,7 @@ public class OSUtil {
 	
 	public static String[] mac_terminals = new String[]
 	{
-		"bin/bash"	
+		"/bin/bash"	
 	};
 	
 	public static String[] linux_terminals = new String[]
