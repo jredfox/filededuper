@@ -339,7 +339,7 @@ public abstract class Command<T> {
 	public static Command<?> fromArgs(String[] args) 
 	{
 		Command<?> c = Command.get(args[0]);
-		if(c != null) 
+		if(c != null)
 		{
 			try 
 			{

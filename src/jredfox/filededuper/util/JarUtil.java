@@ -168,7 +168,7 @@ public class JarUtil {
 	public static List<ArchiveEntry> getModdedFiles(boolean consistentJar, ZipFile zip, List<ZipEntry> entries)
 	{
 		List<ArchiveEntry> entriesOut = new ArrayList<>();
-		long compileTime = getCompileTime(getFile(zip), entries);
+		long compileTime = getCompileTime(getFile(zip), entries, Main.compileTimePoints);
 		long minTime = getMinTime(compileTime);
 		long maxTime = getMaxTime(compileTime);
 		
@@ -251,12 +251,12 @@ public class JarUtil {
 		return entriesOut;
 	}
 	
-	public static long getCompileTime(File file)
+	public static long getCompileTime(File file, boolean points)
 	{
 		ZipFile zip = null;
 		try
 		{
-			return getCompileTime(file, JarUtil.getZipEntries(new ZipFile(file)));
+			return getCompileTime(file, JarUtil.getZipEntries(new ZipFile(file)), points);
 		} 
 		catch (IOException e) 
 		{
@@ -269,11 +269,11 @@ public class JarUtil {
 		return -1;
 	}
 	
-	public static long getCompileTimeSafley(File zipFile, List<ZipEntry> entries)
+	public static long getCompileTimeSafley(File zipFile, List<ZipEntry> entries, boolean points)
 	{
 		try
 		{
-			return getCompileTime(zipFile, entries);
+			return getCompileTime(zipFile, entries, points);
 		}
 		catch(Exception e)
 		{
@@ -282,9 +282,9 @@ public class JarUtil {
 		return -1;
 	}
 	
-	public static long getCompileTime(File zipFile, List<ZipEntry> entries) throws CompileTimeException
+	public static long getCompileTime(File zipFile, List<ZipEntry> entries, boolean points) throws CompileTimeException
 	{
-		return Main.compileTimePoints ? getCompileTimePoints(zipFile, entries, Main.programDirs, Main.libDirs) : getCompileTimeLeast(zipFile, entries, Main.programDirs, Main.libDirs);
+		return points ? getCompileTimePoints(zipFile, entries, Main.programDirs, Main.libDirs) : getCompileTimeLeast(zipFile, entries, Main.programDirs, Main.libDirs);
 	}
 	
 	/**
@@ -626,7 +626,7 @@ public class JarUtil {
 	private static String genJarData(ParamList<?> params, ZipFile zip, List<ZipEntry> entries, ZipEntry entry) 
 	{
 		boolean consistentJar = params.hasFlag("consistentJar");
-		long compileTime = JarUtil.getCompileTimeSafley(JarUtil.getFile(zip), entries);
+		long compileTime = JarUtil.getCompileTimeSafley(JarUtil.getFile(zip), entries, Main.compileTimePoints);
 		long minTime = JarUtil.getMinTime(compileTime);
 		long maxTime = JarUtil.getMaxTime(compileTime);
 		boolean modified = isEntryModified(consistentJar, entry, compileTime, minTime, maxTime);
@@ -638,7 +638,7 @@ public class JarUtil {
 	{
 		if(DeDuperUtil.getExtension(zipFile).equals("jar"))
 		{
-			long compileTime = JarUtil.getCompileTimeSafley(zipFile, entries);
+			long compileTime = JarUtil.getCompileTimeSafley(zipFile, entries, Main.compileTimePoints);
 			long minTime = JarUtil.getMinTime(compileTime);
 			long maxTime = JarUtil.getMaxTime(compileTime);
 			if(isEntryModified(consistentJar, entry, compileTime, minTime, maxTime))

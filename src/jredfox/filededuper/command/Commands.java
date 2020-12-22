@@ -529,7 +529,7 @@ public class Commands {
 				File file = params.get(0);
 				ZipFile zip = new ZipFile(file);
 				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-				long timestamp = JarUtil.getCompileTime(file, entries);
+				long timestamp = JarUtil.getCompileTime(file, entries, Main.compileTimePoints);
 				boolean consistent = true;
 				for(ZipEntry e : entries)
 				{
@@ -578,7 +578,7 @@ public class Commands {
 				File file = params.get(0);
 				ZipFile zip = new ZipFile(file);
 				List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-				long timestamp = JarUtil.getCompileTime(file, entries);
+				long timestamp = JarUtil.getCompileTime(file, entries, Main.compileTimePoints);
 				boolean consistent = false;
 				for(ZipEntry e : entries)
 				{
@@ -632,7 +632,12 @@ public class Commands {
 		public void run(ParamList<File> params) 
 		{
 			File file =  params.get(0);
-			System.out.println("compileTime:" + JarUtil.getCompileTime(file));
+			boolean points = Main.compileTimePoints;
+			if(params.hasFlag("points"))
+				points = true;
+			else if(params.hasFlag("least"))
+				points = false;
+			System.out.println("compileTime:" + JarUtil.getCompileTime(file, points));
 		}
 	};
 	
