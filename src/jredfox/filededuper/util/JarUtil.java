@@ -29,6 +29,7 @@ import jredfox.filededuper.Main.HashType;
 import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.archive.Zip;
+import jredfox.filededuper.command.ParamList;
 import jredfox.filededuper.command.exception.CommandRuntimeException;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.exception.CompileTimeException;
@@ -592,7 +593,7 @@ public class JarUtil {
 		}
 	}
 
-	public static void addJarEntries(boolean consistentJar, File f, CSV csv)
+	public static void addJarEntries(boolean skipPluginGen, boolean consistentJar, File f, CSV csv)
 	{
 		try
 		{

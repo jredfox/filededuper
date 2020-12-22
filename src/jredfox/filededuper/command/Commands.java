@@ -242,7 +242,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipUnzip", "--appZip", "--genPluginData"}, "deDupe")
+	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipUnzip", "--appUnzip", "--genPluginData"}, "deDupe")
 	{
 		@Override
 		public String[] displayArgs()
@@ -272,12 +272,17 @@ public class Commands {
 			{
 				List<File> archives = DeDuperUtil.getDirFiles(dir, Main.archiveExt);
 				List<File> apps = new ArrayList<>();
+				boolean nonAppZip = !params.hasFlag("appUnzip");
 				for(File archive : archives)
 				{
 					try 
 					{
-						JarUtil.deepNonAppUnzip(apps, archive, new File(tmp, DeDuperUtil.getTrueName(archive)));
-					} 
+						File outZip = new File(tmp, DeDuperUtil.getTrueName(archive));
+						if(nonAppZip)
+							JarUtil.deepNonAppUnzip(apps, archive, outZip);
+						else
+							JarUtil.deepUnzip(archive, outZip);
+					}
 					catch (IOException e) 
 					{
 						e.printStackTrace();
@@ -328,7 +333,7 @@ public class Commands {
 					e.printStackTrace();
 				}
 			}
-			IOUtils.deleteDirectory(tmp);
+//			IOUtils.deleteDirectory(tmp);
 		}
 	};
 	
@@ -358,7 +363,7 @@ public class Commands {
 		}
 	};
 
-	public static Command<File> checkJar = new Command<File>(new String[]{"--unSigned", "--consistentJar"}, "checkJar")
+	public static Command<File> checkJar = new Command<File>(new String[]{"--consistentJar"}, "checkJar")
 	{
 		@Override
 		public File[] parse(String... inputs)
