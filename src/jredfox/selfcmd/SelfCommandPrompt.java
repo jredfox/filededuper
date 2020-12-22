@@ -291,7 +291,7 @@ public class SelfCommandPrompt {
         	cmds.add("#!/bin/bash");
         	cmds.add("set +v");//@Echo off
         	cmds.add("echo -n -e \"\\033]0;" + appName + "\\007\"");//Title
-        	cmds.add("cd " + getProgramDir().getAbsolutePath());//set the proper directory
+        	cmds.add("cd " + getProgramDir().getAbsolutePath().replaceAll(" ", "\\ "));//set the proper directory
         	cmds.add(command);//actual command
         	IOUtils.saveFileLines(cmds, sh, true);//save the file
         	IOUtils.makeExe(sh);//make it executable
@@ -299,7 +299,7 @@ public class SelfCommandPrompt {
         	File launchSh = new File(appdata, "run.sh");
         	List<String> li = new ArrayList<>();
         	li.add("#!/bin/bash");
-        	li.add("osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath().replaceAll(" ", "\\ ") + "\\\"\"");
+        	li.add("osascript -e \"tell application \\\"Terminal\\\" to do script \\\"" + sh.getAbsolutePath().replaceAll(" ", "\\\\ ") + "\\\"\"");
         	IOUtils.saveFileLines(li, launchSh, true);
         	IOUtils.makeExe(launchSh);
         	Runtime.getRuntime().exec(terminal + " " + OSUtil.getExeAndClose() + " " + launchSh.getAbsolutePath().replaceAll(" ", "\\ "));

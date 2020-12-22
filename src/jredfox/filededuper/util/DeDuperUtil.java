@@ -461,7 +461,7 @@ public class DeDuperUtil {
 		list.add(genHashes(params, dir, file, hash) + "," + DeDuperUtil.getRealtivePath(dir.isDirectory() ? dir : dir.getParentFile(), hashes.get(hash)) );
 	}
 
-	private static String genHashes(ParamList<?> params, File dir, File file, String hash) 
+	public static String genHashes(ParamList<?> params, File dir, File file, String hash) 
 	{
 		String name = file.getName();
 		//recycle the comparing hash so it doesn't generate it twice especially for the sha's hashes
@@ -480,7 +480,7 @@ public class DeDuperUtil {
 	{
 		try
 		{
-			return Main.skipGenPluginData || !isExtEqual(ext, pluginExts) ? "" : genJarData(params, file);
+			return params.hasFlag("skipPluginGen") || !isExtEqual(ext, pluginExts) ? "" : genJarData(params, file);
 		}
 		catch(Exception e)
 		{
@@ -494,7 +494,7 @@ public class DeDuperUtil {
 		Zip jar = JarUtil.getZipFile(file);
 		List<ZipEntry> entries = JarUtil.getZipEntries(jar);
 		long compileTime = JarUtil.getCompileTimeSafley(file, entries);
-		boolean modified = JarUtil.isJarModded(jar.file, entries, !params.hasFlag("unSigned"));
+		boolean modified = JarUtil.isJarModded(params.hasFlag("consistentJar"), jar.file, entries, !params.hasFlag("unSigned"));
 		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(file, entries, compileTime);
 		IOUtils.close(jar, true);
 		return compileTime + "," + modified + "," + consistency;

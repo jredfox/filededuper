@@ -48,16 +48,15 @@ public class Main {
 	public static String[] archiveExt;
 	public static HashType compareHash;
 	public static boolean lowercaseHash;
-	public static boolean skipGenPluginData;
 	
 	//checkJar config
 	public static boolean archiveDir;
 	public static boolean compileTimePoints;
 	public static long compileTimeOffset;
-	public static boolean consistentCheckJar;
 	public static String[] programDirs;
 	public static String[] programExts;
 	public static String[] libDirs;
+	public static int jarModifiedIndex = 7;
 	
 	public static void loadConfigs() 
 	{
@@ -67,7 +66,6 @@ public class Main {
 		genDupesExt = mainCfg.get("genDupesExtension", "*").toLowerCase().replace("\\.", "").split(",");
 		compareExt = mainCfg.get("compareHashesExtension", "*").toLowerCase().replace("\\.", "").split(",");
 		lowercaseHash = mainCfg.get("lowercaseHash", false);
-		skipGenPluginData = mainCfg.get("skipGenPluginData", false);
 		compareHash = HashType.getByName(mainCfg.get("compareHash", "MD5").toLowerCase().replace("-", ""));//options are MD5, SHA1, SHA256
 		archiveExt = trimDirs(mainCfg.get("archiveExt", "zip,jar").split(","));
 		mainCfg.save();
@@ -77,7 +75,6 @@ public class Main {
 		archiveDir = jarCheck.get("archiveDir", false);
 		compileTimePoints = jarCheck.get("compileTimePoints", true);//getCompile time based on maximum points based on the program dir then the lowest one in there
 		compileTimeOffset = jarCheck.get("compileTimeOffset", 30);//amount of minuets is allowed since the compile time before it's considered a mod
-		consistentCheckJar = jarCheck.get("consistentCheckJar", false);
 		programDirs = trimDirs(jarCheck.get("programDirs", PointTimeEntry.defaultDir + ",net/minecraft,com/mojang,com/a,jredfox/filededuper").split(","));
 		programExts = trimDirs(jarCheck.get("programExts", "class,rsa,dsa,mf,sf,js,java,py,kt").toLowerCase().replace("\\.", "").split(","));
 		libDirs = jarCheck.get("libDirs", "org/eclipse,org/apache,org/json,com/google,com/ibm,paulscode,com/paulscode,io/netty,it/unimi,javax/vecmath,LZMA,org/jline,org/lwjgl,org/objectweb,oshi,tv/twitch").split(",");

@@ -29,6 +29,7 @@ import jredfox.filededuper.Main.HashType;
 import jredfox.filededuper.PointTimeEntry;
 import jredfox.filededuper.archive.ArchiveEntry;
 import jredfox.filededuper.archive.Zip;
+import jredfox.filededuper.command.exception.CommandRuntimeException;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.exception.CompileTimeException;
 import jredfox.selfcmd.util.OSUtil;
@@ -50,14 +51,14 @@ public class JarUtil {
 	/**
 	 * is cpu & disk intensive
 	 */
-	public static boolean isJarModded(File file, List<ZipEntry> entries, boolean signed)
+	public static boolean isJarModded(boolean consistentJar, File file, List<ZipEntry> entries, boolean signed)
 	{
 		JarFile jar = null;
 		boolean modded = false;
 		try
 		{
 			jar = new JarFile(file, true);
-			modded = !checkMetainf(jar, entries, signed) || !getModdedFiles(jar, entries).isEmpty();
+			modded = !checkMetainf(jar, entries, signed) || !getModdedFiles(consistentJar, jar, entries).isEmpty();
 		}
 		catch(SecurityException e)
 		{
@@ -103,13 +104,13 @@ public class JarUtil {
 	/**
 	 * @return if the jar was modded and dumped
 	 */
-	public static boolean dumpJarMod(File file)
+	public static boolean dumpJarMod(boolean consistentJar, File file)
 	{
 		ZipFile zip = null;
 		try
 		{
 			zip = new ZipFile(file);
-			List<ArchiveEntry> entries = getModdedFiles(zip);
+			List<ArchiveEntry> entries = getModdedFiles(consistentJar, zip);
 			if(entries.isEmpty())
 				return false;
 			saveZip(entries, new File(file.getParent(), DeDuperUtil.getTrueName(file) + "-output.zip"));
@@ -155,15 +156,15 @@ public class JarUtil {
 		return false;
 	}
 	
-	public static List<ArchiveEntry> getModdedFiles(ZipFile zip)
+	public static List<ArchiveEntry> getModdedFiles(boolean consistentJar, ZipFile zip)
 	{
-		return getModdedFiles(zip, getZipEntries(zip));
+		return getModdedFiles(consistentJar, zip, getZipEntries(zip));
 	}
 	
 	/**
 	 * check the jar self integrity with itself
 	 */
-	public static List<ArchiveEntry> getModdedFiles(ZipFile zip, List<ZipEntry> entries)
+	public static List<ArchiveEntry> getModdedFiles(boolean consistentJar, ZipFile zip, List<ZipEntry> entries)
 	{
 		List<ArchiveEntry> entriesOut = new ArrayList<>();
 		long compileTime = getCompileTime(getFile(zip), entries);
@@ -172,7 +173,7 @@ public class JarUtil {
 		
 		for(ZipEntry entry : entries)
 		{
-			if(isEntryModified(entry, compileTime, minTime, maxTime))
+			if(isEntryModified(consistentJar, entry, compileTime, minTime, maxTime))
 			{
 				entriesOut.add(new ArchiveEntry(zip, entry));
 			}
@@ -185,10 +186,10 @@ public class JarUtil {
 		return new File(zip.getName());
 	}
 
-	public static boolean isEntryModified(ZipEntry entry, long compileTime, long minTime, long maxTime)
+	public static boolean isEntryModified(boolean consistentJar, ZipEntry entry, long compileTime, long minTime, long maxTime)
 	{
 		long time = entry.getTime();
-		if(Main.consistentCheckJar && time != compileTime)
+		if(consistentJar && time != compileTime)
 		{
 			return true;
 		}
@@ -591,7 +592,7 @@ public class JarUtil {
 		}
 	}
 
-	public static void addJarEntries(File f, CSV csv)
+	public static void addJarEntries(boolean consistentJar, File f, CSV csv)
 	{
 		try
 		{
@@ -608,14 +609,17 @@ public class JarUtil {
 				if(entry.isDirectory())
 					continue;
 				String name = new File(entry.getName()).getName();
-				boolean modified = isEntryModified(entry, compileTime, minTime, maxTime);
+				boolean modified = isEntryModified(consistentJar, entry, compileTime, minTime, maxTime);
 				String hash = DeDuperUtil.getCompareHash(zip, entry);
 				if(hashes.contains(hash))
 				{
 					if(modified)
 					{
-						String[] line = csv.getLine(hash, Main.compareHash.ordinal() + 1);
-						line[6] = "true";//hotfix for duplicate entries having different timestamps
+						String[] line = csv.getLine(hash, Main.compareHash.ordinal() + 1);//get the line based on the hash colum
+						String tst = line[Main.jarModifiedIndex];
+						if( !(tst.equalsIgnoreCase("true") || tst.equalsIgnoreCase("false")))
+							throw new CommandRuntimeException("cannot find the jar modification boolean index!");
+						line[Main.jarModifiedIndex] = "true";//hotfix for duplicate entries having different timestamps
 					}
 					continue;
 				}
@@ -629,6 +633,10 @@ public class JarUtil {
 				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + "," + compileTime + "," + modified + "," + consistencies + "," + path);
 				hashes.add(md5);
 			}
+		}
+		catch(CommandRuntimeException e)
+		{
+			throw e;
 		}
 		catch (Exception e)
 		{

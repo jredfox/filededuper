@@ -14,11 +14,11 @@ import java.util.zip.ZipFile;
 import com.google.common.io.Files;
 
 import jredfox.filededuper.Main;
-import jredfox.filededuper.command.exception.CommandRuntimeException;
 import jredfox.filededuper.config.csv.CSV;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.filededuper.util.IOUtils;
 import jredfox.filededuper.util.JarUtil;
+import jredfox.filededuper.util.list.DummyList;
 import jredfox.selfcmd.SelfCommandPrompt;
 import jredfox.selfcmd.util.OSUtil;
 
@@ -26,7 +26,7 @@ public class Commands {
 	
 	public static final String hashHeader = "#name, md5, sha-1, sha-256, size, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
 	
-	public static Command<File> genHashes = new Command<File>(new String[]{"--unSigned"}, "genHashes", "genSpreadsheet")
+	public static Command<File> genHashes = new Command<File>(new String[]{ "--skipPluginGen", "--unSigned", "--consistentJar"}, "genHashes", "genSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -66,7 +66,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genArchiveHashes = new Command<File>(new String[]{"--unSigned"}, "genArchiveHashes", "genArchiveSpreadsheet")
+	public static Command<File> genArchiveHashes = new Command<File>(new String[]{ "--skipPluginGen", "--unSigned", "--consistentJar"}, "genArchiveHashes", "genArchiveSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -95,6 +95,7 @@ public class Commands {
 			List<String> index = new ArrayList<>(files.size());
 			index.add(hashHeader);
 			Set<String> hashes = new HashSet<>(files.size());
+			boolean consistentJar = params.hasFlag("consistentJar");
 			for(File file : files)
 			{
 				String hash = DeDuperUtil.getCompareHash(file);
@@ -107,7 +108,7 @@ public class Commands {
 				boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
 				if(isJar)
 				{
-					JarUtil.addJarEntries(file, csv);
+					JarUtil.addJarEntries(consistentJar, file, csv);
 				}
 				else
 				{
@@ -127,7 +128,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genDupeHashes = new Command<File>(new String[]{"--unSigned"}, "genDupeHashes")
+	public static Command<File> genDupeHashes = new Command<File>(new String[]{ "--skipPluginGen", "--unSigned", "--consistentJar"}, "genDupeHashes")
 	{
 		@Override
 		public String[] displayArgs() 
@@ -241,7 +242,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipUnzip", "--genPluginData"}, "deDupe")
+	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipUnzip", "--appZip", "--genPluginData"}, "deDupe")
 	{
 		@Override
 		public String[] displayArgs()
@@ -357,7 +358,7 @@ public class Commands {
 		}
 	};
 
-	public static Command<File> checkJar = new Command<File>("checkJar")
+	public static Command<File> checkJar = new Command<File>(new String[]{"--unSigned", "--consistentJar"}, "checkJar")
 	{
 		@Override
 		public File[] parse(String... inputs)
@@ -380,7 +381,7 @@ public class Commands {
 			File orgJar = params.get(1);
 			if(jar.equals(orgJar))
 			{
-				if(JarUtil.dumpJarMod(jar))
+				if(JarUtil.dumpJarMod(params.hasFlag("consistentJar"), jar))
 					System.out.println("Dumped jarMod");
 			}
 			else
@@ -688,7 +689,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deepUnzip = new Command<File>("deepUnzip", "deepUnarchive")
+	public static Command<File> deepUnzip = new Command<File>(new String[]{"--nonAppUnzip"},"deepUnzip", "deepUnarchive")
 	{
 		@Override
 		public String[] displayArgs() 
@@ -715,7 +716,10 @@ public class Commands {
 			{
 				try
 				{
-					JarUtil.deepUnzip(file);
+					if(!params.hasFlag("nonAppUnzip"))
+						JarUtil.deepUnzip(file);
+					else
+						JarUtil.deepNonAppUnzip(new DummyList<File>(), file);
 				}
 				catch(Exception e)
 				{
@@ -770,7 +774,7 @@ public class Commands {
 	public static Command<Object> test = new Command<Object>(new String[]{"-cd","--stacktrace", "--mainClass="}, "test")
 	{
 		@Override
-		public String[] displayArgs() 
+		public String[] displayArgs()
 		{
 			return new String[]{""};
 		}
