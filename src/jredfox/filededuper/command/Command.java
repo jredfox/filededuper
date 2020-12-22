@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 
+import jredfox.filededuper.command.exception.CommandException;
 import jredfox.filededuper.command.exception.CommandParseException;
 import jredfox.filededuper.command.exception.CommandRuntimeException;
 import jredfox.filededuper.err.ErrorCapture;
@@ -111,7 +112,7 @@ public abstract class Command<T> {
 		}
 		catch(Exception e)
 		{
-			throw new CommandRuntimeException(e);
+			throw new CommandParseException(e);
 		}
 	}
 
@@ -340,14 +341,13 @@ public abstract class Command<T> {
 		Command<?> c = Command.get(args[0]);
 		if(c != null) 
 		{
-			try {
+			try 
+			{
 				c.parseParamList(args);
 			}
-			catch(CommandRuntimeException e) {
-				return new CommandInvalidParse(c.id, "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")" + (c.options.isEmpty() ? "" : ", OptionalParams:(" + Command.getOArgsString(c.options, ", ") + ")"));
-			}
-			catch(CommandParseException e) {
-				return new CommandInvalidParse(c.id, e.getMessage());
+			catch(CommandParseException e) 
+			{
+				return e.cause != null ? new CommandInvalidParse(c.id, "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")" + (c.options.isEmpty() ? "" : ", OptionalParams:(" + Command.getOArgsString(c.options, ", ") + ")")) :  new CommandInvalidParse(c.id, e.getMessage());
 			}
 		}
 		return c;

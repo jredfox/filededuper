@@ -1,6 +1,6 @@
 package jredfox.filededuper.command.exception;
 
-public class CommandParseException extends RuntimeException{
+public class CommandParseException extends CommandException{
 	
 	public CommandParseException(String msg)
 	{
