@@ -107,7 +107,7 @@ public class Commands {
 				JarUtil.addArchiveEntries(params, file, csv);
 				if(csv.lines.size() > 1)
 					csv.save();
-				System.out.println("finished:" + file);
+				System.out.println("finished archive:" + file);
 			}
 			File outputIndex = new File(outDir, "index-" + DeDuperUtil.getTrueName(dir) + ".csv");
 			IOUtils.saveFileLines(index, outputIndex, true);

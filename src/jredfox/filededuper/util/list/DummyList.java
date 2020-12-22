@@ -39,5 +39,23 @@ public class DummyList<T> extends ArrayList<T>{
 	{
 		return true;
 	}
+	
+	@Override
+	public boolean remove(Object t)
+	{
+		return false;
+	}
+	
+	@Override
+	public T remove(int index)
+	{
+		return null;
+	}
+	
+	@Override
+	public boolean removeAll(Collection<?> col)
+	{
+		return false;
+	}
 
 }
