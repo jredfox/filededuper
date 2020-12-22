@@ -95,7 +95,6 @@ public class Commands {
 			List<String> index = new ArrayList<>(files.size());
 			index.add(hashHeader);
 			Set<String> hashes = new HashSet<>(files.size());
-			boolean consistentJar = params.hasFlag("consistentJar");
 			for(File file : files)
 			{
 				String hash = DeDuperUtil.getCompareHash(file);
@@ -105,17 +104,10 @@ public class Commands {
 				}
 				DeDuperUtil.genHashes(params, dir, file, hashes, index);
 				CSV csv = new CSV(new File(outArchive, file.getName() + "-" + hash + ".csv"));
-				boolean isJar = DeDuperUtil.getExtension(file).equals("jar");
-				if(isJar)
-				{
-					JarUtil.addJarEntries(consistentJar, file, csv);
-				}
-				else
-				{
-					JarUtil.addZipEntries(file, csv);
-				}
+				JarUtil.addArchiveEntries(params, file, csv);
 				if(csv.lines.size() > 1)
 					csv.save();
+				System.out.println("finished:" + file);
 			}
 			File outputIndex = new File(outDir, "index-" + DeDuperUtil.getTrueName(dir) + ".csv");
 			IOUtils.saveFileLines(index, outputIndex, true);

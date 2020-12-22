@@ -475,8 +475,8 @@ public class DeDuperUtil {
 		return name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + (plugin.isEmpty() ? "" : "," + plugin) + "," + path;
 	}
 
-	private static String[] pluginExts = new String[]{"jar"};
-	private static String getPlugin(ParamList<?> params, String ext, File file) 
+	public static String[] pluginExts = new String[]{"jar"};
+	public static String getPlugin(ParamList<?> params, String ext, File file) 
 	{
 		try
 		{
@@ -496,7 +496,7 @@ public class DeDuperUtil {
 		long compileTime = JarUtil.getCompileTimeSafley(file, entries);
 		boolean modified = JarUtil.isJarModded(params.hasFlag("consistentJar"), jar.file, entries, !params.hasFlag("unSigned"));
 		JarUtil.Consistencies consistency = JarUtil.getConsistentcy(file, entries, compileTime);
-		IOUtils.close(jar, true);
+		IOUtils.close(jar);
 		return compileTime + "," + modified + "," + consistency;
 	}
 

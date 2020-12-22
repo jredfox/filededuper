@@ -560,67 +560,30 @@ public class JarUtil {
 			IOUtils.close(out);
 		}
 	}
-	
-	public static void addZipEntries(File f, CSV csv) 
-	{
-		try
-		{
-			ZipFile zip = new ZipFile(f);
-			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
-			Set<String> hashes = new HashSet<>(entries.size());
-			csv.add("#name, md5, sha-1, sha256, size, date-modified, path");
-			for(ZipEntry entry : entries)
-			{
-				if(entry.isDirectory())
-					continue;
-				String name = new File(entry.getName()).getName();
-				String hash = DeDuperUtil.getCompareHash(zip, entry);
-				if(hashes.contains(hash))
-					continue;
-				String md5 = Main.compareHash == HashType.MD5 ? hash : DeDuperUtil.getMD5(zip, entry);
-				String sha1 = Main.compareHash == HashType.SHA1 ? hash : DeDuperUtil.getSHA1(zip, entry);
-				String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(zip, entry);
-				long size = entry.getSize();
-				long time = entry.getTime();
-				String path = entry.getName();
-				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + "," + path);
-				hashes.add(hash);
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
 
-	public static void addJarEntries(boolean skipPluginGen, boolean consistentJar, File f, CSV csv)
+	public static void addArchiveEntries(ParamList<?> params, File f, CSV csv)
 	{
 		try
 		{
+			boolean plugin = !params.hasFlag("skipPluginGen");
+			boolean consistentJar = params.hasFlag("consistentJar");
 			ZipFile zip = new ZipFile(f);
 			List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 			Set<String> hashes = new HashSet<>(entries.size());
 			csv.add("#name, md5, sha-1, sha256, size, date-modified, compileTime, boolean modified, enum consistency, path");
-			long compileTime = JarUtil.getCompileTimeSafley(f, entries);
-			long minTime = JarUtil.getMinTime(compileTime);
-			long maxTime = JarUtil.getMaxTime(compileTime);
-			
 			for(ZipEntry entry : entries)
 			{
 				if(entry.isDirectory())
 					continue;
 				String name = new File(entry.getName()).getName();
-				boolean modified = isEntryModified(consistentJar, entry, compileTime, minTime, maxTime);
 				String hash = DeDuperUtil.getCompareHash(zip, entry);
 				if(hashes.contains(hash))
 				{
-					if(modified)
+					String[] line = csv.getLine(hash, Main.compareHash.ordinal() + 1);//get the line based on the hash colum
+					if(plugin) 
 					{
-						String[] line = csv.getLine(hash, Main.compareHash.ordinal() + 1);//get the line based on the hash colum
-						String tst = line[Main.jarModifiedIndex];
-						if( !(tst.equalsIgnoreCase("true") || tst.equalsIgnoreCase("false")))
-							throw new CommandRuntimeException("cannot find the jar modification boolean index!");
-						line[Main.jarModifiedIndex] = "true";//hotfix for duplicate entries having different timestamps
+						System.out.println("skipping:" + entry.getName());
+						skipLine(f, entries, entry, csv, consistentJar, line);
 					}
 					continue;
 				}
@@ -629,11 +592,12 @@ public class JarUtil {
 				String sha256 = Main.compareHash == HashType.SHA256 ? hash : DeDuperUtil.getSHA256(zip, entry);
 				long size = entry.getSize();
 				long time = entry.getTime();
-				Consistencies consistencies = getConsistency(entry, compileTime, time);
+				String pluginData = JarUtil.getPlugin(params, zip, entries, entry);
 				String path = entry.getName();
-				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + "," + compileTime + "," + modified + "," + consistencies + "," + path);
+				csv.add(name + "," + md5 + "," + sha1 + "," + sha256 + "," + size + "," + time + (pluginData.isEmpty() ? "" : "," + pluginData) + "," + path);
 				hashes.add(md5);
 			}
+			zip.close();
 		}
 		catch(CommandRuntimeException e)
 		{
@@ -645,6 +609,48 @@ public class JarUtil {
 		}
 	}
 	
+	public static String getPlugin(ParamList<?> params, ZipFile zip, List<ZipEntry> entries, ZipEntry entry) 
+	{
+		try
+		{
+			String ext = DeDuperUtil.getExtension(zip.getName());
+			return params.hasFlag("skipPluginGen") || !DeDuperUtil.isExtEqual(ext, DeDuperUtil.pluginExts) ? "" : genJarData(params, zip, entries, entry);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return "exception_" + e.getClass().getName();
+		}
+	}
+
+	private static String genJarData(ParamList<?> params, ZipFile zip, List<ZipEntry> entries, ZipEntry entry) 
+	{
+		boolean consistentJar = params.hasFlag("consistentJar");
+		long compileTime = JarUtil.getCompileTimeSafley(JarUtil.getFile(zip), entries);
+		long minTime = JarUtil.getMinTime(compileTime);
+		long maxTime = JarUtil.getMaxTime(compileTime);
+		boolean modified = isEntryModified(consistentJar, entry, compileTime, minTime, maxTime);
+		Consistencies consistencies = getConsistency(entry, compileTime, entry.getTime());
+		return compileTime + "," + modified + "," + consistencies;
+	}
+
+	private static void skipLine(File zipFile, List<ZipEntry> entries, ZipEntry entry, CSV csv, boolean consistentJar, String[] line) 
+	{
+		if(DeDuperUtil.getExtension(zipFile).equals("jar"))
+		{
+			long compileTime = JarUtil.getCompileTimeSafley(zipFile, entries);
+			long minTime = JarUtil.getMinTime(compileTime);
+			long maxTime = JarUtil.getMaxTime(compileTime);
+			if(isEntryModified(consistentJar, entry, compileTime, minTime, maxTime))
+			{
+				String tst = line[Main.jarModifiedIndex];
+				if( !(tst.equalsIgnoreCase("true") || tst.equalsIgnoreCase("false")))
+					throw new CommandRuntimeException("cannot find the jar modification boolean index!");
+				line[Main.jarModifiedIndex] = "true";
+			}
+		}
+	}
+
 	/**
 	 * gets the consistencies of an individual ZipEntry
 	 */
