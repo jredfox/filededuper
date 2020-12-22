@@ -11,10 +11,19 @@ public class CommandOption {
 	protected String id;
 	protected String value;
 	protected Set<CommandOption> subs = new HashSet<>(0);
+	protected Set<CommandOption> incompats = new HashSet<>(0);
 	
 	public CommandOption(char c)
 	{
 		this("" + c);
+	}
+	
+	public CommandOption(String[] incompats, String id)
+	{
+		this(id);
+		this.incompats = new HashSet<>(incompats.length);
+		for(String option : incompats)
+			this.incompats.add(new CommandOption(option));
 	}
 	
 	public CommandOption(String id)
@@ -58,6 +67,29 @@ public class CommandOption {
 		{
 			this.value = DeDuperUtil.splitFirst(id, '=', '"', '"')[1];
 		}
+	}
+	
+	public boolean isIncompat(CommandOption other)
+	{
+		for(CommandOption o : this.incompats)
+			if(o.hasFlag(other))
+				return true;
+		return false;
+	}
+	
+	public void addIncompat(CommandOption o)
+	{
+		this.incompats.add(o);
+	}
+	
+	public void removeIncompat(CommandOption o)
+	{
+		this.incompats.remove(o);
+	}
+	
+	public Set<CommandOption> getIncompats()
+	{
+		return this.incompats;
 	}
 	
 	public boolean hasFlag(char c)
@@ -145,5 +177,19 @@ public class CommandOption {
 			b.append(", -" + o.id);
 		b.append(value);
 		return b.toString();
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.toString().hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(!(obj instanceof CommandOption))
+			return false;
+		return this.hasFlag((CommandOption)obj);
 	}
 }

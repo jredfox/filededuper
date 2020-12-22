@@ -1,12 +1,12 @@
 package jredfox.filededuper.command;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 public class ParamList<T> {
 	
 	public T[] params;
-	public List<CommandOption> options;
+	public Collection<CommandOption> options;
 	
 	@SuppressWarnings("unchecked")
 	public ParamList(T... params)
@@ -16,7 +16,7 @@ public class ParamList<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ParamList(List<CommandOption> options, T... params)
+	public ParamList(Collection<CommandOption> options, T... params)
 	{
 		this.params = params;
 		this.options = options != null ? options : new ArrayList<>(0);

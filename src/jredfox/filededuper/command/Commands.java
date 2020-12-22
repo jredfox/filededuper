@@ -26,7 +26,7 @@ public class Commands {
 	
 	public static final String hashHeader = "#name, md5, sha-1, sha-256, size, date-modified, compileTime(jar only), boolean modified(jar only), enum consistency(jar only), path";
 	
-	public static Command<File> genHashes = new Command<File>(new String[]{ "--skipPluginGen", "--unSigned", "--consistentJar"}, "genHashes", "genSpreadsheet")
+	public static Command<File> genHashes = new Command<File>(new Object[]{new CommandOption(new String[]{"--unSigned", "--consistentJar"}, "--skipPluginGen"), "--unSigned", "--consistentJar"}, "genHashes", "genSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -66,7 +66,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genArchiveHashes = new Command<File>(new String[]{ "--skipPluginGen", "--unSigned", "--consistentJar"}, "genArchiveHashes", "genArchiveSpreadsheet")
+	public static Command<File> genArchiveHashes = new Command<File>(new Object[]{ new CommandOption(new String[]{"--unSigned", "--consistentJar"}, "--skipPluginGen"), "--unSigned", "--consistentJar"}, "genArchiveHashes", "genArchiveSpreadsheet")
 	{
 		@Override
 		public File[] parse(String... inputs) 
@@ -120,7 +120,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> genDupeHashes = new Command<File>(new String[]{ "--skipPluginGen", "--unSigned", "--consistentJar"}, "genDupeHashes")
+	public static Command<File> genDupeHashes = new Command<File>(new Object[]{ new CommandOption(new String[]{"--unSigned", "--consistentJar"}, "--skipPluginGen"), "--unSigned", "--consistentJar"}, "genDupeHashes")
 	{
 		@Override
 		public String[] displayArgs() 
@@ -234,7 +234,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deDupe = new Command<File>(new String[]{"--flat", "--skipUnzip", "--appUnzip", "--genPluginData"}, "deDupe")
+	public static Command<File> deDupe = new Command<File>(new Object[]{"--flat", new CommandOption(new String[]{"--appUnzip"}, "--skipUnzip"), "--appUnzip", "--genPluginData"}, "deDupe")
 	{
 		@Override
 		public String[] displayArgs()
@@ -609,7 +609,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> getCompileTime = new Command<File>("getCompileTime")
+	public static Command<File> getCompileTime = new Command<File>(new CommandOption[]{new CommandOption(new String[]{"--points"}, "--least"), new CommandOption("--points")}, "getCompileTime")
 	{
 		@Override
 		public String[] displayArgs()
@@ -686,7 +686,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deepUnzip = new Command<File>(new String[]{"--nonAppUnzip"},"deepUnzip", "deepUnarchive")
+	public static Command<File> deepUnzip = new Command<File>(new String[]{"--nonAppUnzip"}, "deepUnzip", "deepUnarchive")
 	{
 		@Override
 		public String[] displayArgs() 
@@ -765,27 +765,6 @@ public class Commands {
 			}
 			if(!match)
 				System.out.println("NO MATCHES FOUND:" + file);
-		}
-	};
-	
-	public static Command<Object> test = new Command<Object>(new String[]{"-cd","--stacktrace", "--mainClass="}, "test")
-	{
-		@Override
-		public String[] displayArgs()
-		{
-			return new String[]{""};
-		}
-
-		@Override
-		public Object[] parse(String... inputs) 
-		{
-			return null;
-		}
-
-		@Override
-		public void run(ParamList<Object> params)
-		{
-			System.out.println(params.hasFlag('c') + " " + "\"" + params.getValue("mainClass") + "\"");
 		}
 	};
 	

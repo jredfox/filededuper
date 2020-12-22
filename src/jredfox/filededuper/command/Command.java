@@ -3,13 +3,16 @@ package jredfox.filededuper.command;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TreeMap;
 
 import jredfox.filededuper.command.exception.CommandParseException;
+import jredfox.filededuper.command.exception.CommandRuntimeException;
 import jredfox.filededuper.err.ErrorCapture;
 import jredfox.filededuper.util.DeDuperUtil;
 import jredfox.selfcmd.SelfCommandPrompt;
@@ -31,12 +34,17 @@ public abstract class Command<T> {
 	 */
 	public static Map<String, Command<?>> cmds = new TreeMap<>();
 	
-	public Command(String[] options, String... ids)
+	public <K extends Object> Command(K[] options, String... ids)
 	{
 		this(ids);
 		this.options = new ArrayList<>(options.length);
-		for(String s : options)
-			this.options.add(new CommandOption(s));
+		for(Object obj : options)
+		{
+			if(obj instanceof CommandOption)
+				this.options.add((CommandOption) obj);
+			else
+				this.options.add(new CommandOption(obj.toString()));
+		}
 	}
 	
 	public Command(String... ids)
@@ -71,7 +79,7 @@ public abstract class Command<T> {
 		{
 			String[] paramArgs = this.getParamArgs(args);
 			String[] optionArgs = this.getOptionalArgs(args);
-			List<CommandOption> options = new ArrayList(optionArgs.length);
+			Set<CommandOption> options = new HashSet(optionArgs.length);
 			for(String o : optionArgs)
 			{
 				CommandOption option = new CommandOption(o);
@@ -79,16 +87,52 @@ public abstract class Command<T> {
 					throw new CommandParseException("optional command argument is maulformed or invalid:" + option);
 				options.add(option);
 			}
+			
+			//check for incompatible optional arguments
+			for(CommandOption t : options)
+			{
+				CommandOption o = this.getOption(t);
+				for(CommandOption index : options)
+				{
+					if(o.isIncompat(index))
+					{
+						throw new CommandParseException(o + " is incompatible with:" + index);
+					}
+				}
+			}
+			
 			T[] params = this.parse(paramArgs);
 			this.params = new ParamList(options, params);
 			this.setError(false);
 		}
+		catch(CommandParseException e)
+		{
+			throw e;
+		}
 		catch(Exception e)
 		{
-			throw new CommandParseException(e);
+			throw new CommandRuntimeException(e);
 		}
 	}
+
+	public CommandOption getOption(CommandOption id)
+	{
+		for(CommandOption o : this.options)
+			if(o.hasFlag(id))
+				return o;
+		return null;
+	}
 	
+	public CommandOption getOption(String id) 
+	{
+		if(id.startsWith("-"))
+			throw new IllegalArgumentException("do not input unparsed command option keys:" + id);
+		for(CommandOption o : this.options)
+			if(o.hasFlag(id))
+				return o;
+		return null;
+	}
+
 	public boolean isOptionValid(CommandOption option)
 	{
 		for(CommandOption o : this.options)
@@ -299,8 +343,11 @@ public abstract class Command<T> {
 			try {
 				c.parseParamList(args);
 			}
-			catch(CommandParseException e) {
+			catch(CommandRuntimeException e) {
 				return new CommandInvalidParse(c.id, "Invalid Param arguments for command:\"" + c.name + "\"" + ", ParamsList:(" + DeDuperUtil.toString(c.displayArgs(), ", ") + ")" + (c.options.isEmpty() ? "" : ", OptionalParams:(" + Command.getOArgsString(c.options, ", ") + ")"));
+			}
+			catch(CommandParseException e) {
+				return new CommandInvalidParse(c.id, e.getMessage());
 			}
 		}
 		return c;
