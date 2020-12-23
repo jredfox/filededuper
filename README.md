@@ -15,6 +15,8 @@ Done commands:
 - printJarConsistencies
 - help
 - getCompileTime
+- deepUnzip
+- dedupe(alpha)
 
 Done Features:
 - double click jar to boot up like a normal application
@@ -26,8 +28,3 @@ Done Features:
 - if the program is launched on double click it won't close and you can keep inputting new commands until the x button is pressed.
 - if the program is launched from command line it will say press enter to continue when done and will close after enter is pressed.
 - launching the program with just the command id and no string will require user input to get the rest of the data however it will close when done since it was launched from a command line.
-
-Future:
-- deep unzip for zip / jar files
-- deep comping for zip / jar files
-- dedupe a directory
