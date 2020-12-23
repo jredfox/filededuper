@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -80,24 +81,26 @@ public abstract class Command<T> {
 		{
 			String[] paramArgs = this.getParamArgs(args);
 			String[] optionArgs = this.getOptionalArgs(args);
-			Set<CommandOption> options = new HashSet(optionArgs.length);
+			Set<CommandOption> options = new LinkedHashSet(optionArgs.length);
 			for(String o : optionArgs)
 			{
 				CommandOption option = new CommandOption(o);
-				if(!this.isOptionValid(option))
-					throw new CommandParseException("optional command argument is maulformed or invalid:" + option);
 				options.add(option);
 			}
 			
-			//check for incompatible optional arguments
+			//check for invalid, malformed, and incompatible command options
 			for(CommandOption t : options)
 			{
 				CommandOption o = this.getOption(t);
+				if(o == null)
+					throw new CommandParseException("CommandOption \"" + t + "\" is invalid");
+				else if(o.hasValue() != t.hasValue())
+					throw new CommandParseException("CommandOption \"" + t + "\" is malformed. The format is:" + o);
 				for(CommandOption index : options)
 				{
 					if(o.isIncompat(index))
 					{
-						throw new CommandParseException(o + " is incompatible with:" + index);
+						throw new CommandParseException("CommandOption " + o + " is incompatible with:" + index);
 					}
 				}
 			}
@@ -116,10 +119,10 @@ public abstract class Command<T> {
 		}
 	}
 
-	public CommandOption getOption(CommandOption id)
+	public CommandOption getOption(CommandOption option)
 	{
 		for(CommandOption o : this.options)
-			if(o.hasFlag(id))
+			if(o.hasFlag(option))
 				return o;
 		return null;
 	}
@@ -134,6 +137,9 @@ public abstract class Command<T> {
 		return null;
 	}
 
+	/**
+	 * @returns false if the command option is invalid or malformed
+	 */
 	public boolean isOptionValid(CommandOption option)
 	{
 		for(CommandOption o : this.options)

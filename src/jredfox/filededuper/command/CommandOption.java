@@ -26,11 +26,11 @@ public class CommandOption {
 			this.incompats.add(new CommandOption(option));
 	}
 	
-	public CommandOption(String id)
+	public CommandOption(String id) throws CommandParseException
 	{
 		int dashes = this.getDashes(id);
 		if(dashes == 0)
-			throw new CommandParseException("CmdOption must contain a dash!");
+			throw new CommandParseException("CommandOption must contain a dash! \"" + id + "\"");
 		else if (dashes == 1)
 		{
 			id = id.substring(1);
@@ -41,11 +41,11 @@ public class CommandOption {
 				if(s.equals("="))
 				{
 					if(!this.subs.isEmpty())
-						throw new IllegalArgumentException("combined flags cannot be assigned a value!");
+						throw new CommandParseException("CommandOption combined flags cannot be assigned to a value! \"" + id + "\"");
 					break;
 				}
 				else if(this.hasFlag(s))
-					throw new IllegalArgumentException("duplicate flag:\"" + s + "\"");
+					throw new CommandParseException("CommandOption duplicate flag:\"" + s + "\"");
 				this.subs.add(new CommandOption("-" + s));
 			}
 		}
