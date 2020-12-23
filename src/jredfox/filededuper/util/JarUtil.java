@@ -761,14 +761,22 @@ public class JarUtil {
 		return false;
 	}
 
-	public static void deepUnzip(File zipFile) throws IOException
+	public static void deepUnzip(File zipFile, boolean hasExt) throws IOException
 	{
-		deepUnzip(zipFile, new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile)));
+		deepUnzip(zipFile, new File(zipFile.getParent() + "/" + DeDuperUtil.getTrueName(zipFile)), hasExt);
 	}
 	
-	public static void deepUnzip(File zipFile, File outDir) throws IOException
+	public static void deepUnzip(File zipFile, File outDir, boolean hasExt) throws IOException
 	{
-		ZipFile zip = new ZipFile(zipFile);
+		//fix the output directory
+		String zipExt = DeDuperUtil.getExtension(zipFile);
+		if(hasExt && !outDir.getName().endsWith("-" + zipExt))
+			outDir = new File(outDir.getParent(), outDir.getName() + "-" + zipExt);
+		
+		//start deep unzipping
+		ZipFile zip = JarUtil.getZipFile(zipFile);
+		if(zip == null)
+			return;//return if the ZipFile is encrypted
 		List<ZipEntry> entries = JarUtil.getZipEntries(zip);
 		for(ZipEntry entry : entries)
 		{
@@ -777,7 +785,7 @@ public class JarUtil {
 			unzip(zip, entry, dumped);
 			if(DeDuperUtil.isExtEqual(ext, Main.archiveExt))
 			{
-				deepUnzip(dumped, new File(dumped.getParent(), DeDuperUtil.getTrueName(dumped)));
+				deepUnzip(dumped, new File(dumped.getParent(), DeDuperUtil.getTrueName(dumped) + (hasExt ? "-" + ext : "")), hasExt);
 			}
 		}
 		zip.close();

@@ -211,6 +211,15 @@ public class DeDuperUtil {
 		return index != -1 ? name.substring(index + 1) : "";
 	}
 	
+	/**
+	 * no directory support use at your own risk
+	 */
+	public static String getExtension(char dot, String name) 
+	{
+		int index = name.lastIndexOf(dot);
+		return index != -1 ? name.substring(index + 1) : "";
+	}
+	
 	public static void validateHash(String hash) 
 	{
 		if(hash.length() != Main.compareHash.size)

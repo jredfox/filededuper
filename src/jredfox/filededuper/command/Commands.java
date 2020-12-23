@@ -273,7 +273,7 @@ public class Commands {
 						if(nonAppZip)
 							JarUtil.deepNonAppUnzip(apps, archive, outZip);
 						else
-							JarUtil.deepUnzip(archive, outZip);
+							JarUtil.deepUnzip(archive, outZip, true);
 					}
 					catch (IOException e) 
 					{
@@ -691,7 +691,7 @@ public class Commands {
 		}
 	};
 	
-	public static Command<File> deepUnzip = new Command<File>(new String[]{"--nonAppUnzip"}, "deepUnzip", "deepUnarchive")
+	public static Command<File> deepUnzip = new Command<File>(new String[]{"--nonAppUnzip", "--noExt"}, "deepUnzip", "deepUnarchive")
 	{
 		@Override
 		public String[] displayArgs() 
@@ -719,7 +719,7 @@ public class Commands {
 				try
 				{
 					if(!params.hasFlag("nonAppUnzip"))
-						JarUtil.deepUnzip(file);
+						JarUtil.deepUnzip(file, !params.hasFlag("noExt"));
 					else
 						JarUtil.deepNonAppUnzip(new DummyList<File>(), file);
 				}
