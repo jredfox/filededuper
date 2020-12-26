@@ -210,7 +210,7 @@ public class OSUtil {
 	 */
 	public static File toOSFile(File file)
 	{
-		String invalid = "*/<>?\":|";//java replaces trailing "\" or "/" and you can't get a file name with "/\" in java so don't check it
+		String invalid = "*/<>?\":|'";//java replaces trailing "\" or "/" and you can't get a file name with "/\" in java so don't check it
 		if(SelfCommandPrompt.containsAny(file.getPath(), invalid))
 		{
 			file = filter(file, invalid);
